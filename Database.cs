@@ -2,25 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO;
+using RSTUtils;
 using UnityEngine;
 
 namespace ResearchBodies
 {
-    //[KSPAddon(KSPAddon.Startup.PSystemSpawn, true)]
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class Database : MonoBehaviour
     {
+        //This is a deprecated dictionary that stores Priority #'s against the CelestialBodies. Loaded from PRIORITIES node in database.cfg
         public static Dictionary<CelestialBody, int> Priority = new Dictionary<CelestialBody, int>();
+        //This is a dictionary of the Discovery Messages for the CelestialBodies. Loaded from ONDISCOVERY node in database.cfg
         public static Dictionary<string, string> DiscoveryMessage = new Dictionary<string, string>();
+        //This is a dictionary of the Ignore Levels for each CelestialBody for each difficulty level. Loaded from IGNORELEVELS node in database.cfg.
         public static Dictionary<CelestialBody, BodyIgnoreData> IgnoreData = new Dictionary<CelestialBody, BodyIgnoreData>();
+        //This is a temporary dictionary until I can re-write the storage solution for this mod. Being used now for the Kopernicus Barycenter info and related
+        //celestial body only.
+        public static Dictionary<CelestialBody, CelestialBodyInfo> CelestialBodies = new Dictionary<CelestialBody, CelestialBodyInfo>();
+
         public static Texture2D IconTexture;
         public static List<CelestialBody> IgnoreBodies = new List<CelestialBody>();
+        //This is a list of Nothing to See here strings loaded from NOTHING node in database.cfg
         public static List<string> NothingHere = new List<string>();
         // public static Dictionary<CelestialBody, Texture2D> BlurredTextures = new Dictionary<CelestialBody, Texture2D>();
         public static int chances;
         public static int[] StartResearchCosts, ProgressResearchCosts, ScienceRewards;
         public static bool enableInSandbox, allowTSlevel1 = false;
+        internal static bool UseAppLauncher = true;
 
         /// <summary>
         /// Tarsier Space Tech Interface fields
@@ -28,28 +36,9 @@ namespace ResearchBodies
         internal bool isTSTInstalled = false;
         internal static List<CelestialBody> TSTCBGalaxies = new List<CelestialBody>();
         public static List<CelestialBody> BodyList = new List<CelestialBody>();
+        
 
-
-        public static Level GetLevel(int i)
-        {
-            Level _l = Level.Easy;
-            switch (i)
-            {
-                case 0:
-                    _l = Level.Easy;
-                    break;
-                case 1 :
-                    _l = Level.Normal;
-                    break;
-                case 2:
-                    _l = Level.Medium;
-                    break;
-                case 3:
-                    _l = Level.Hard;
-                    break;
-            }
-            return _l;
-        }
+        //This is only called by the Startup Menu GUI to show ignored bodies based on the level passed in. 
         public static string GetIgnoredBodies(Level l) 
         {
             string _bodies = Locales.currentLocale.Values["start_availableBodies"] + " : ";
@@ -59,9 +48,10 @@ namespace ResearchBodies
             }
             return _bodies;
         }
+
         void Start()
         {
-            isTSTInstalled = AssemblyLoader.loadedAssemblies.Any(a => a.assembly.GetName().Name == "TarsierSpaceTech");
+            isTSTInstalled = Utilities.IsTSTInstalled;
             if (isTSTInstalled)  //If TST assembly is present, initialise TST wrapper.
             {
                 if (!TSTWrapper.InitTSTWrapper())
@@ -70,17 +60,24 @@ namespace ResearchBodies
                 }
             }
 
-            BodyList = FlightGlobals.Bodies;
-            if (isTSTInstalled && TSTWrapper.APITSTReady)
+            Textures.LoadIconAssets();
+
+            //Get a list of CBs
+            BodyList = FlightGlobals.Bodies.ToList(); 
+            if (isTSTInstalled && TSTWrapper.APITSTReady) //If TST is installed add the TST Galaxies to the list.
             {
                 BodyList = BodyList.Concat(TSTWrapper.actualTSTAPI.CBGalaxies).ToList();
             }
-
-            IconTexture = GameDatabase.Instance.GetTexture("ResearchBodies/images/icon", false);
-            ConfigNode cfg = ConfigNode.Load("GameData/ResearchBodies/database.cfg");
             
-            string[] _startResearchCosts;
+            IconTexture = GameDatabase.Instance.GetTexture("ResearchBodies/Icons/icon", false);
+
+            //Load the database.cfg file.
+            //===========================
+            ConfigNode cfg = ConfigNode.Load("GameData/ResearchBodies/database.cfg");
             string[] sep = new string[] { " " };
+
+            //Get Costs
+            string[] _startResearchCosts;
             _startResearchCosts = cfg.GetNode("RESEARCHBODIES").GetValue("StartResearchCosts").Split(sep, StringSplitOptions.RemoveEmptyEntries);
             StartResearchCosts = new int[] { int.Parse(_startResearchCosts[0]), int.Parse(_startResearchCosts[1]), int.Parse(_startResearchCosts[2]), int.Parse(_startResearchCosts[3]) };
 
@@ -92,25 +89,32 @@ namespace ResearchBodies
             _scienceRewards = cfg.GetNode("RESEARCHBODIES").GetValue("ScienceRewards").Split(sep, StringSplitOptions.RemoveEmptyEntries);
             ScienceRewards = new int[] { int.Parse(_scienceRewards[0]), int.Parse(_scienceRewards[1]), int.Parse(_scienceRewards[2]), int.Parse(_scienceRewards[3]) };
 
-            Log.log("[ResearchBodies] Loading Priority database");
+
+
+            RSTLogWriter.Log_Debug("Loading Priority database");
             foreach (CelestialBody body in BodyList)
             {
+                //Load the priorities - DEPRECATED
                 string name = body.GetName();
                 foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("PRIORITIES").values)
                 {
                     if (name == value.name)
                     {
                         Priority[body] = int.Parse(value.value);
-                        Log.log("[ResearchBodies] Priority for body " + name + " set to " + value.value + ".");
+                        RSTLogWriter.Log_Debug("Priority for body {0} set to {1}.", name , value.value);
                     }
                 }
+                //Load the ondiscovery values - English only, which then get over-written in Locale.cs
                 foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("ONDISCOVERY").values)
                 {
                     if (value.name == name)
                         DiscoveryMessage[value.name] = value.value;
                 }
+                //IF current body is not in discovery message dictionary we add it with default string
                 if (!DiscoveryMessage.ContainsKey(body.GetName()))
                     DiscoveryMessage[body.GetName()] = "Now tracking " + name + " !";
+
+                //This WOULD load the blurredTextures that we want to implement.
                 // if (cfg.GetNode("RESEARCHBODIES").HasValue("blurredTextures"))
                 // {
                 //    foreach (string str in Directory.GetFiles(cfg.GetNode("RESEARCHBODIES").GetValue("blurredTextures")))
@@ -120,41 +124,149 @@ namespace ResearchBodies
                 //    }
                 // }
             }
-            Log.log("[ResearchBodies] Loading ignore body list from database");
+
+            //Load the IgnoreData dictionary.
+            RSTLogWriter.Log_Debug("Loading ignore body list from database");
             foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("IGNORELEVELS").values)
             {
                 foreach (CelestialBody body in BodyList)
                 {
                     if (body.GetName() == value.name)
                     {
+                        BodyIgnoreData ignoredata;
                         string[] args;
                         args = value.value.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                        IgnoreData[body] = new BodyIgnoreData(bool.Parse(args[0]), bool.Parse(args[1]), bool.Parse(args[2]), bool.Parse(args[3]));
-
-                        Log.log("Body Ignore Data for " + body.GetName() + " : " + IgnoreData[body].ToString());
+                        if (body.Radius < 100) //Set Kopernicus barycenter and binaries to ignore.
+                        {
+                            ignoredata = new BodyIgnoreData(true, true, true, true);
+                        }
+                        else
+                        {
+                            ignoredata = new BodyIgnoreData(bool.Parse(args[0]), bool.Parse(args[1]), bool.Parse(args[2]), bool.Parse(args[3]));   
+                        }
+                        IgnoreData[body] = ignoredata;
+                        RSTLogWriter.Log_Debug("Body Ignore Data for {0} : {1}" , body.GetName() , IgnoreData[body]);
                     }
                 }
             }
+            //Create default entries for any CBs that weren't in the database config file.
             foreach (CelestialBody body in BodyList)
             {
                 if (!IgnoreData.ContainsKey(body))
                 {
-                    IgnoreData[body] = new BodyIgnoreData(false, false, false, false);
+                    if (body.Radius < 100) //Set Kopernicus barycenter and binaries to ignore.
+                    {
+                        IgnoreData[body] = new BodyIgnoreData(true, true, true, true);
+                    }
+                    else
+                    {
+                        IgnoreData[body] = new BodyIgnoreData(false, false, false, false);
+                    }
+                    
                 }
             }
+
+            //Load the NothingHere dictionary from the database config file.
             foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("NOTHING").values)
             {
                 if (value.name == "text")
                     NothingHere.Add(value.value);
             }
-            Log.log("[ResearchBodies] Loading mods databases");
+            
+            LoadModDatabaseNodes();
+            
+            //So this is deprecated? Checks all CBs are in the Priority dictionary. Any that aren't are added with priority set to 3.
+            foreach (CelestialBody cb in BodyList)
+            {
+                if (!Priority.Keys.Contains(cb) && !IgnoreBodies.Contains(cb))
+                {
+                    Priority[cb] = 3;
+                    RSTLogWriter.Log("Config not found for {0}, priority set to 3." , cb.GetName());
+                }
+            }
+
+            chances = int.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("chances"));
+            RSTLogWriter.Log_Debug("Chances to get a body is set to {0}" , chances);
+            enableInSandbox = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("enableInSandbox"));
+            allowTSlevel1 = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowTrackingStationLvl1"));
+            if (cfg.GetNode("RESEARCHBODIES").HasValue("useAppLauncher"))
+            {
+                UseAppLauncher = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("useAppLauncher"));
+            }
+            RSTLogWriter.Log_Debug("Loaded gamemode-related information : enable mod in sandbox = {0}, allow tracking with Tracking station lvl 1 = {1}" , enableInSandbox , allowTSlevel1);
+
+
+            // Load locales for OnDiscovery - Locales are loaded Immediately gamescene. Before this is loaded in MainMenu.
+            if (Locales.currentLocale.LocaleId != "en")
+            {
+                foreach (CelestialBody body in BodyList)
+                {
+                    if (Locales.currentLocale.Values.ContainsKey("discovery_" + body.GetName()) && DiscoveryMessage.ContainsKey(body.GetName()))
+                    {
+                        DiscoveryMessage[body.GetName()] = Locales.currentLocale.Values["discovery_" + body.GetName()];
+                    }
+                }
+            }
+
+            foreach (CelestialBody body in BodyList)
+            {
+                CelestialBodyInfo bodyinfo = new CelestialBodyInfo(body.name);
+                if (body.Radius < 100)  //This body is a barycenter
+                {
+                    bodyinfo.KOPbarycenter = true;
+                }
+                else
+                {
+                    if (body.referenceBody.Radius < 100) // This Bodies Reference Body has a Radius < 100m. IE: It's Part of a Barycenter.
+                    {
+                        bodyinfo.KOPrelbarycenterBody = body.referenceBody; //Yeah so what... well we need it for pass 2 below.
+                    }
+                }
+                CelestialBodies.Add(body, bodyinfo);
+            }
+            //Now we look back through any CBs that were related to a barycenter body.
+            foreach (var CB in CelestialBodies.Where(a => a.Value.KOPrelbarycenterBody != null))
+            {
+                //So does this body have any orbintingBodies?
+                //If it does we need to somehow find and link any related Orbit Body.
+                foreach (CelestialBody orbitingBody in CB.Key.orbitingBodies)
+                {
+                    CelestialBody findOrbitBody =
+                        FlightGlobals.Bodies.FirstOrDefault(a => a.name.Contains(CB.Key.name) && a.name.Contains(orbitingBody.name) && a.name.Contains("Orbit"));
+                    //so if we found the related Orbit body we store it into the CelestialBodies dictionary.
+                    if (findOrbitBody != null)
+                    {
+                        CelestialBodies[orbitingBody].KOPrelbarycenterBody = findOrbitBody;
+                    }
+                }
+            }
+        }
+
+        /* Not sure why this is here, it isn't used.
+        public static T CopyComponent<T>(T original, GameObject destination) where T : Component
+        {
+            System.Type type = original.GetType();
+            Component copy = destination.AddComponent(type);
+            System.Reflection.FieldInfo[] fields = type.GetFields();
+            foreach (System.Reflection.FieldInfo field in fields)
+            {
+                field.SetValue(copy, field.GetValue(original));
+            }
+            return copy as T;
+        }*/
+
+        private void LoadModDatabaseNodes()
+        {
+            string[] sep = new string[] { " " };
+            //Load all Mod supplied database config files.
+            RSTLogWriter.Log_Debug("Loading mods databases");
             ConfigNode[] modNodes = GameDatabase.Instance.GetConfigNodes("RESEARCHBODIES");
             foreach (ConfigNode node in modNodes)
             {
                 if (node.GetValue("loadAs") == "mod")
                 {
                     if (node.HasValue("name"))
-                        Log.log("[ResearchBodies] Loading " + node.GetValue("name") + " configuration");
+                        RSTLogWriter.Log_Debug("Loading {0} configuration", node.GetValue("name"));
                     if (node.HasNode("PRIORITIES"))
                     {
                         foreach (CelestialBody body in BodyList)
@@ -165,12 +277,12 @@ namespace ResearchBodies
                                 if (name == value.name)
                                 {
                                     Priority[body] = int.Parse(value.value);
-                                    Log.log("[ResearchBodies] Priority for body " + name + " set to " + value.value);
+                                    RSTLogWriter.Log_Debug("Priority for body {0} set to {1}", name, value.value);
                                 }
-                                else if ( "*" + name == value.name)
+                                else if ("*" + name == value.name)
                                 {
                                     Priority[body] = int.Parse(value.value);
-                                    Log.log("[ResearchBodies] Priority for body " + name + " set to " + value.value + ", overriding old value.");
+                                    RSTLogWriter.Log_Debug("Priority for body {0} set to {1}, overriding old value.", name, value.value);
                                 }
                             }
                         }
@@ -210,7 +322,7 @@ namespace ResearchBodies
                                     if (value.value == cb.GetName())
                                     {
                                         IgnoreData[cb] = new BodyIgnoreData(false, false, false, false);
-                                        Log.log("[ResearchBodies] Added " + cb.GetName() + " to the ignore list (pre-1.5 method !)");
+                                        RSTLogWriter.Log_Debug("Added {0}  to the ignore list (pre-1.5 method !)", cb.GetName());
                                     }
                                 }
                             }
@@ -221,7 +333,7 @@ namespace ResearchBodies
                                     if (value.value == cb.GetName() && IgnoreBodies.Contains(cb))
                                     {
                                         IgnoreData[cb] = new BodyIgnoreData(true, true, true, true);
-                                        Log.log("[ResearchBodies] Removed " + cb.GetName() + " from the ignore list (pre-1.5 method!)");
+                                        RSTLogWriter.Log_Debug("Removed {0}  from the ignore list (pre-1.5 method!)", cb.GetName());
                                     }
                                 }
                             }
@@ -239,51 +351,13 @@ namespace ResearchBodies
                                     args = value.value.Split(sep, StringSplitOptions.RemoveEmptyEntries);
                                     IgnoreData[body] = new BodyIgnoreData(bool.Parse(args[0]), bool.Parse(args[1]), bool.Parse(args[2]), bool.Parse(args[3]));
 
-                                    Log.log("Body Ignore Data for " + body.GetName() + " : " + IgnoreData[body].ToString());
+                                    RSTLogWriter.Log_Debug("Body Ignore Data for {0} : {1}", body.GetName(), IgnoreData[body].ToString());
                                 }
                             }
                         }
                     }
                 }
             }
-            foreach (CelestialBody cb in BodyList)
-            {
-                if (!Priority.Keys.Contains(cb) && !IgnoreBodies.Contains(cb))
-                {
-                    Priority[cb] = 3;
-                    Log.logWarn("[ResearchBodies] Config not found for " + cb.GetName() + ", priority set to 3.");
-                }
-            }
-            chances = int.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("chances"));
-            Log.log("[ResearchBodies] Chances to get a body set to " + chances);
-            enableInSandbox = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("enableInSandbox"));
-            allowTSlevel1 = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowTrackingStationLvl1"));
-            Log.log("[ResearchBodies] Loaded gamemode-related informations : enable mod in sandbox = " + enableInSandbox + ", allow tracking with Tracking station lvl 1 = " + allowTSlevel1);
-
-
-            // Load locales for OnDiscovery
-            if (Locales.currentLocale.LocaleId != "en")
-            {
-                foreach (CelestialBody body in BodyList)
-                {
-                    if (Locales.currentLocale.Values.ContainsKey("discovery_" + body.GetName()) && DiscoveryMessage.ContainsKey(body.GetName()))
-                    {
-                        DiscoveryMessage[body.GetName()] = Locales.currentLocale.Values["discovery_" + body.GetName()];
-                    }
-                }
-            }
-        }
-
-        public static T CopyComponent<T>(T original, GameObject destination) where T : Component
-        {
-            System.Type type = original.GetType();
-            Component copy = destination.AddComponent(type);
-            System.Reflection.FieldInfo[] fields = type.GetFields();
-            foreach (System.Reflection.FieldInfo field in fields)
-            {
-                field.SetValue(copy, field.GetValue(original));
-            }
-            return copy as T;
         }
     }
 
@@ -324,51 +398,7 @@ namespace ResearchBodies
         }
     }
 
-    public enum Level
-    {
-        Easy,
-        Normal,
-        Medium,
-        Hard
-    }
+    
 
-    [KSPAddon(KSPAddon.Startup.Instantly, true)]
-    public class Log : MonoBehaviour
-    {
-        static TextWriter Tw;
-        void Awake() { DontDestroyOnLoad(this); }
-        void Start()
-        {
-            if (File.Exists("GameData/ResearchBodies/researchbodies.log"))
-                File.Delete("GameData/ResearchBodies/researchbodies.log");
-            Tw = new StreamWriter("GameData/ResearchBodies/researchbodies.log");
-            Tw.WriteLine("ResearchBodies v1.6");
-            Tw.WriteLine("Loaded up on " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss tt") + ".");
-            Tw.WriteLine();
-            GameEvents.onGameSceneLoadRequested.Add(logSceneSwitch);
-        }
-        public void OnDestroy()
-        {
-            Tw.Close();
-        }
-        public static void log(object obj)
-        {
-            Debug.Log(obj);
-            Tw.WriteLine(DateTime.Now.ToString("HH:mm:ss tt") + " [LOG] " + obj);
-        }
-        public static void logWarn(object obj)
-        {
-            Debug.LogWarning(obj);
-            Tw.WriteLine(DateTime.Now.ToString("HH:mm:ss tt") + " [WRN] " + obj);
-        }
-        public static void logError(object obj)
-        {
-            Debug.LogError(obj);
-            Tw.WriteLine(DateTime.Now.ToString("HH:mm:ss tt") + " [ERR] " + obj);
-        }
-        private void logSceneSwitch(GameScenes scene)
-        {
-            Tw.WriteLine(DateTime.Now.ToString("HH:mm:ss tt") + " [KSP] ==== Scene Switch to " + scene.ToString() + " ! ====");
-        }
-    }
+    
 }

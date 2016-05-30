@@ -104,11 +104,14 @@ namespace RSTUtils
 			//if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null)  // Check if in flight
 			if (HighLogic.LoadedSceneIsFlight)
 			{
-				if (FlightGlobals.fetch != null && FlightGlobals.ActiveVessel != null)
+				if (FlightGlobals.fetch != null)
 				{
-					if (FlightGlobals.ActiveVessel.isEVA) // EVA kerbal
+					if (FlightGlobals.ActiveVessel != null)
 					{
-						return GameState.EVA;
+						if (FlightGlobals.ActiveVessel.isEVA) // EVA kerbal
+						{
+							return GameState.EVA;
+						}
 					}
 				}
 				return GameState.FLIGHT;
@@ -135,7 +138,21 @@ namespace RSTUtils
 			return DstFrmHome;
 		}
 
-		public static bool CelestialBodyDistancetoSun(CelestialBody cb, out Vector3d sun_dir, out double sun_dist)
+        public static double DistanceFromHomeWorld(string bodyname)
+        {
+            CelestialBody body = FlightGlobals.Bodies.FirstOrDefault(a => a.name == bodyname);
+            if (body == null) body = Planetarium.fetch.Home;
+            Vector3d bodyPos = body.getPositionAtUT(0);
+            CelestialBody HmePlanet = Planetarium.fetch.Home;
+            Log_Debug("Home = " + HmePlanet.name + " Pos = " + HmePlanet.getPositionAtUT(0));
+            Log_Debug("Body Pos = " + bodyPos);
+            Vector3d hmeplntPos = HmePlanet.getPositionAtUT(0);
+            double DstFrmHome = Math.Sqrt(Math.Pow(bodyPos.x - hmeplntPos.x, 2) + Math.Pow(bodyPos.y - hmeplntPos.y, 2) + Math.Pow(bodyPos.z - hmeplntPos.z, 2));
+            Log_Debug("Distance from Home Planet = " + DstFrmHome);
+            return DstFrmHome;
+        }
+
+        public static bool CelestialBodyDistancetoSun(CelestialBody cb, out Vector3d sun_dir, out double sun_dist)
 		{
 			// bodies traced against
 			CelestialBody sun = FlightGlobals.Bodies[0];
@@ -867,35 +884,7 @@ namespace RSTUtils
 			scaledScreenWidth = Mathf.RoundToInt(Screen.width / 1);
 			scaledScreenset = true;
 		}
-
-		internal static bool WindowVisibile(Rect winpos)
-		{
-			if (!scaledScreenset) setScaledScreen();
-			float minmargin = 20.0f; // 20 bytes margin for the window
-			float xMin = minmargin - winpos.width;
-			float xMax = scaledScreenWidth - minmargin;
-			float yMin = minmargin - winpos.height;
-			float yMax = scaledScreenHeight - minmargin;
-			bool xRnge = (winpos.x > xMin) && (winpos.x < xMax);
-			bool yRnge = (winpos.y > yMin) && (winpos.y < yMax);
-			return xRnge && yRnge;
-		}
-
-		internal static Rect MakeWindowVisible(Rect winpos)
-		{
-			if (!scaledScreenset) setScaledScreen();
-			float minmargin = 20.0f; // 20 bytes margin for the window
-			float xMin = minmargin - winpos.width;
-			float xMax = scaledScreenWidth - minmargin;
-			float yMin = minmargin - winpos.height;
-			float yMax = scaledScreenHeight - minmargin;
-
-			winpos.x = Mathf.Clamp(winpos.x, xMin, xMax);
-			winpos.y = Mathf.Clamp(winpos.y, yMin, yMax);
-
-			return winpos;
-		}
-
+		
 		internal static RectOffset SetRectOffset(RectOffset tmpRectOffset, int intValue)
 		{
 			return SetRectOffset(tmpRectOffset, intValue, intValue, intValue, intValue);
@@ -1302,6 +1291,14 @@ namespace RSTUtils
 			}
 		}
 
+		internal static bool IsTSTInstalled
+		{
+			get
+			{
+				return IsModInstalled("TarsierSpaceTech");
+			}
+		}
+
 		internal static bool IsOPMInstalled
 		{
 			get
@@ -1315,7 +1312,20 @@ namespace RSTUtils
 			}
 		}
 
-		internal static bool IsModInstalled(string assemblyName)
+        internal static bool IsNHInstalled
+        {
+            get
+            {
+                CelestialBody sonnah = FlightGlobals.Bodies.FirstOrDefault(a => a.name == "Sonnah");
+                if (sonnah != null)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        internal static bool IsModInstalled(string assemblyName)
 		{
 			Assembly assembly = (from a in assemblies
 								 where a.FullName.Contains(assemblyName)
