@@ -1,20 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using System.IO;
+using RSTUtils;
 
 namespace ResearchBodies
 {
-    [KSPAddon(KSPAddon.Startup.Instantly, true)]
+    [KSPAddon(KSPAddon.Startup.PSystemSpawn, true)]
     public class Locales : MonoBehaviour
     {
-        void Awake() { DontDestroyOnLoad(this); }
+        public void Awake()
+        {
+            DontDestroyOnLoad(this);
+        }
         public static List<Locale> locales = new List<Locale>();
         public static Locale currentLocale;
         private Locale precedentLocale; private bool status = true; // true = save, false = check
-        void Start()
+
+        public void Start()
         {
             ConfigNode[] cfgs = GameDatabase.Instance.GetConfigNodes("RESEARCHBODIES");
             foreach (ConfigNode node in cfgs)
@@ -23,7 +26,7 @@ namespace ResearchBodies
                 {
                     Locale l = new Locale(node);
                     locales.Add(l);
-                    Log.log("[ResearchBodies] Added locale \"" + l.LocaleId + "\"");
+                    RSTLogWriter.Log_Debug("Added locale \"{0}\"" , l.LocaleId);
                 }
             }
 
@@ -36,7 +39,7 @@ namespace ResearchBodies
                     if (l.LocaleId == line)
                     {
                         currentLocale = l;
-                        Log.log("[ResearchBodies] Loaded " + l.LocaleFull + " from cache");
+                        RSTLogWriter.Log_Debug("Loaded {0}  from cache" , l.LocaleFull);
                     }
                 }
                 sr.Close();
@@ -54,10 +57,11 @@ namespace ResearchBodies
             }
 
             if (locales.Count == 0)
-                Log.log("[ResearchBodies] No locale added !");
+                RSTLogWriter.Log_Debug("No locale added !");
             else
-                Log.log("[ResearchBodies] Added " + locales.Count.ToString() + " locales");
+                RSTLogWriter.Log_Debug("Added {0}  locales", locales.Count);
         }
+
         public static void Save(Locale l)
         {
             if (File.Exists("GameData/ResearchBodies/Plugins/PluginData/cacheLocale")) File.Delete("GameData/ResearchBodies/Plugins/PluginData/cacheLocale");
@@ -65,6 +69,7 @@ namespace ResearchBodies
             tw.Write(l.LocaleId);
             tw.Close();
         }
+
         public static void LoadDiscoveryMessages()
         {
             if (currentLocale.LocaleId == "en")

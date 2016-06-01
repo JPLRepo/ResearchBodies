@@ -4,18 +4,22 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.IO;
+using RSTUtils;
+using RSTUtils.Extensions;
 
 namespace ResearchBodies
 {
     public class ModuleTrackBodies : PartModule
     {
-        List<CelestialBody> celestialBodiesNear = new List<CelestialBody>();
+        //List<CelestialBody> celestialBodiesNear = new List<CelestialBody>();
         private bool enable = true, showGUI = false, foundBody = false, withParent = false, canResearch = true;
+        private bool foundBodyTooWeak = false;
         private string bodyFound, parentBody, nothing;
         // private Rect bodyFoundRect, parentBodyFoundRect;
         public Dictionary<CelestialBody, bool> TrackedBodies = new Dictionary<CelestialBody, bool>();
         public Dictionary<CelestialBody, int> ResearchState = new Dictionary<CelestialBody, int>();
         private Rect windowRect = new Rect(10, 10, 250, 250); // 10,10,250,350
+        private int _partwindowID;
         private System.Random random = new System.Random();
         [KSPField]
         public int difficulty;
@@ -40,8 +44,14 @@ namespace ResearchBodies
         /// Tarsier Space Tech Interface fields
         /// </summary>
         private bool isTSTInstalled = false;
-        private List<CelestialBody> TSTCBGalaxies = new List<CelestialBody>();
+        //private List<CelestialBody> TSTCBGalaxies = new List<CelestialBody>();
         private List<CelestialBody> BodyList = new List<CelestialBody>();
+        private CelestialBody cb;
+        private List<CelestialBody> BodiesInView = new List<CelestialBody>();
+        private Vector3 hostPos;
+        private Vector3 targetPos;
+        private float angle;
+        private double distance;
 
 
         public override void OnAwake()
@@ -60,6 +70,7 @@ namespace ResearchBodies
                 if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX && !Database.enableInSandbox)
                     enable = false;
                 LoadConfig();
+                _partwindowID = Utilities.getnextrandomInt();
             }
         }
         public void LoadConfig()
@@ -172,7 +183,12 @@ namespace ResearchBodies
         }
         public void OnGUI()
         {
-            if (showGUI) windowRect = GUI.Window(525, windowRect, DrawWindow, Locales.currentLocale.Values["telescope_trackBodies"], HighLogic.Skin.window);
+            if (showGUI)
+            {
+                GUI.skin = HighLogic.Skin;
+                windowRect.ClampToScreen();
+                windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Locales.currentLocale.Values["telescope_trackBodies"]);
+            }
         }
         [KSPEvent(guiName = "Research Bodies", guiActiveEditor = false, guiActive = true)]
         public void ToggleGUI()
@@ -185,15 +201,19 @@ namespace ResearchBodies
             else
                 ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["telescope_mustBeInSpace"], minAltitude), 3.0f, ScreenMessageStyle.UPPER_CENTER);
         }
-        void DrawWindow(int windowID = 525)
+        void DrawWindow(int windowID)
         {
-            Rect scrollViewRect = new Rect(5, 40, 240, 170);
-            GUI.DragWindow(new Rect(0, 0, 250, 32));
-            // scrollViewVector = GUI.BeginScrollView(scrollViewRect, scrollViewVector, new Rect(0, 0, 600, 600), HighLogic.Skin.horizontalScrollbar, HighLogic.Skin.verticalScrollbar);
-            if (GUI.Button(new Rect(5, 40, 240, 40), Locales.currentLocale.Values["telescope_trackBodies"]/*GameDatabase.Instance.GetTexture("ResearchBodies/images/space", false)*/, HighLogic.Skin.button))
+            //Rect scrollViewRect = new Rect(5, 40, 240, 170);
+            
+            GUILayout.BeginVertical();
+            scrollViewVector = GUILayout.BeginScrollView(scrollViewVector);
+            GUILayout.BeginVertical();
+            GUILayout.Label(string.Format(Locales.currentLocale.Values["telescope_trackBodies_EC"], electricChargeRequest));
+            if (GUILayout.Button(Locales.currentLocale.Values["telescope_trackBodies"]/*GameDatabase.Instance.GetTexture("ResearchBodies/images/space", false)*/)) //new Rect(5, 40, 240, 40), 
             {
                 // SpaceTexture = Database.RandomSpaceTexture;
                 nothing = Database.NothingHere[random.Next(Database.NothingHere.Count)];
+                foundBodyTooWeak = false;
                 // bodyFoundRect = new Rect(5 + random.Next(195), 250 + random.Next(50), 45, 45);
                 // parentBodyFoundRect = new Rect(5 + random.Next(205), 250 + random.Next(60), 35, 35);
                 if (requiresPart)
@@ -214,15 +234,23 @@ namespace ResearchBodies
                 difficulty++;
                 if ((random.Next(Database.chances + difficulty) == 1 || random.Next(Database.chances + difficulty) == 2) && canResearch)
                 {
-                    CelestialBody cb;
-                    List<CelestialBody> BodiesInView = new List<CelestialBody>();
                     foreach (CelestialBody body in BodyList)
                     {
-                        Vector3 hostPos = this.part.transform.position;
-                        Vector3 targetPos = body.transform.position;
-                        float angle = Vector3.Angle((targetPos - hostPos), this.part.transform.up);
-                        if (Vector3d.Distance(body.transform.position, this.vessel.transform.position) <= maxTrackDistance && angle <= viewAngle)
-                            BodiesInView.Add(body);
+                        hostPos = this.part.transform.position;
+                        targetPos = body.transform.position;
+                        angle = Vector3.Angle(targetPos - hostPos, this.part.transform.up);
+                        distance = Vector3d.Distance(body.transform.position, this.vessel.transform.position);
+                        if (angle <= viewAngle)
+                        {
+                            if (distance <= maxTrackDistance)
+                            {
+                                BodiesInView.Add(body);
+                            }
+                            else
+                            {
+                                foundBodyTooWeak = true;
+                            }
+                        }
                     }
                     cb = BodiesInView[random.Next(BodiesInView.Count)];
                     if (!TrackedBodies[cb])
@@ -259,7 +287,7 @@ namespace ResearchBodies
                                 }
                                 catch { }
                             }
-                            Log.log("[ResearchBodies] Found body " + cb.GetName() + " orbiting around " + cb.referenceBody.GetName() + " !");
+                            RSTLogWriter.Log_Debug("Found body {0} orbiting around {1} !" , cb.GetName() , cb.referenceBody.GetName());
                         }
                         else
                         {
@@ -272,7 +300,7 @@ namespace ResearchBodies
                                     node.SetValue("isResearched", "true");
                                 }
                             }
-                            Log.log("[ResearchBodies] Found body " + cb.GetName() + " !");
+                            RSTLogWriter.Log_Debug("Found body {0} !" , cb.GetName());
                         }
                         bodyFound = cb.GetName();
                         mainnode.Save("saves/" + HighLogic.SaveFolder + "/researchbodies.cfg");
@@ -282,26 +310,38 @@ namespace ResearchBodies
                 }
                 else { foundBody = false; }
             } //endif button
-            // GUI.EndScrollView();
+            
             // GUI.DrawTexture(new Rect(5, 250, 240, 95), SpaceTexture);
             if (foundBody)
             {
                 if (withParent)
                 {
-                    GUI.Label(new Rect(5, 82, 240, 163), Database.DiscoveryMessage[bodyFound] + " \r" + Database.DiscoveryMessage[parentBody], HighLogic.Skin.label);
+                    GUILayout.Label(Database.DiscoveryMessage[bodyFound] + " \n" + Database.DiscoveryMessage[parentBody]); //new Rect(5, 82, 240, 163),
+                    //GUILayout.Label(Database.DiscoveryMessage[bodyFound] + " \r" + Database.DiscoveryMessage[parentBody]); //new Rect(5, 82, 240, 163), 
                     // Graphics.DrawTexture(parentBodyFoundRect, Database.Textures["pointBig"], new Rect(0,0,Database.Textures["pointBig"].width,Database.Textures["pointBig"].height), 0, 0, 0, 0, Database.Colors[Database.GetBodyByName(parentBody)]);
                     // Graphics.DrawTexture(bodyFoundRect, Database.Textures["pointSmall"], new Rect(0, 0, Database.Textures["pointSmall"].width, Database.Textures["pointSmall"].height), 0, 0, 0, 0, Database.Colors[Database.GetBodyByName(bodyFound)]);
                 }
                 else
                 {
-                    GUI.Label(new Rect(5, 82, 240, 163), Database.DiscoveryMessage[bodyFound], HighLogic.Skin.label);
+                    GUILayout.Label(Database.DiscoveryMessage[bodyFound]); //new Rect(5, 82, 240, 163), 
                     // Graphics.DrawTexture(bodyFoundRect, Database.Textures["pointBig"], new Rect(0, 0, Database.Textures["pointBig"].width, Database.Textures["pointBig"].height), 0, 0, 0, 0, Database.Colors[Database.GetBodyByName(bodyFound)]);
                 }
             }
             else
             {
-                GUI.Label(new Rect(5, 82, 240, 163), nothing, HighLogic.Skin.label);
+                if (foundBodyTooWeak)
+                {
+                    GUILayout.Label(Locales.currentLocale.Values["telescope_weaksignal"], HighLogic.Skin.label);
+                }
+                else
+                {
+                    GUILayout.Label(nothing, HighLogic.Skin.label); //new Rect(5, 82, 240, 163),
+                }
             }
+            GUILayout.EndVertical();
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
+            GUI.DragWindow();
         }
         public void SaveCfg()
         {
