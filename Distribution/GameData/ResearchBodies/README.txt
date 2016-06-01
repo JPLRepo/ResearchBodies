@@ -16,7 +16,7 @@ new zone of the sky, and if you're lucky... You find a new celestial body !
   (so you reset the ResearchBodies data)
 
 ==============================================
-ResearchBodies v1.7.2, released on May 26th, 2016                   
+ResearchBodies v1.7.2, released on June 1st, 2016                   
 ==============================================
 	      INSTALLATION
 ==============================================

@@ -168,24 +168,7 @@ namespace ResearchBodies
             LoadConfig();
             SetBodyDiscoveryLevels();
         }
-        private void ToggleGUI()
-        {
-            if (PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityDamage() > 0)
-                ScreenMessages.PostScreenMessage(Locales.currentLocale.Values["trackingStation_isDestroyed"], 3.0f, ScreenMessageStyle.UPPER_CENTER);
-           /* else if (PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityLevel() < 0.5)
-            {
-                if (Database.allowTSlevel1)
-                    showGUI = !showGUI;
-                else
-                    ScreenMessages.PostScreenMessage(Locales.currentLocale.Values["trackingStation_hasToBeLevel"], 3.0f, ScreenMessageStyle.UPPER_CENTER);
-            } */
-            else
-            {
-                showGUI = !showGUI;
-                // SpaceTexture = Database.RandomSpaceTexture;
-            }
-        }
-
+        
         public void Awake()
         {
             _startwindowId = Utilities.getnextrandomInt();

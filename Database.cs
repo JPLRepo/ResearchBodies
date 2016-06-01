@@ -42,7 +42,7 @@ namespace ResearchBodies
         public static string GetIgnoredBodies(Level l) 
         {
             string _bodies = Locales.currentLocale.Values["start_availableBodies"] + " : ";
-            foreach (CelestialBody body in BodyList.Where(b => IgnoreData[b].GetLevel(l)))
+            foreach (CelestialBody body in BodyList.Where(b => IgnoreData[b].GetLevel(l) && (b.Radius > 100 || b.name.Contains("TSTGalaxies"))))
             {
                 _bodies += body.GetName() + ", ";
             }
@@ -136,33 +136,21 @@ namespace ResearchBodies
                         BodyIgnoreData ignoredata;
                         string[] args;
                         args = value.value.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                        if (body.Radius < 100) //Set Kopernicus barycenter and binaries to ignore.
-                        {
-                            ignoredata = new BodyIgnoreData(true, true, true, true);
-                        }
-                        else
-                        {
-                            ignoredata = new BodyIgnoreData(bool.Parse(args[0]), bool.Parse(args[1]), bool.Parse(args[2]), bool.Parse(args[3]));   
-                        }
+                        ignoredata = new BodyIgnoreData(bool.Parse(args[0]), bool.Parse(args[1]), bool.Parse(args[2]), bool.Parse(args[3]));   
                         IgnoreData[body] = ignoredata;
                         RSTLogWriter.Log_Debug("Body Ignore Data for {0} : {1}" , body.GetName() , IgnoreData[body]);
                     }
                 }
             }
+
+            LoadModDatabaseNodes();
+
             //Create default entries for any CBs that weren't in the database config file.
             foreach (CelestialBody body in BodyList)
             {
                 if (!IgnoreData.ContainsKey(body))
                 {
-                    if (body.Radius < 100) //Set Kopernicus barycenter and binaries to ignore.
-                    {
-                        IgnoreData[body] = new BodyIgnoreData(true, true, true, true);
-                    }
-                    else
-                    {
-                        IgnoreData[body] = new BodyIgnoreData(false, false, false, false);
-                    }
-                    
+                    IgnoreData[body] = new BodyIgnoreData(false, false, false, false);
                 }
             }
 
@@ -172,8 +160,6 @@ namespace ResearchBodies
                 if (value.name == "text")
                     NothingHere.Add(value.value);
             }
-            
-            LoadModDatabaseNodes();
             
             //So this is deprecated? Checks all CBs are in the Priority dictionary. Any that aren't are added with priority set to 3.
             foreach (CelestialBody cb in BodyList)
@@ -207,11 +193,12 @@ namespace ResearchBodies
                     }
                 }
             }
-
+            
+            //Process Kopernicus Barycenter's.
             foreach (CelestialBody body in BodyList)
             {
                 CelestialBodyInfo bodyinfo = new CelestialBodyInfo(body.name);
-                if (body.Radius < 100)  //This body is a barycenter
+                if (body.Radius < 100 && !body.name.Contains("TSTGalaxies"))  //This body is a barycenter
                 {
                     bodyinfo.KOPbarycenter = true;
                 }
@@ -227,7 +214,7 @@ namespace ResearchBodies
             //Now we look back through any CBs that were related to a barycenter body.
             foreach (var CB in CelestialBodies.Where(a => a.Value.KOPrelbarycenterBody != null))
             {
-                //So does this body have any orbintingBodies?
+                //So does this body have any orbitingBodies?
                 //If it does we need to somehow find and link any related Orbit Body.
                 foreach (CelestialBody orbitingBody in CB.Key.orbitingBodies)
                 {
@@ -293,8 +280,13 @@ namespace ResearchBodies
                         {
                             foreach (ConfigNode.Value value in node.GetNode("ONDISCOVERY").values)
                             {
+                                if (body.GetName() == "Eeloo")
+                                {
+                                    // Stop here
+                                    RSTLogWriter.Log_Debug("Stop here");
+                                }
                                 if (value.name == body.GetName() || value.name == "*" + body.GetName())
-                                    DiscoveryMessage[value.name] = value.value;
+                                    DiscoveryMessage[body.GetName()] = value.value;
                             }
                             if (!DiscoveryMessage.ContainsKey(body.GetName()))
                                 DiscoveryMessage[body.GetName()] = "Now tracking " + body.GetName() + " !";

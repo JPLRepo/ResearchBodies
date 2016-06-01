@@ -60,7 +60,9 @@ namespace ResearchBodies
                 RSTLogWriter.Log("Unable to set GUI Styles to draw the GUI");
                 RSTLogWriter.Log("Exception: {0}", ex);
             }
-            
+
+            GUI.skin = HighLogic.Skin;
+
             if (RBMenuAppLToolBar.ShowHoverText)
             {
                 hoverwindow.xMin = Input.mousePosition.x - 200;
@@ -71,6 +73,12 @@ namespace ResearchBodies
                 hoverwindow = GUI.Window(_hoverwindowId, hoverwindow, DrawHoverwin, "Research Bodies", HighLogic.Skin.window);
             }
 
+            if (showStartUI)
+            {
+                startWindow.ClampInsideScreen();
+                startWindow = GUILayout.Window(_startwindowId, startWindow, DrawStartWindow, "ResearchBodies " + Locales.currentLocale.Values["misc_settings"]);
+            }
+
             if (!RBMenuAppLToolBar.GuiVisible || RBMenuAppLToolBar.gamePaused || RBMenuAppLToolBar.hideUI) return;
 
             if (PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityDamage() > 0)
@@ -79,7 +87,7 @@ namespace ResearchBodies
                 return;
             }
 
-            GUI.skin = HighLogic.Skin;
+            
             try
             {
                 if (RBMenuAppLToolBar.GuiVisible)
@@ -94,17 +102,13 @@ namespace ResearchBodies
                     settingsRect = GUILayout.Window(_settingswindowId, settingsRect, DrawSettings, Locales.currentLocale.Values["misc_settings"]);
                 }
 
-                if (showStartUI)
-                {
-                    startWindow.ClampInsideScreen();
-                    startWindow = GUILayout.Window(_startwindowId, startWindow, DrawStartWindow, "ResearchBodies " + Locales.currentLocale.Values["misc_settings"]);
-                }
+                
 
                 Utilities.DrawToolTip();
             }
             catch (Exception ex)
             {
-                RSTLogWriter.Log("Unable to draw FlightScene GUI");
+                RSTLogWriter.Log("Unable to draw GUI");
                 RSTLogWriter.Log("Exception: {0}", ex);
             }
 
