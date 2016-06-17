@@ -9,18 +9,15 @@ namespace ResearchBodies
     {
         public const string ConfigNodeName = "BODY";
 
-        public string body;
-        public bool isResearched;
-        public int researchState;
+        public string body;   //Body Name
+        public bool isResearched;  //True if this body is researched
+        public int researchState;  //This is the current discoveryinfo state
         public bool ignore;
-        public int priority;
-        public string discoveryString;
-        public bool easy;
-        public bool normal;
-        public bool medium;
-        public bool hard;
-        public bool KOPbarycenter;
-        public CelestialBody KOPrelbarycenterBody;
+        public int priority;       //Priority - isn't being used? Use it for contracts?
+        public string discoveryMessage;   //The message when we discover this body
+        public BodyIgnoreData IgnoreData; //Use when setting the difficulty at start of new game.
+        public bool KOPbarycenter;        //True if this body is actually a Kopernicus barycenter
+        public CelestialBody KOPrelbarycenterBody;  //Will be null unless this body's parent is a Kopernicus barycenter, then it will be set to that barycenter
         
 
         public CelestialBodyInfo(string inputbody)
@@ -30,8 +27,8 @@ namespace ResearchBodies
             researchState = 0;
             ignore = false;
             priority = 3;
-            discoveryString = "";
-            easy = normal = medium = hard = false;
+            discoveryMessage = "Now tracking " + inputbody + " !";
+            IgnoreData.Easy = IgnoreData.Normal = IgnoreData.Medium = IgnoreData.Hard = false;
             KOPbarycenter = false;
             KOPrelbarycenterBody = null;
         }

@@ -1,0 +1,14 @@
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\ProgressiveCBMaps.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\ProgressiveCBMaps.pdb
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\Assembly-CSharp.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\KSPUtil.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\UnityEngine.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\UnityEngine.UI.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\Assembly-CSharp-firstpass.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\SaveUpgradePipeline.Core.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\KSPAssets.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\Assembly-CSharp.xml
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\KSPUtil.xml
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\bin\Debug\UnityEngine.xml
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\obj\Debug\ProgressiveCBMaps.dll
+c:\users\jamieleighton\documents\visual studio 2015\Projects\ProgressiveCBMaps\ProgressiveCBMaps\obj\Debug\ProgressiveCBMaps.pdb

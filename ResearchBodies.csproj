@@ -33,16 +33,14 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\KSPDLLs\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\KSPDLLs - 1.1.3\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\KSPDLLs\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\KSPDLLs - 1.1.3\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="KSPUtil">
-      <HintPath>..\..\KSPDLLs\KSPUtil.dll</HintPath>
+      <HintPath>..\KSPDLLs - 1.1.3\KSPUtil.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,40 +48,43 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\KSPDLLs\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>..\KSPDLLs - 1.1.3\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\KSPDLLs\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\KSPDLLs - 1.1.3\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\REPOSoftTechKSPUtils\AppLauncherToolBarExtension.cs">
+    <Compile Include="..\REPOSoftTechKSPUtils\AppLauncherToolBarExtension.cs">
       <Link>AppLauncherToolBarExtension.cs</Link>
     </Compile>
-    <Compile Include="..\..\REPOSoftTechKSPUtils\RectExtentions.cs">
+    <Compile Include="..\REPOSoftTechKSPUtils\RectExtentions.cs">
       <Link>RectExtentions.cs</Link>
     </Compile>
-    <Compile Include="..\..\REPOSoftTechKSPUtils\RSTutilities.cs">
+    <Compile Include="..\REPOSoftTechKSPUtils\RSTutilities.cs">
       <Link>RSTutilities.cs</Link>
     </Compile>
-    <Compile Include="CelestialBodyInfo.cs" />
-    <Compile Include="..\..\REPOSoftTechKSPUtils\ToolBarManager.cs">
-      <Link>ToolBarManager.cs</Link>
+    <Compile Include="..\REPOSoftTechKSPUtils\ToolBarManager.cs">
+      <Link>API\ToolBarManager.cs</Link>
     </Compile>
+    <Compile Include="API\PCBMWrapper.cs" />
+    <Compile Include="BodyIgnoreData.cs" />
+    <Compile Include="CelestialBodyInfo.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Locale.cs" />
     <Compile Include="PartModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RBEnums.cs" />
-    <None Include="RBGameSettings.cs" />
+    <Compile Include="RBGameSettings.cs" />
     <Compile Include="RBInstructor.cs" />
     <Compile Include="ResearchBodies.cs" />
-    <Compile Include="ResearchBodiesGUI.cs" />
+    <Compile Include="ResearchBodiesController.cs" />
+    <Compile Include="ResearchBodiesControllerGUI.cs" />
     <Compile Include="RSTLogWriter.cs" />
     <Compile Include="Textures.cs" />
-    <Compile Include="TSTWrapper.cs" />
+    <Compile Include="API\TSTWrapper.cs" />
+    <Compile Include="VisualMaps.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Distribution\GameData\ModuleManager.2.6.24.dll" />

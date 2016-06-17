@@ -19,8 +19,7 @@ namespace ResearchBodies
         //This is a temporary dictionary until I can re-write the storage solution for this mod. Being used now for the Kopernicus Barycenter info and related
         //celestial body only.
         public static Dictionary<CelestialBody, CelestialBodyInfo> CelestialBodies = new Dictionary<CelestialBody, CelestialBodyInfo>();
-
-        public static Texture2D IconTexture;
+        
         public static List<CelestialBody> IgnoreBodies = new List<CelestialBody>();
         //This is a list of Nothing to See here strings loaded from NOTHING node in database.cfg
         public static List<string> NothingHere = new List<string>();
@@ -33,8 +32,7 @@ namespace ResearchBodies
         /// <summary>
         /// Tarsier Space Tech Interface fields
         /// </summary>
-        internal bool isTSTInstalled = false;
-        internal static List<CelestialBody> TSTCBGalaxies = new List<CelestialBody>();
+        internal static bool isTSTInstalled = false;
         public static List<CelestialBody> BodyList = new List<CelestialBody>();
         
 
@@ -69,8 +67,6 @@ namespace ResearchBodies
                 BodyList = BodyList.Concat(TSTWrapper.actualTSTAPI.CBGalaxies).ToList();
             }
             
-            IconTexture = GameDatabase.Instance.GetTexture("ResearchBodies/Icons/icon", false);
-
             //Load the database.cfg file.
             //===========================
             ConfigNode cfg = ConfigNode.Load("GameData/ResearchBodies/database.cfg");
@@ -197,7 +193,7 @@ namespace ResearchBodies
             //Process Kopernicus Barycenter's.
             foreach (CelestialBody body in BodyList)
             {
-                CelestialBodyInfo bodyinfo = new CelestialBodyInfo(body.name);
+                CelestialBodyInfo bodyinfo = new CelestialBodyInfo(body.GetName());
                 if (body.Radius < 100 && !body.name.Contains("TSTGalaxies"))  //This body is a barycenter
                 {
                     bodyinfo.KOPbarycenter = true;
@@ -352,45 +348,4 @@ namespace ResearchBodies
             }
         }
     }
-
-    public class BodyIgnoreData
-    {
-        public bool Easy, Normal, Medium, Hard;
-        public BodyIgnoreData(bool easy, bool normal, bool medium, bool hard)
-        {
-            Easy = easy;
-            Normal = normal;
-            Medium = medium;
-            Hard = hard;
-        }
-
-        public bool GetLevel(Level lvl)
-        {
-            bool x;
-            switch (lvl)
-            {
-                case Level.Easy:
-                    x = this.Easy;
-                    break;
-                case Level.Normal:
-                    x = this.Normal;
-                    break;
-                case Level.Medium:
-                    x = this.Medium;
-                    break;
-                default:
-                    x = this.Hard;
-                    break;
-            }
-            return x;
-        }
-        public override string ToString()
-        {
-            return this.Easy + " " + this.Normal + " " + this.Medium + " " + this.Hard;
-        }
-    }
-
-    
-
-    
 }

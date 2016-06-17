@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ResearchBodies
 {
-    public partial class ResearchBodies : MonoBehaviour
+    public partial class ResearchBodiesController : MonoBehaviour
     {
         #region InstructorVariables
         private KerbalInstructor _instructor;

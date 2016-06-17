@@ -15,7 +15,8 @@ namespace ResearchBodies
         }
         public static List<Locale> locales = new List<Locale>();
         public static Locale currentLocale;
-        private Locale precedentLocale; private bool status = true; // true = save, false = check
+        private Locale precedentLocale;
+        private bool status = true; // true = save, false = check
 
         public void Start()
         {
