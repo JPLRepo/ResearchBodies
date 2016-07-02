@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 using UnityEngine;
 using RSTUtils;
 
@@ -12,26 +10,24 @@ namespace ResearchBodies
     {
         public static ResearchBodies Instance;
         public static bool APIReady;
-        //internal DFSettings DFsettings;
         internal RBGameSettings RBgameSettings;
-        private readonly string globalConfigFilename;
-        private ConfigNode globalNode = new ConfigNode();
+        //private readonly string globalConfigFilename;
+        //private ConfigNode globalNode = new ConfigNode();
         private readonly List<Component> children = new List<Component>();
-
-        //public Dictionary<string, KerbalInfo> FrozenKerbals
-        //{
-        //    get { return DFgameSettings.KnownFrozenKerbals; }
-        //}
+        
+        public bool enabled
+        {
+            get { return RBgameSettings.Enabled;  }
+        }
 
         public ResearchBodies()
         {
             RSTLogWriter.Log("ResearchBodies Constructor");
             Instance = this;
             APIReady = false;
-            //DFsettings = new DFSettings();
             RBgameSettings = new RBGameSettings();
-            globalConfigFilename = Path.Combine(RSTLogWriter.AssemblyFolder, "PluginData/Config.cfg").Replace("\\", "/");
-            RSTLogWriter.Log("globalConfigFilename = " + globalConfigFilename);
+            //globalConfigFilename = Path.Combine(RSTLogWriter.AssemblyFolder, "PluginData/Config.cfg").Replace("\\", "/");
+            //RSTLogWriter.Log("globalConfigFilename = " + globalConfigFilename);
         }
 
         public override void OnAwake()
@@ -72,18 +68,19 @@ namespace ResearchBodies
             base.OnLoad(gameNode);
             RBgameSettings.Load(gameNode);
             // Load the global settings
-            if (File.Exists(globalConfigFilename))
-            {
-                globalNode = ConfigNode.Load(globalConfigFilename);
-                foreach (Savable s in children.Where(c => c is Savable))
-                {
-                    s.Load(globalNode);
-                }
-            }
+            //if (File.Exists(globalConfigFilename))
+            //{
+            //    globalNode = ConfigNode.Load(globalConfigFilename);
+            //    foreach (Savable s in children.Where(c => c is Savable))
+            //    {
+            //        s.Load(globalNode);
+            //    }
+            //}
             RSTLogWriter.debuggingOn = RBgameSettings.DebugLogging;
             APIReady = true;
             if (RSTLogWriter.debuggingOn)
-                RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnLoad: \n " + gameNode + "\n" + globalNode);
+                RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnLoad: \n ");
+            //    RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnLoad: \n " + gameNode + "\n" + globalNode);
             else
             {
                 RSTLogWriter.Log("ResearchBodies Scenario Onload Completed.");
@@ -94,13 +91,15 @@ namespace ResearchBodies
         {
             //APIReady = false;
             base.OnSave(gameNode);
-            foreach (Savable s in children.Where(c => c is Savable))
-            {
-                s.Save(globalNode);
-            }
-            globalNode.Save(globalConfigFilename);
+            RBgameSettings.Save(gameNode);
+            //foreach (Savable s in children.Where(c => c is Savable))
+            //{
+            //    s.Save(globalNode);
+            //}
+            //globalNode.Save(globalConfigFilename);
             if (RSTLogWriter.debuggingOn)
-                RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnSave: \n" + gameNode + "\n" + globalNode);
+                RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnSave: \n");
+            //    RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnSave: \n" + gameNode + "\n" + globalNode);
             else
             {
                 RSTLogWriter.Log("ResearchBodies Scenario OnSave completed.");
@@ -127,10 +126,10 @@ namespace ResearchBodies
         }
     }
 
-    internal interface Savable
-    {
-        void Load(ConfigNode globalNode);
+    //internal interface Savable
+    //{
+    //    void Load(ConfigNode globalNode);
 
-        void Save(ConfigNode globalNode);
-    }
+    //    void Save(ConfigNode globalNode);
+    //}
 }

@@ -12,7 +12,7 @@ namespace ResearchBodies
         public string body;   //Body Name
         public bool isResearched;  //True if this body is researched
         public int researchState;  //This is the current discoveryinfo state
-        public bool ignore;
+        public bool ignore;        //Set to true at start of new game if this body is auto-discovered based on the difficulty level, otherwise it's false.
         public int priority;       //Priority - isn't being used? Use it for contracts?
         public string discoveryMessage;   //The message when we discover this body
         public BodyIgnoreData IgnoreData; //Use when setting the difficulty at start of new game.
@@ -28,7 +28,7 @@ namespace ResearchBodies
             ignore = false;
             priority = 3;
             discoveryMessage = "Now tracking " + inputbody + " !";
-            IgnoreData.Easy = IgnoreData.Normal = IgnoreData.Medium = IgnoreData.Hard = false;
+            IgnoreData = new BodyIgnoreData(false, false, false, false);
             KOPbarycenter = false;
             KOPrelbarycenterBody = null;
         }

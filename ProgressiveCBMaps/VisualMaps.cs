@@ -6,9 +6,8 @@ using RSTUtils;
 
 namespace ProgressiveCBMaps
 {
-	//[KSPAddon(KSPAddon.Startup.EveryScene, false)]
 	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
-	class VisualMaps : MonoBehaviour
+	public class VisualMaps : MonoBehaviour
 	{
 
 		public static VisualMaps Instance;
@@ -21,9 +20,9 @@ namespace ProgressiveCBMaps
 		private string[] BtnNames;
 		private int TargetSelection = 0;
 		private bool showUI = false;
-        private bool EVEInitialised = false;
+		private bool EVEInitialised = false;
 
-		public static Dictionary<CelestialBody, CelestialBodyInfo> CBVisualMapsInfo
+		public Dictionary<CelestialBody, CelestialBodyInfo> CBVisualMapsInfo
 		{
 			get
 			{
@@ -40,14 +39,12 @@ namespace ProgressiveCBMaps
 			DontDestroyOnLoad(this);
 
 			WindowID = UnityEngine.Random.Range(1000, 2000000);
-			//if ((HighLogic.LoadedSceneIsFlight && FlightGlobals.ready) || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-			//{
-				//setBody(FlightGlobals.currentMainBody);
+			
 			foreach (CelestialBody CB in FlightGlobals.Bodies)
 			{
 				CelestialBodyInfo CBinfo = new CelestialBodyInfo(CB);
 				celestialBodyInfo[CB] = CBinfo;
-            }
+			}
 				
 			BtnNames = new string[FlightGlobals.Bodies.Count];
 
@@ -55,41 +52,49 @@ namespace ProgressiveCBMaps
 			{
 				BtnNames[i] = FlightGlobals.Bodies[i].GetName();
 			}
-		    //}
+			//}
 		}
-        
-        private void InitEVE()
-        {
-            EVEWrapper.InitEVEWrapper();
 
-            if (EVEWrapper.APIReady)
-            {
-                //success
+		private void OnDestroy()
+		{
+			foreach (var body in celestialBodyInfo)
+			{
+				body.Value.setVisualOff();
+			}
+		}
 
-                UnityEngine.Object[] cloudspqs = FindObjectsOfType(EVEWrapper.EVECloudsPQSType);
-                for (int i = 0; i < cloudspqs.Length; i++)
-                {
-                    EVEWrapper.EVECloudsPQS cloudentry = new EVEWrapper.EVECloudsPQS(cloudspqs[i]);
-                    if (cloudentry.celestialBody != null)
-                    {
-                        if (celestialBodyInfo.ContainsKey(cloudentry.celestialBody))
-                        {
-                            celestialBodyInfo[cloudentry.celestialBody].cloudsPQS.Add(cloudentry);
-                            if (celestialBodyInfo[cloudentry.celestialBody].currentDetailLevel < 4)
-                            {
-                                cloudentry.enabled = false;
-                            }
-                        }
-                    }
-                }
-                EVEInitialised = true;
-            }
-        }
+		private void InitEVE()
+		{
+			EVEWrapper.InitEVEWrapper();
 
-        /// <summary>
-        /// Watch for changes to the celestial body we are lookin at
-        /// </summary>
-        private void Update()
+			if (EVEWrapper.APIReady)
+			{
+				//success
+
+				UnityEngine.Object[] cloudspqs = FindObjectsOfType(EVEWrapper.EVECloudsPQSType);
+				for (int i = 0; i < cloudspqs.Length; i++)
+				{
+					EVEWrapper.EVECloudsPQS cloudentry = new EVEWrapper.EVECloudsPQS(cloudspqs[i]);
+					if (cloudentry.celestialBody != null)
+					{
+						if (celestialBodyInfo.ContainsKey(cloudentry.celestialBody))
+						{
+							celestialBodyInfo[cloudentry.celestialBody].cloudsPQS.Add(cloudentry);
+							if (celestialBodyInfo[cloudentry.celestialBody].currentDetailLevel < 4)
+							{
+								cloudentry.enabled = false;
+							}
+						}
+					}
+				}
+				EVEInitialised = true;
+			}
+		}
+
+		/// <summary>
+		/// Watch for changes to the celestial body we are lookin at
+		/// </summary>
+		private void Update()
 		{
 			if ((HighLogic.LoadedSceneIsFlight && FlightGlobals.ready) || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
 			{
@@ -97,21 +102,22 @@ namespace ProgressiveCBMaps
 				{
 					showUI = !showUI;
 				}
-				foreach (var CB in celestialBodyInfo)
+				
+				//foreach (var CB in celestialBodyInfo)
+				//{
+				//	if (CB.Value.mesh.isVisible)
+				//	{
+				//		Debug.Log("CB " + CB.Key.GetName() + " is visible");
+				//	}
+				//}
+				if (Utilities.IsEVEInstalled && !EVEInitialised)
 				{
-					if (CB.Value.mesh.isVisible)
-					{
-						Debug.Log("CB " + CB.Key.GetName() + " is visible");
-					}
+					InitEVE();
 				}
-			    if (Utilities.IsEVEInstalled && !EVEInitialised)
-			    {
-			        InitEVE();
-			    }
-            }
+			}
 		}
-		
-		private void OnGUI()
+#if DEBUG
+        private void OnGUI()
 		{
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
 			{
@@ -120,12 +126,12 @@ namespace ProgressiveCBMaps
 			if (showUI)
 				WindowRect = GUILayout.Window(WindowID, WindowRect, drawButtons, "Progressive CB Maps");
 		}
-
-		/// <summary>
-		/// Draw the window and a bucn of control buttons
-		/// </summary>
-		/// <param name="id"></param>
-		private void drawButtons(int id)
+#endif
+        /// <summary>
+        /// Draw the window and a bunch of control buttons
+        /// </summary>
+        /// <param name="id"></param>
+        private void drawButtons(int id)
 		{
 			GUI.skin = GUI.skin = HighLogic.Skin;
 			GUILayout.BeginVertical();
@@ -225,25 +231,25 @@ namespace ProgressiveCBMaps
 
 			if (GUILayout.Button("GrayScale Off"))
 			{
-				//if (twice)
-				//{
-				//    Destroy(newScaledMap);
-				//}
-				//else
-				//    mesh.material.SetTexture("_MainTex", oldMainTex);
-				selectedBody.Value.setVisualOff();
-			}
+                //if (twice)
+                //{
+                //    Destroy(newScaledMap);
+                //}
+                //else
+                //    mesh.material.SetTexture("_MainTex", oldMainTex);
+                selectedBody.Value.setVisualOn(false);
+            }
 
 			GUILayout.EndHorizontal();
 
 			GUILayout.Label("Current Detail Level: " + selectedBody.Value.currentDetailLevel);
-			GUILayout.BeginHorizontal();
 			GUILayout.Label("Set Preset Level:");
-            if (GUILayout.Button("0", GUILayout.Width(18)))
-            {
-                selectedBody.Value.setVisualLevel(0);
-            }
-            if (GUILayout.Button("1", GUILayout.Width(18)))
+			GUILayout.BeginHorizontal();
+			if (GUILayout.Button("0", GUILayout.Width(18)))
+			{
+				selectedBody.Value.setVisualLevel(0);
+			}
+			if (GUILayout.Button("1", GUILayout.Width(18)))
 			{
 				selectedBody.Value.setVisualLevel(1);
 			}
@@ -286,12 +292,12 @@ namespace ProgressiveCBMaps
 			//Change the visual map scaling resolution
 			if (GUILayout.Button("-", GUILayout.Width(18)))
 			{
-				selectedBody.Value.visualHeight = Math.Max(64, selectedBody.Value.visualHeight / 2);
+				selectedBody.Value.visualHeight = Math.Max(32, selectedBody.Value.visualHeight / 2);
 			}
 			GUILayout.Label(selectedBody.Value.visualHeight.ToString(), GUILayout.Width(45));
 			if (GUILayout.Button("+", GUILayout.Width(18)))
 			{
-				selectedBody.Value.visualHeight = Math.Min(512, selectedBody.Value.visualHeight * 2);
+				selectedBody.Value.visualHeight = Math.Min(4096, selectedBody.Value.visualHeight * 2);
 			}
 
 			GUILayout.EndHorizontal();
@@ -353,10 +359,11 @@ namespace ProgressiveCBMaps
 
 			GUILayout.EndHorizontal();
 
-			//Reset the visual map to the cached version
-			if (GUILayout.Button("Reset Main"))
+            selectedBody.Value.multi = GUILayout.Toggle(selectedBody.Value.multi, "Multi-Tap");
+
+            //Reset the visual map to the cached version
+            if (GUILayout.Button("Reset Main"))
 			{
-				//mesh.material.SetTexture("_MainTex", oldMainTex);
 				selectedBody.Value.setVisualOff();
 			}
 			GUILayout.EndVertical();

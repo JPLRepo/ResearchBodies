@@ -12,6 +12,7 @@ namespace ProgressiveCBMaps
     public class EVEWrapper
     {
         internal static System.Type EVECloudsPQSType;
+        internal static System.Type EVECloudsMaterialType;
         
         /// <summary>
         /// Whether we found the EVE API assembly in the loadedassemblies.
@@ -60,6 +61,15 @@ namespace ProgressiveCBMaps
                 return false;
             }
 
+            EVECloudsMaterialType = AssemblyLoader.loadedAssemblies
+                .Select(a => a.assembly.GetTypes())
+                .SelectMany(t => t)
+                .FirstOrDefault(t => t.FullName == "Atmosphere.CloudsMaterial");
+            if (EVECloudsMaterialType == null)
+            {
+                return false;
+            }
+
             LogFormatted("EVE Version:{0}", EVECloudsPQSType.Assembly.GetName().Version.ToString());
             
             _EVEWrapped = true;
@@ -92,6 +102,10 @@ namespace ProgressiveCBMaps
                 LogFormatted_DebugOnly("Getting CelestialBody field");
                 CelestialBodyField = EVECloudsPQSType.GetField("celestialBody", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);
                 LogFormatted_DebugOnly("Success: " + (CelestialBodyField != null).ToString());
+
+                LogFormatted_DebugOnly("Getting CloudsMaterial field");
+                CloudsMaterialField = EVECloudsPQSType.GetField("cloudsMaterial", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic);
+                LogFormatted_DebugOnly("Success: " + (CloudsMaterialField != null).ToString());
             }
 
             private Object actualEVECloudsPQS;
@@ -159,8 +173,36 @@ namespace ProgressiveCBMaps
                 }
             }
 
+            private FieldInfo CloudsMaterialField;
+            
+            public float _detailScale
+            {
+                get { return (float) GetFieldValue(actualEVECloudsPQS, "cloudsMaterial._DetailScale"); }
 
+                set
+                {
+                    object obj = CloudsMaterialField.GetValue(actualEVECloudsPQS);
+                    //object second = obj.GetType().GetField("cloudsMaterial").GetValue(obj);
+                    obj.GetType().GetField("_DetailScale", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance).SetValue(obj, value);
+                }
+            }
+
+            public static object GetFieldValue(object src, string propName)
+            {
+
+                if (propName.Contains("."))//complex type nested
+                {
+                    var temp = propName.Split(new char[] { '.' }, 2);
+                    return GetFieldValue(GetFieldValue(src, temp[0]), temp[1]);
+                }
+                else
+                {
+                    var prop = src.GetType().GetField(propName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
+                    return prop != null ? prop.GetValue(src) : null;
+                }
+            }
         }
+        
 
         #region Logging Stuff
 

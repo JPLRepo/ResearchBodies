@@ -12,6 +12,14 @@ namespace ResearchBodies
             Hard = hard;
         }
 
+        public void setBodyIgnoreData(bool easy, bool normal, bool medium, bool hard)
+        {
+            Easy = easy;
+            Normal = normal;
+            Medium = medium;
+            Hard = hard;
+        }
+
         public bool GetLevel(Level lvl)
         {
             bool x;

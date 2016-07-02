@@ -8,10 +8,10 @@ namespace ProgressiveCBMaps
 {
 	public class CelestialBodyInfo
 	{
-	    public CelestialBody Body;
-        public MeshRenderer mesh;
-		public Texture oldMainTex;
-		public Texture oldBumpMap;
+		public CelestialBody Body;
+		public MeshRenderer mesh;
+		public Texture originalMainTex;
+		public Texture originalBumpMap;
 		public Texture2D newScaledMap;
 		public Texture2D smallScaledMap;
 		public bool multi;
@@ -25,6 +25,8 @@ namespace ProgressiveCBMaps
 		public int rescaleType = 0;
 		public int currentDetailLevel;
 		public List<EVEWrapper.EVECloudsPQS> cloudsPQS;
+	    public float originalCloudsDetailScale;
+        private bool originalCloudsDetailScaleSet = false;
 
 		/// <summary>
 		/// Contructor. Caches original settings.
@@ -32,19 +34,19 @@ namespace ProgressiveCBMaps
 		/// <param name="body">The Celestial Body</param>
 		public CelestialBodyInfo(CelestialBody body)
 		{
-            Body = body;
-            mesh = body.scaledBody.GetComponent<MeshRenderer>();
-			oldMainTex = mesh.material.GetTexture("_MainTex");
-			oldBumpMap = mesh.material.GetTexture("_BumpMap");
+			Body = body;
+			mesh = body.scaledBody.GetComponent<MeshRenderer>();
 			if (mesh != null)
 			{
-				var s = mesh.material.GetFloat("_Shininess");
+                originalMainTex = mesh.material.GetTexture("_MainTex");
+                originalBumpMap = mesh.material.GetTexture("_BumpMap");
+                var s = mesh.material.GetFloat("_Shininess");
 				shiny = s;
 				originalshiny = shiny;
-				if (oldMainTex != null)
+				if (originalMainTex != null)
 				{
-					visualHeight = oldMainTex.height;
-					originalvisualHeight = oldMainTex.height;
+					visualHeight = originalMainTex.height;
+					originalvisualHeight = originalMainTex.height;
 				}
 				else
 				{
@@ -66,13 +68,13 @@ namespace ProgressiveCBMaps
 		/// <param name="_grayscale"></param>
 		internal void setVisualOn(bool _grayscale = false)
 		{
-			getMeshTexture(_grayscale);
-
+            if (mesh == null)
+                return;
+            getMeshTexture(_grayscale);
 			OverlayGenerator.Instance.ClearDisplay();
-
+		    //rescaleType = 0;
 			rescaleMap();
-
-			mesh.material.SetTexture("_MainTex", (Texture)smallScaledMap);
+			mesh.material.SetTexture("_MainTex", smallScaledMap);
 			mesh.material.SetFloat("_Shininess", shiny);
 		}
 
@@ -107,101 +109,118 @@ namespace ProgressiveCBMaps
 		/// <param name="level">integer 1 through 6</param>
 		public void setVisualLevel(int level)
 		{
-			switch (level)
+            if (mesh == null || Body.pqsController == null)
+                return;
+
+            switch (level)
 			{
-                case 0:
+				case 0:
                     //visualHeight = 64;
-                    //shiny = 0;
-                    //setVisualOn(true);
-                    //setBumpOff();
+					//shiny = 0;
+					//setVisualOn(true);
+					//setBumpOff();
+					//processEVEClouds();
+			        if (Body.pqsController != null)
+			        {
+                        Body.pqsController.DeactivateSphere();
+                        Body.pqsController.DisableSphere();
+                    }
+					mesh.enabled = false;
                     currentDetailLevel = 0;
-                    //processEVEClouds();
-			        Body.pqsController.DeactivateSphere();
-			        Body.pqsController.DisableSphere();
-                    
                     break;
 
-                case 1:
-			        if (!Body.pqsController.isActive)
-			        {
-                        Body.pqsController.ActivateSphere();
-			            Body.pqsController.EnableSphere();
-			        }
-			            
-                    visualHeight = 64;
+				case 1:
+                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					{
+						Body.pqsController.ActivateSphere();
+						Body.pqsController.EnableSphere();
+						mesh.enabled = true;
+					}
+
+					//visualHeight = 64;
+					visualHeight = 32;
 					shiny = 0;
 					setVisualOn(true);
 					setBumpOff();
-					currentDetailLevel = 1;
-					processEVEClouds();
-					break;
+                    currentDetailLevel = 1;
+                    processEVEClouds();
+                    break;
 
 				case 2:
-                    if (!Body.pqsController.isActive)
-                    {
-                        Body.pqsController.ActivateSphere();
-                        Body.pqsController.EnableSphere();
-                    }
-                    visualHeight = 128;
+                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					{
+						Body.pqsController.ActivateSphere();
+						Body.pqsController.EnableSphere();
+						mesh.enabled = true;
+					}
+					//visualHeight = 128;
+					visualHeight = 64;
 					shiny = 0;
 					setVisualOn(true);
 					setBumpOff();
-					currentDetailLevel = 2;
-					processEVEClouds();
-					break;
+                    currentDetailLevel = 2;
+                    processEVEClouds();
+                    break;
 
 				case 3:
-                    if (!Body.pqsController.isActive)
-                    {
-                        Body.pqsController.ActivateSphere();
-                        Body.pqsController.EnableSphere();
-                    }
-                    visualHeight = originalvisualHeight / 4;
+                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					{
+						Body.pqsController.ActivateSphere();
+						Body.pqsController.EnableSphere();
+						mesh.enabled = true;
+					}
+					visualHeight = originalvisualHeight / 4;
 					shiny = originalshiny;
 					setVisualOn(true);
 					setBumpOff();
-					currentDetailLevel = 3;
-					processEVEClouds();
-					break;
+                    currentDetailLevel = 3;
+                    processEVEClouds();
+                    break;
 
 				case 4:
-                    if (!Body.pqsController.isActive)
-                        Body.pqsController.ActivateSphere();
-                    visualHeight = originalvisualHeight / 2;
+                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					{
+						Body.pqsController.ActivateSphere();
+						Body.pqsController.EnableSphere();
+						mesh.enabled = true;
+					}
+					visualHeight = originalvisualHeight / 2;
 					shiny = originalshiny;
 					setVisualOn(true);
 					setBumpOff();
-					currentDetailLevel = 4;
-					processEVEClouds();
-					break;
+                    currentDetailLevel = 4;
+                    processEVEClouds();
+                    break;
 
 				case 5:
-                    if (!Body.pqsController.isActive)
-                    {
-                        Body.pqsController.ActivateSphere();
-                        Body.pqsController.EnableSphere();
-                    }
-                    visualHeight = originalvisualHeight / 2;
+                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					{
+						Body.pqsController.ActivateSphere();
+						Body.pqsController.EnableSphere();
+						mesh.enabled = true;
+					}
+					visualHeight = originalvisualHeight / 2;
 					shiny = originalshiny;
 					setVisualOn(false);
 					setBumpOff();
-					currentDetailLevel = 5;
-					processEVEClouds();
-					break;
+                    currentDetailLevel = 5;
+                    processEVEClouds();
+                    break;
 
 				case 6:
-                    if (!Body.pqsController.isActive)
-                    {
-                        Body.pqsController.ActivateSphere();
-                        Body.pqsController.EnableSphere();
-                    }
-                    visualHeight = originalvisualHeight;
+                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					{
+						Body.pqsController.ActivateSphere();
+						Body.pqsController.EnableSphere();
+						mesh.enabled = true;
+					}
+					visualHeight = originalvisualHeight;
 					shiny = originalshiny;
 					setVisualOn(false);
 					setBumpOn();
-					currentDetailLevel = 6;
-					processEVEClouds();
-					break;
+                    currentDetailLevel = 6;
+                    processEVEClouds();
+                    break;
 			}
 		}
 
@@ -210,31 +229,67 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setVisualOff()
 		{
-			mesh.material.SetFloat("_Shininess", originalshiny);
-			mesh.material.SetTexture("_MainTex", oldMainTex);
-			mesh.material.SetTexture("_BumpMap", oldBumpMap);
+            if (mesh == null)
+                return;
+            mesh.material.SetFloat("_Shininess", originalshiny);
+			mesh.material.SetTexture("_MainTex", originalMainTex);
+			mesh.material.SetTexture("_BumpMap", originalBumpMap);
 			shiny = originalshiny;
 			visualHeight = originalvisualHeight;
 			alpha = 1;
 			rescaleType = 1;
-			currentDetailLevel = 6;
-			processEVEClouds();
-		}
+            currentDetailLevel = 6;
+            processEVEClouds();
+        }
 
 
 		internal void processEVEClouds()
 		{
-		    for (int i = 0; i < cloudsPQS.Count; i++)
-		    {
-                if (currentDetailLevel < 4)
-                {
-                    cloudsPQS[i].enabled = false;
+			for (int i = 0; i < cloudsPQS.Count; i++)
+			{
+			    //var temp = cloudsPQS[i].CloudsMaterial;
+			    //var temp2 = temp._detailScale;
+			    if (!originalCloudsDetailScaleSet)
+			    {
+                    originalCloudsDetailScale = cloudsPQS[i]._detailScale;
+                    originalCloudsDetailScaleSet = true;
                 }
-                else
-                {
-                    cloudsPQS[i].enabled = true;
-                }
-            }
+			    
+                if (currentDetailLevel < 2)
+				{
+					cloudsPQS[i].enabled = false;
+				}
+				else
+				{
+					cloudsPQS[i].enabled = true;
+                    /*
+				    if (currentDetailLevel == 2)
+				    {
+				        cloudsPQS[i]._detailScale = originalCloudsDetailScale / 5;
+				    }
+				    else
+				    {
+				        if (currentDetailLevel == 3)
+				        {
+                            cloudsPQS[i]._detailScale = originalCloudsDetailScale / 3;
+                        }
+				        else
+				        {
+				            if (currentDetailLevel == 4)
+				            {
+				                cloudsPQS[i]._detailScale = originalCloudsDetailScale/2;
+				            }
+				            else
+				            {
+				                if (currentDetailLevel >= 5)
+				                {
+				                    cloudsPQS[i]._detailScale = originalCloudsDetailScale;
+				                }
+				            }
+				        }
+				    }*/
+				}
+			}
 		}
 
 		/// <summary>
@@ -242,7 +297,7 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setBumpOn()
 		{
-			mesh.material.SetTexture("_BumpMap", oldBumpMap);
+			mesh.material.SetTexture("_BumpMap", originalBumpMap);
 		}
 
 		/// <summary>
@@ -261,15 +316,15 @@ namespace ProgressiveCBMaps
 		private void getMeshTexture(bool Gray = false)
 		{
 			//if (newScaledMap == null)
-			newScaledMap = new Texture2D(oldMainTex.width, oldMainTex.height);
+			newScaledMap = new Texture2D(originalMainTex.width, originalMainTex.height);
 
-			var rt = RenderTexture.GetTemporary(oldMainTex.width, oldMainTex.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, 1);
+			var rt = RenderTexture.GetTemporary(originalMainTex.width, originalMainTex.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, 1);
 
 			blit(rt);
 
 			RenderTexture.active = rt;
 
-			newScaledMap.ReadPixels(new Rect(0, 0, oldMainTex.width, oldMainTex.height), 0, 0);
+			newScaledMap.ReadPixels(new Rect(0, 0, originalMainTex.width, originalMainTex.height), 0, 0);
 
 			RenderTexture.active = null;
 			RenderTexture.ReleaseTemporary(rt);
@@ -301,15 +356,16 @@ namespace ProgressiveCBMaps
 		}
 
 		/// <summary>
-		/// Can't quite remember what this was used for, the first option is the standard one, I think the second may have been something I was trying with troublesome planets like Kerbin; the same goes for the pass argument
+		/// Copy source texture into destination. 
+		///  If multi is true will copy for multi-tap shader.
 		/// </summary>
-		/// <param name="t"></param>
+		/// <param name="t">destination texture</param>
 		private void blit(RenderTexture t)
 		{
 			if (!multi)
-				Graphics.Blit(oldMainTex, t, mesh.material, pass);
+				Graphics.Blit(originalMainTex, t, mesh.material, pass);
 			else
-				Graphics.BlitMultiTap(oldMainTex, t, mesh.material);
+				Graphics.BlitMultiTap(originalMainTex, t, mesh.material);
 		}
 
 		/// <summary>
@@ -333,7 +389,7 @@ namespace ProgressiveCBMaps
 
 				pix = null;
 			}
-
+            
 			switch (rescaleType)
 			{
 				case 0:
@@ -345,8 +401,10 @@ namespace ProgressiveCBMaps
 				default:
 					break;
 			}
-		}
-	}
+        }
+
+        
+    }
 
 	
 }

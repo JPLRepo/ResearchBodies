@@ -1314,14 +1314,22 @@ namespace RSTUtils
 			}
 		}
 
-	    internal static bool IsEVEInstalled
-	    {
-	        get
-	        {
-	            return IsModInstalled("EVEManager");
-	            
-	        }
-	    }
+		internal static bool IsPCBMInstalled
+		{
+			get
+			{
+				return IsModInstalled("ProgressiveCBMaps");
+			}
+		}
+
+		internal static bool IsEVEInstalled
+		{
+			get
+			{
+				return IsModInstalled("EVEManager");
+				
+			}
+		}
 
 		internal static bool IsOPMInstalled
 		{
