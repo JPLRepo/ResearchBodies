@@ -50,7 +50,7 @@ namespace ResearchBodies
         public override void OnAwake()
         {
             base.OnAwake();            
-            if (HighLogic.LoadedScene != GameScenes.LOADING && HighLogic.LoadedScene != GameScenes.LOADINGBUFFER)
+            if (HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
                 if (!ResearchBodies.enabled)
                 {
