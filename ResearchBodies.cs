@@ -14,10 +14,12 @@ namespace ResearchBodies
         //private readonly string globalConfigFilename;
         //private ConfigNode globalNode = new ConfigNode();
         private readonly List<Component> children = new List<Component>();
-        
-        public bool enabled
+
+        private bool _enabled;
+        public static bool enabled
         {
-            get { return RBgameSettings.Enabled;  }
+            get { return Instance._enabled;  }
+            private set { Instance._enabled = value; }
         }
 
         public ResearchBodies()
@@ -77,6 +79,9 @@ namespace ResearchBodies
             //    }
             //}
             RSTLogWriter.debuggingOn = RBgameSettings.DebugLogging;
+            if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX && !Database.instance.enableInSandbox)
+                RBgameSettings.Enabled = false;
+            enabled = RBgameSettings.Enabled;
             APIReady = true;
             if (RSTLogWriter.debuggingOn)
                 RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnLoad: \n ");

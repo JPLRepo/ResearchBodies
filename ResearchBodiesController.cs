@@ -42,8 +42,7 @@ namespace ResearchBodies
                     isPCBMInstalled = false; //If the initialise of wrapper failed set bool to false, we won't be interfacing to PCBM today.
                 }
             }
-            if (!Database.instance.enableInSandbox && (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX))
-                enable = false;
+            enable = ResearchBodies.enabled;
             
             //Create Instructor
             _instructor = Create("Instructor_Wernher");
@@ -143,7 +142,47 @@ namespace ResearchBodies
         {
             get { return PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityLevel() < 0.5; }
         }
-        
+
+        public static bool FoundBody(int scienceReward, CelestialBody bodyFound, out bool withParent, out CelestialBody parentBody)
+        {
+            withParent = false;
+            parentBody = null;
+            if (HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)  //If not sandbox add the Science Points reward!
+            {
+                var sciencePtsReward = scienceReward + ResearchBodies.Instance.RBgameSettings.ScienceReward;
+                ResearchAndDevelopment.Instance.AddScience(sciencePtsReward, TransactionReasons.None);
+                ScreenMessages.PostScreenMessage("Added " + sciencePtsReward + " science points !", 5f);
+            }
+            //Check if the referencebody is also not known. If so, we discover both the body and it's referencebody (parent).
+            if (bodyFound.referenceBody.DiscoveryInfo.Level == DiscoveryLevels.Presence)
+            {
+                if (Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody.referenceBody))
+                    Database.instance.CelestialBodies[bodyFound.referenceBody].isResearched = true;
+                if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                    Database.instance.CelestialBodies[bodyFound].isResearched = true;
+                withParent = true;
+                parentBody = bodyFound.referenceBody;
+                //check for Barycenter as well.
+                if (bodyFound.referenceBody.referenceBody != null)
+                {
+                    if ((bodyFound.referenceBody.referenceBody.DiscoveryInfo.Level == DiscoveryLevels.Appearance
+                        || bodyFound.referenceBody.referenceBody.DiscoveryInfo.Level == DiscoveryLevels.Presence) &&
+                        Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody.referenceBody))
+                    {
+                        Database.instance.CelestialBodies[bodyFound.referenceBody.referenceBody].isResearched = true;
+                    }
+                }
+                RSTLogWriter.Log("Found body {0} orbiting around {1} !", bodyFound.GetName(), bodyFound.referenceBody.GetName());
+            }
+            else //No parent or parent is already discovered. So we just found this body.
+            {
+                if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                    Database.instance.CelestialBodies[bodyFound].isResearched = true;
+                withParent = false;
+                RSTLogWriter.Log("Found body {0} !", bodyFound.GetName());
+            }
+            return true;
+        }
         public static bool Research(CelestialBody body, int researchToAdd)
         {
             if (Database.instance.CelestialBodies[body].researchState < 100)
