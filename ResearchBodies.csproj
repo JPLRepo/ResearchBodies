@@ -78,27 +78,10 @@
     <Compile Include="API\TSTWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Distribution\GameData\ResearchBodies\Changelog.txt" />
-    <Content Include="Distribution\GameData\ResearchBodies\LICENSE.txt" />
-    <Content Include="Distribution\GameData\ResearchBodies\MiniAVC Licence.txt" />
-    <Content Include="Distribution\GameData\ResearchBodies\MiniAVC.dll" />
-    <Content Include="Distribution\GameData\ResearchBodies\MiniAVC.xml" />
-    <Content Include="Distribution\GameData\ResearchBodies\Parts\telescope\TB-75M.png" />
-    <Content Include="Distribution\GameData\ResearchBodies\README.txt" />
     <Content Include="LocalDev\7za_dir.txt" />
     <Content Include="LocalDev\ksp_dir.txt" />
     <Content Include="LocalDev\mono_exe.txt" />
     <Content Include="LocalDev\pdb2mdb_exe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Distribution\GameData\README.md" />
-    <None Include="Distribution\GameData\ResearchBodies\database.cfg" />
-    <None Include="Distribution\GameData\ResearchBodies\Locales.cfg" />
-    <None Include="Distribution\GameData\ResearchBodies\Parts\telescope\TB-75M.mu" />
-    <None Include="Distribution\GameData\ResearchBodies\Parts\telescope\telescope.cfg" />
-    <None Include="Distribution\GameData\ResearchBodies\Plugins\PluginData\cacheLocale" />
-    <None Include="Distribution\GameData\ResearchBodies\ResearchBodies.version" />
-    <None Include="Distribution\GameData\ResearchBodies\ResearchBodies_AsteroidDay.cfg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="PostBuildMacros">

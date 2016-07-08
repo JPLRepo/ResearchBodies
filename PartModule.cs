@@ -1,9 +1,18 @@
-﻿using System;
+﻿/*
+ * ModuleTrackBodies.cs
+ * (C) Copyright 2016, Jamie Leighton 
+ * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+ * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
+ * project is in no way associated with nor endorsed by Squad.
+ *
+ *  ResearchBodies is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ */
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
-using System.IO;
 using RSTUtils;
 using RSTUtils.Extensions;
 
@@ -12,6 +21,7 @@ namespace ResearchBodies
     public class ModuleTrackBodies : PartModule
     {
         private bool showGUI = false, foundBody = false, withParent = false, canResearch = true;
+        private bool checkedEnabledFlag = false;
         private bool foundBodyTooWeak = false;
         private string nothing = "";
         private CelestialBody bodyFound, parentBody;
@@ -52,13 +62,24 @@ namespace ResearchBodies
             base.OnAwake();            
             if (HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
+                _partwindowID = Utilities.getnextrandomInt();
+                startingdifficulty = difficulty;
+            }
+        }
+
+        /// <summary>
+        ///     Called by unity every frame.
+        /// </summary>
+        protected virtual void Update()
+        {
+            if (!checkedEnabledFlag && Time.timeSinceLevelLoad > 3.0f && HighLogic.LoadedScene == GameScenes.FLIGHT)
+            {
+                checkedEnabledFlag = true;
                 if (!ResearchBodies.enabled)
                 {
                     Events["Research Bodies"].guiActive = false;
                     Events["Research Bodies"].active = false;
                 }
-                _partwindowID = Utilities.getnextrandomInt();
-                startingdifficulty = difficulty;
             }
         }
 

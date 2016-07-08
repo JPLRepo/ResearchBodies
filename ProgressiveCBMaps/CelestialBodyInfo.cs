@@ -1,7 +1,18 @@
-﻿using System;
+﻿
+/*
+ * CelestialBodyInfo.cs
+ * (C) Copyright 2016, Jamie Leighton 
+ * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+ * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
+ * project is in no way associated with nor endorsed by Squad.
+ *
+ *  ProgressiveCBMaps is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ */
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace ProgressiveCBMaps
@@ -25,8 +36,8 @@ namespace ProgressiveCBMaps
 		public int rescaleType = 0;
 		public int currentDetailLevel;
 		public List<EVEWrapper.EVECloudsPQS> cloudsPQS;
-	    public float originalCloudsDetailScale;
-        private bool originalCloudsDetailScaleSet = false;
+		public float originalCloudsDetailScale;
+		private bool originalCloudsDetailScaleSet = false;
 
 		/// <summary>
 		/// Contructor. Caches original settings.
@@ -38,9 +49,9 @@ namespace ProgressiveCBMaps
 			mesh = body.scaledBody.GetComponent<MeshRenderer>();
 			if (mesh != null)
 			{
-                originalMainTex = mesh.material.GetTexture("_MainTex");
-                originalBumpMap = mesh.material.GetTexture("_BumpMap");
-                var s = mesh.material.GetFloat("_Shininess");
+				originalMainTex = mesh.material.GetTexture("_MainTex");
+				originalBumpMap = mesh.material.GetTexture("_BumpMap");
+				var s = mesh.material.GetFloat("_Shininess");
 				shiny = s;
 				originalshiny = shiny;
 				if (originalMainTex != null)
@@ -65,14 +76,14 @@ namespace ProgressiveCBMaps
 		/// <summary>
 		/// Set visual details settings on
 		/// </summary>
-		/// <param name="_grayscale"></param>
-		internal void setVisualOn(bool _grayscale = false)
+		/// <param name="_greyscale"></param>
+		internal void setVisualOn(bool _greyscale = false)
 		{
-            if (mesh == null)
-                return;
-            getMeshTexture(_grayscale);
+			if (mesh == null)
+				return;
+			getMeshTexture(_greyscale);
 			OverlayGenerator.Instance.ClearDisplay();
-		    //rescaleType = 0;
+			//rescaleType = 0;
 			rescaleMap();
 			mesh.material.SetTexture("_MainTex", smallScaledMap);
 			mesh.material.SetFloat("_Shininess", shiny);
@@ -99,38 +110,38 @@ namespace ProgressiveCBMaps
 		/// <summary>
 		/// Set visual level of the body.
 		/// Level 0 = Not visible at all.
-		/// Level 1 = lowest level. Grayscale on. Heightmap 64 lowest setting. Shinyness = 0 and Bump map off.
-		/// Level 2 = Grayscale On. Heightmap 128 - this may be same as next level depending on original detail level. Shinyness = 0 and Bump map off.
-		/// Level 3 = Grayscale On. Quarter original detail, original shinyness and bump map off.
-		/// Level 4 = Grayscale On. Half original detail, original shinyness and bump map off.
-		/// Level 5 = Grayscale off. Half original detail, original shinyness and bump map off.
+		/// Level 1 = lowest level. Greyscale on. Heightmap 32 lowest setting. Shinyness = 0 and Bump map off.
+		/// Level 2 = Greyscale On. Heightmap 64. Shinyness = 0 and Bump map off.
+		/// Level 3 = Greyscale On. Heightmap 128 , original shinyness / 2 and bump map off.
+		/// Level 4 = Greyscale Off. Quarter original detail or 128, original shinyness and bump map off.
+		/// Level 5 = Greyscale off. Half original detail, original shinyness and bump map off.
 		/// Level 6 = Maximum and bump map on.
 		/// </summary>
-		/// <param name="level">integer 1 through 6</param>
+		/// <param name="level">integer 0 through 6</param>
 		public void setVisualLevel(int level)
 		{
-            if (mesh == null || Body.pqsController == null)
-                return;
+			if (mesh == null || Body.pqsController == null)
+				return;
 
-            switch (level)
+			switch (level)
 			{
 				case 0:
-                    //visualHeight = 64;
+					//visualHeight = 64;
 					//shiny = 0;
 					//setVisualOn(true);
 					//setBumpOff();
 					//processEVEClouds();
-			        if (Body.pqsController != null)
-			        {
-                        Body.pqsController.DeactivateSphere();
-                        Body.pqsController.DisableSphere();
-                    }
+					if (Body.pqsController != null)
+					{
+						Body.pqsController.DeactivateSphere();
+						Body.pqsController.DisableSphere();
+					}
 					mesh.enabled = false;
-                    currentDetailLevel = 0;
-                    break;
+					currentDetailLevel = 0;
+					break;
 
 				case 1:
-                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					if (currentDetailLevel == 0 && Body.pqsController != null)
 					{
 						Body.pqsController.ActivateSphere();
 						Body.pqsController.EnableSphere();
@@ -142,12 +153,12 @@ namespace ProgressiveCBMaps
 					shiny = 0;
 					setVisualOn(true);
 					setBumpOff();
-                    currentDetailLevel = 1;
-                    processEVEClouds();
-                    break;
+					currentDetailLevel = 1;
+					processEVEClouds();
+					break;
 
 				case 2:
-                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					if (currentDetailLevel == 0 && Body.pqsController != null)
 					{
 						Body.pqsController.ActivateSphere();
 						Body.pqsController.EnableSphere();
@@ -158,42 +169,43 @@ namespace ProgressiveCBMaps
 					shiny = 0;
 					setVisualOn(true);
 					setBumpOff();
-                    currentDetailLevel = 2;
-                    processEVEClouds();
-                    break;
+					currentDetailLevel = 2;
+					processEVEClouds();
+					break;
 
 				case 3:
-                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					if (currentDetailLevel == 0 && Body.pqsController != null)
 					{
 						Body.pqsController.ActivateSphere();
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-					visualHeight = originalvisualHeight / 4;
-					shiny = originalshiny;
+					//visualHeight = originalvisualHeight / 4;
+					visualHeight = 128;
+					shiny = originalshiny/2;
 					setVisualOn(true);
 					setBumpOff();
-                    currentDetailLevel = 3;
-                    processEVEClouds();
-                    break;
+					currentDetailLevel = 3;
+					processEVEClouds();
+					break;
 
 				case 4:
-                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					if (currentDetailLevel == 0 && Body.pqsController != null)
 					{
 						Body.pqsController.ActivateSphere();
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-					visualHeight = originalvisualHeight / 2;
+					visualHeight = Mathf.Max(128, originalvisualHeight / 4);
 					shiny = originalshiny;
-					setVisualOn(true);
+					setVisualOn(false);
 					setBumpOff();
-                    currentDetailLevel = 4;
-                    processEVEClouds();
-                    break;
+					currentDetailLevel = 4;
+					processEVEClouds();
+					break;
 
 				case 5:
-                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					if (currentDetailLevel == 0 && Body.pqsController != null)
 					{
 						Body.pqsController.ActivateSphere();
 						Body.pqsController.EnableSphere();
@@ -203,12 +215,12 @@ namespace ProgressiveCBMaps
 					shiny = originalshiny;
 					setVisualOn(false);
 					setBumpOff();
-                    currentDetailLevel = 5;
-                    processEVEClouds();
-                    break;
+					currentDetailLevel = 5;
+					processEVEClouds();
+					break;
 
 				case 6:
-                    if (currentDetailLevel == 0 && Body.pqsController != null)
+					if (currentDetailLevel == 0 && Body.pqsController != null)
 					{
 						Body.pqsController.ActivateSphere();
 						Body.pqsController.EnableSphere();
@@ -218,9 +230,9 @@ namespace ProgressiveCBMaps
 					shiny = originalshiny;
 					setVisualOn(false);
 					setBumpOn();
-                    currentDetailLevel = 6;
-                    processEVEClouds();
-                    break;
+					currentDetailLevel = 6;
+					processEVEClouds();
+					break;
 			}
 		}
 
@@ -229,65 +241,70 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setVisualOff()
 		{
-            if (mesh == null)
-                return;
-            mesh.material.SetFloat("_Shininess", originalshiny);
+			if (mesh == null)
+				return;
+			mesh.material.SetFloat("_Shininess", originalshiny);
 			mesh.material.SetTexture("_MainTex", originalMainTex);
 			mesh.material.SetTexture("_BumpMap", originalBumpMap);
 			shiny = originalshiny;
 			visualHeight = originalvisualHeight;
 			alpha = 1;
 			rescaleType = 1;
-            currentDetailLevel = 6;
-            processEVEClouds();
-        }
+			currentDetailLevel = 6;
+			processEVEClouds();
+		}
 
-
+		/// <summary>
+		/// Will process the EVE clouds (if intalled and configured for this body).
+		/// TODO: Figure out how to make the clouds fuzzy - but that relies on the fuzziness that is not fully released in EVE yet.
+		/// code for changing _detailscale below does not seem to do anything, so disabled for now.
+		/// For now this method will turn clouds OFF if currentDetailLevel < 2 otherwise it will turn them on.
+		/// </summary>
 		internal void processEVEClouds()
 		{
 			for (int i = 0; i < cloudsPQS.Count; i++)
 			{
-			    //var temp = cloudsPQS[i].CloudsMaterial;
-			    //var temp2 = temp._detailScale;
-			    if (!originalCloudsDetailScaleSet)
-			    {
-                    originalCloudsDetailScale = cloudsPQS[i]._detailScale;
-                    originalCloudsDetailScaleSet = true;
-                }
-			    
-                if (currentDetailLevel < 2)
+				//var temp = cloudsPQS[i].CloudsMaterial;
+				//var temp2 = temp._detailScale;
+				if (!originalCloudsDetailScaleSet)
+				{
+					originalCloudsDetailScale = cloudsPQS[i]._detailScale;
+					originalCloudsDetailScaleSet = true;
+				}
+				
+				if (currentDetailLevel < 2)
 				{
 					cloudsPQS[i].enabled = false;
 				}
 				else
 				{
 					cloudsPQS[i].enabled = true;
-                    /*
-				    if (currentDetailLevel == 2)
-				    {
-				        cloudsPQS[i]._detailScale = originalCloudsDetailScale / 5;
-				    }
-				    else
-				    {
-				        if (currentDetailLevel == 3)
-				        {
-                            cloudsPQS[i]._detailScale = originalCloudsDetailScale / 3;
-                        }
-				        else
-				        {
-				            if (currentDetailLevel == 4)
-				            {
-				                cloudsPQS[i]._detailScale = originalCloudsDetailScale/2;
-				            }
-				            else
-				            {
-				                if (currentDetailLevel >= 5)
-				                {
-				                    cloudsPQS[i]._detailScale = originalCloudsDetailScale;
-				                }
-				            }
-				        }
-				    }*/
+					/*
+					if (currentDetailLevel == 2)
+					{
+						cloudsPQS[i]._detailScale = originalCloudsDetailScale / 5;
+					}
+					else
+					{
+						if (currentDetailLevel == 3)
+						{
+							cloudsPQS[i]._detailScale = originalCloudsDetailScale / 3;
+						}
+						else
+						{
+							if (currentDetailLevel == 4)
+							{
+								cloudsPQS[i]._detailScale = originalCloudsDetailScale/2;
+							}
+							else
+							{
+								if (currentDetailLevel >= 5)
+								{
+									cloudsPQS[i]._detailScale = originalCloudsDetailScale;
+								}
+							}
+						}
+					}*/
 				}
 			}
 		}
@@ -297,7 +314,8 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setBumpOn()
 		{
-			mesh.material.SetTexture("_BumpMap", originalBumpMap);
+			if (originalBumpMap != null)
+				mesh.material.SetTexture("_BumpMap", originalBumpMap);
 		}
 
 		/// <summary>
@@ -311,9 +329,10 @@ namespace ProgressiveCBMaps
 		/// <summary>
 		/// This takes the original visual map that was cached in the constructor method and turns it into a readable texture; 
 		/// this is a commonly used method and you can find references to it all over in Unity support forums
+		/// If Grey is True will convert the tex into GreyScale.
 		/// </summary>
-		/// /// <param name="Gray">Set to true if tex is to be converted to Grayscale</param>
-		private void getMeshTexture(bool Gray = false)
+		/// /// <param name="Grey">Set to true if tex is to be converted to Greyscale</param>
+		private void getMeshTexture(bool Grey = false)
 		{
 			//if (newScaledMap == null)
 			newScaledMap = new Texture2D(originalMainTex.width, originalMainTex.height);
@@ -333,23 +352,23 @@ namespace ProgressiveCBMaps
 
 			newScaledMap.Apply();
 
-			if (Gray)
+			if (Grey)
 			{
-				MakeGrayscale(newScaledMap);
+				MakeGreyscale(newScaledMap);
 			}
 		}
 
 		/// <summary>
-		/// Will make the passed in Tex Grayscale by converting the color values to their gray values.
+		/// Will make the passed in Tex Greyscale by converting the color values to their grey values.
 		/// </summary>
-		/// <param name="tex"></param>
-		private void MakeGrayscale(Texture2D tex)
+		/// <param name="tex">passed in texture</param>
+		private void MakeGreyscale(Texture2D tex)
 		{
 			var texColors = tex.GetPixels();
 			for (int i = 0; i < texColors.Length; i++)
 			{
-				var grayValue = texColors[i].grayscale;
-				texColors[i] = new Color(grayValue, grayValue, grayValue, texColors[i].a);
+				var greyValue = texColors[i].grayscale;
+				texColors[i] = new Color(greyValue, greyValue, greyValue, texColors[i].a);
 			}
 			tex.SetPixels(texColors);
 			tex.Apply();
@@ -369,7 +388,7 @@ namespace ProgressiveCBMaps
 		}
 
 		/// <summary>
-		/// This uses the Unity Addon TextureScale to re-size the visual map, it also adjusts the alpha channel by multiplying each pixel by the alpha level you set with the window controls
+		/// This uses Multi-Threaded TextureScale class (included) to re-size the visual map, it also adjusts the alpha channel by multiplying each pixel by the alpha level you set with the window controls
 		/// </summary>
 		private void rescaleMap()
 		{
@@ -389,7 +408,7 @@ namespace ProgressiveCBMaps
 
 				pix = null;
 			}
-            
+			
 			switch (rescaleType)
 			{
 				case 0:
@@ -401,10 +420,10 @@ namespace ProgressiveCBMaps
 				default:
 					break;
 			}
-        }
+		}
 
-        
-    }
+		
+	}
 
 	
 }

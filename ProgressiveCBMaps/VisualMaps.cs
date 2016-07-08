@@ -1,5 +1,19 @@
-﻿using System;
+﻿/*
+ * VisualMaps.cs
+ * (C) Copyright 2016, Jamie Leighton 
+ * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+ * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
+ * project is in no way associated with nor endorsed by Squad.
+ *
+ *  ProgressiveCBMaps is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ */
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using RSTUtils;
@@ -116,8 +130,8 @@ namespace ProgressiveCBMaps
 				}
 			}
 		}
-#if DEBUG
-        private void OnGUI()
+        #if DEBUG
+		private void OnGUI()
 		{
 			if (HighLogic.LoadedScene != GameScenes.FLIGHT && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
 			{
@@ -126,12 +140,13 @@ namespace ProgressiveCBMaps
 			if (showUI)
 				WindowRect = GUILayout.Window(WindowID, WindowRect, drawButtons, "Progressive CB Maps");
 		}
-#endif
-        /// <summary>
-        /// Draw the window and a bunch of control buttons
-        /// </summary>
-        /// <param name="id"></param>
-        private void drawButtons(int id)
+        #endif
+
+		/// <summary>
+		/// Draw the window and a bunch of control buttons
+		/// </summary>
+		/// <param name="id"></param>
+		private void drawButtons(int id)
 		{
 			GUI.skin = GUI.skin = HighLogic.Skin;
 			GUILayout.BeginVertical();
@@ -231,14 +246,14 @@ namespace ProgressiveCBMaps
 
 			if (GUILayout.Button("GrayScale Off"))
 			{
-                //if (twice)
-                //{
-                //    Destroy(newScaledMap);
-                //}
-                //else
-                //    mesh.material.SetTexture("_MainTex", oldMainTex);
-                selectedBody.Value.setVisualOn(false);
-            }
+				//if (twice)
+				//{
+				//    Destroy(newScaledMap);
+				//}
+				//else
+				//    mesh.material.SetTexture("_MainTex", oldMainTex);
+				selectedBody.Value.setVisualOn(false);
+			}
 
 			GUILayout.EndHorizontal();
 
@@ -359,10 +374,10 @@ namespace ProgressiveCBMaps
 
 			GUILayout.EndHorizontal();
 
-            selectedBody.Value.multi = GUILayout.Toggle(selectedBody.Value.multi, "Multi-Tap");
+			selectedBody.Value.multi = GUILayout.Toggle(selectedBody.Value.multi, "Multi-Tap");
 
-            //Reset the visual map to the cached version
-            if (GUILayout.Button("Reset Main"))
+			//Reset the visual map to the cached version
+			if (GUILayout.Button("Reset Main"))
 			{
 				selectedBody.Value.setVisualOff();
 			}

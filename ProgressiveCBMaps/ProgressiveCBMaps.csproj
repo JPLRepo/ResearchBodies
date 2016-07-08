@@ -17,12 +17,12 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -81,12 +81,12 @@ set /p PDB2MDB_EXE_DIR=&lt;"$(SolutionDir)LocalDev\pdb2mdb_exe.txt"
 set /p ZA_DIR=&lt;"$(SolutionDir)LocalDev\7za_dir.txt"
 
 xcopy "$(TargetPath)" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
-xcopy "$(TargetDir)$(ProjectName).pdb" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
-
-cd "$(TargetDir)"
-"%25MONO_EXE_DIR%25" "%25PDB2MDB_EXE_DIR%25" "$(TargetFileName)"
-xcopy "$(TargetDir)$(ProjectName).dll.mdb" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
-
+if $(ConfigurationName) == Debug (
+    xcopy "$(TargetDir)$(ProjectName).pdb" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
+    cd "$(TargetDir)"
+    "%25MONO_EXE_DIR%25" "%25PDB2MDB_EXE_DIR%25" "$(TargetFileName)"
+    xcopy "$(TargetDir)$(ProjectName).dll.mdb" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
+)
 
 xcopy /E /Y "$(SolutionDir)Distribution\GameData" "%25KSP_DIR%25\GameData"</PostBuildEvent>
   </PropertyGroup>

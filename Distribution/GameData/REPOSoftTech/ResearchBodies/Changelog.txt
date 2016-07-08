@@ -12,6 +12,7 @@ set in the config file for each telescope part.
 *Some more screen messages, eg: When you don't actually have enough EC to scan for bodies (previously you got no indication that was the problem).
 *Fixed the Part Menu - messages now display correctly for when you discover and don't discovery bodies. Also added a list of the already
 discovered bodies to the Menu so you can see what bodies have been discovered and it will update when you do discovery new bodies in flight.
+*The ResearchBodies part action button (right click menu) is now disabled (not visible) if ResearchBodies is not enabled in current save file. eg: sandbox game and config has enableinsandbox = false.
 *Ignored/Auto-discovered Bodies (based on difficulty setting at start of new game) also display in the Observatory menu.
 *Input (keyboard) Control locks are set on for new games until you select your new game settings. (can't use menus, flight, etc).
 *NOW the BIG one:- Progressive CelestialBody visibility is now included. Yes the celestial bodies will start with very low detail in flight and
