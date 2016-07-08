@@ -161,11 +161,11 @@ namespace ResearchBodies
             }
 
             /// <summary>
-            /// This converts the actualFrozenKerbals actual object to a new dictionary for consumption
+            /// This converts the actualCBVisualMapsInfo actual object to a new dictionary for consumption
             /// </summary>
             /// <param name="actualCBVisualMapsInfo"></param>
             /// <returns>
-            /// Dictionary <string, KerbalInfo> of Frozen Kerbals
+            /// Dictionary <CelestialBody, PCBMCelestialBodyInfo> of Progressive CB Maps Celestial Body Info
             /// </returns>
             private Dictionary<CelestialBody, PCBMCelestialBodyInfo> ExtractCBVisualMapsInfoDict(Object actualCBVisualMapsInfo)
             {
@@ -184,7 +184,7 @@ namespace ResearchBodies
                 }
                 catch (Exception ex)
                 {
-                    LogFormatted("Unable to extract FrozenKerbals Dictionary: {0}", ex.Message);
+                    LogFormatted("Unable to extract CBVisualMapsInfo Dictionary: {0}", ex.Message);
                 }
                 return DictToReturn;
             }
@@ -220,7 +220,7 @@ namespace ResearchBodies
             private FieldInfo currentDetailLevelField;
 
             /// <summary>
-            /// The CBs mesh
+            /// Integer value of the current Detail Level setting for the Celestial Body
             /// </summary>
             public int currentDetailLevel
             {
@@ -228,7 +228,11 @@ namespace ResearchBodies
             }
 
             private MethodInfo setVisualLevelMethod;
-
+            /// <summary>
+            /// Set the Visual level for the CelestialBody
+            /// </summary>
+            /// <param name="level">integer value from 0 to 6</param>
+            /// <returns></returns>
             public bool setVisualLevel(int level)
             {
                 try

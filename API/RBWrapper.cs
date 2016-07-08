@@ -312,7 +312,7 @@ namespace TarsierSpaceTech
             private MethodInfo LaunchResearchPlanMethod;
 
             /// <summary>
-            /// Start a Researchlan for a celestialbody
+            /// Start a ResearchPlan for a celestialbody
             /// </summary>
             /// <param name="cb">The celestialbody</param>
             /// <returns>Bool indicating Success of call</returns>
