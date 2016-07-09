@@ -121,7 +121,7 @@ namespace ResearchBodies
             {
                 if (body.Value.isResearched)
                 {
-                    GUILayout.Label(body.Key.GetName(), Textures.PartListPartStyle);
+                    GUILayout.Label(body.Key.GetName() + " - " + body.Value.researchState.ToString("N0") + "%", Textures.PartListPartStyle);
                 }
             }
             GUILayout.EndVertical();

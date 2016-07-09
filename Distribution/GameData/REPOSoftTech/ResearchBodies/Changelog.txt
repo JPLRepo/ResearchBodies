@@ -1,4 +1,4 @@
-﻿V1.8.0 (xx-xx-2016) ==
+﻿V1.8.0 (07-10-2016) ==
 *Re-factored so much of the code... Under the hood now uses Scenarios to automatically save and load the game state to the persistent.sfs file.
 *If you have an old researchbodies.cfg file in your save folder V1.8.0 will read it and convert it into the new format,save your game into the persistent.sfs file and
 delete the old savegame file (researchbodies.cfg).
@@ -13,8 +13,13 @@ set in the config file for each telescope part.
 *Fixed the Part Menu - messages now display correctly for when you discover and don't discovery bodies. Also added a list of the already
 discovered bodies to the Menu so you can see what bodies have been discovered and it will update when you do discovery new bodies in flight.
 *The ResearchBodies part action button (right click menu) is now disabled (not visible) if ResearchBodies is not enabled in current save file. eg: sandbox game and config has enableinsandbox = false.
-*Ignored/Auto-discovered Bodies (based on difficulty setting at start of new game) also display in the Observatory menu.
+*Ignored/Auto-discovered Bodies (based on difficulty setting at start of new game) also display these automatically in the Observatory menu.
+*If you enter the SOI of a previously un-discovered Body or a Body that has not been fully researched it will now be automatically discovered and
+it's Research Program will be fully completed. Might look to change this in a future version to auto-discover but depending on the vessel type
+(Probe or manned/kerballed) set the research percentage to a more appropriate amount and perhaps require the vessel to remain in SOI to
+increase the research percentage over time. (But that's for a FUTURE version).
 *Input (keyboard) Control locks are set on for new games until you select your new game settings. (can't use menus, flight, etc).
+*Compatible with Asteroid Day for KSP 1.1.3 update.
 *NOW the BIG one:- Progressive CelestialBody visibility is now included. Yes the celestial bodies will start with very low detail in flight and
 in the tracking station. As you find them and research them, the details become clearer. This is still very basic functionality. Plan to expand this
 greatly to include other mod integration like SCANsat scanning to provide the final levels of details.
