@@ -82,6 +82,7 @@ namespace ResearchBodies
                 GameEvents.onGUIMissionControlDespawn.Add(TurnUIOn);
                 GameEvents.onGUIAstronautComplexDespawn.Add(TurnUIOn);
                 GameEvents.onGUIAdministrationFacilityDespawn.Add(TurnUIOn);
+                GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
                 Utilities.setScaledScreen();
 
                 difficulty = ResearchBodies.Instance.RBgameSettings.Difficulty;
@@ -108,6 +109,7 @@ namespace ResearchBodies
             GameEvents.onGUIMissionControlDespawn.Remove(TurnUIOn);
             GameEvents.onGUIAstronautComplexDespawn.Remove(TurnUIOn);
             GameEvents.onGUIAdministrationFacilityDespawn.Remove(TurnUIOn);
+            GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Remove(CheckContracts);
         }
@@ -145,6 +147,38 @@ namespace ResearchBodies
             catch (Exception e)
             {
                 RSTLogWriter.Log("Unable to Withraw contract ! {0}" , e);
+            }
+        }
+
+        /// <summary>
+        /// When a SOI change is triggered by GameEvents we check if the TO body Is Discovered or NOT.
+        /// If it is not discovered we make it discovered.
+        /// If it's researchState is less than 100 we set it to 100.
+        /// Finally we set the discovery Level and ProgressiveCBMap.
+        /// todo: change this dynamic to discover on SOI entry but gradually build up researchState over time as it remains in SOI.
+        /// </summary>
+        /// <param name="HostedfromtoAction"></param>
+        private void onVesselSOIChanged(GameEvents.HostedFromToAction<Vessel, CelestialBody> HostedfromtoAction)
+        {
+            if (Database.instance.CelestialBodies.ContainsKey(HostedfromtoAction.to))
+            {
+                if (!Database.instance.CelestialBodies[HostedfromtoAction.to].isResearched)
+                {
+                    bool withparent;
+                    CelestialBody parentCB;
+                    FoundBody(0, HostedfromtoAction.to, out withparent, out parentCB);
+                }
+                if (Database.instance.CelestialBodies[HostedfromtoAction.to].researchState < 100)
+                { 
+                    Database.instance.CelestialBodies[HostedfromtoAction.to].researchState = 100;
+                    ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_funds"],HostedfromtoAction.to.GetName(), ResearchBodies.Instance.RBgameSettings.ScienceReward), 5f);
+                    ResearchAndDevelopment.Instance.AddScience(ResearchBodies.Instance.RBgameSettings.ScienceReward,TransactionReasons.None);
+                    var keyvalue = Database.instance.CelestialBodies.FirstOrDefault(a => a.Key.theName == HostedfromtoAction.to.theName);
+                    if (keyvalue.Key != null)
+                    {
+                        SetIndividualBodyDiscoveryLevel(keyvalue);
+                    }
+                }
             }
         }
 
