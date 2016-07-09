@@ -1,7 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿/*
+ * CelestialBodyInfo.cs
+ * (C) Copyright 2016, Jamie Leighton 
+ * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+ * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
+ * project is in no way associated with nor endorsed by Squad.
+ *
+ *  ResearchBodies is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ */
 
 namespace ResearchBodies
 {
@@ -9,18 +18,15 @@ namespace ResearchBodies
     {
         public const string ConfigNodeName = "BODY";
 
-        public string body;
-        public bool isResearched;
-        public int researchState;
-        public bool ignore;
-        public int priority;
-        public string discoveryString;
-        public bool easy;
-        public bool normal;
-        public bool medium;
-        public bool hard;
-        public bool KOPbarycenter;
-        public CelestialBody KOPrelbarycenterBody;
+        public string body;   //Body Name
+        public bool isResearched;  //True if this body is researched
+        public int researchState;  //This is the current discoveryinfo state
+        public bool ignore;        //Set to true at start of new game if this body is auto-discovered based on the difficulty level, otherwise it's false.
+        public int priority;       //Priority - isn't being used? Use it for contracts?
+        public string discoveryMessage;   //The message when we discover this body
+        public BodyIgnoreData IgnoreData; //Use when setting the difficulty at start of new game.
+        public bool KOPbarycenter;        //True if this body is actually a Kopernicus barycenter
+        public CelestialBody KOPrelbarycenterBody;  //Will be null unless this body's parent is a Kopernicus barycenter, then it will be set to that barycenter
         
 
         public CelestialBodyInfo(string inputbody)
@@ -30,8 +36,8 @@ namespace ResearchBodies
             researchState = 0;
             ignore = false;
             priority = 3;
-            discoveryString = "";
-            easy = normal = medium = hard = false;
+            discoveryMessage = "Now tracking " + inputbody + " !";
+            IgnoreData = new BodyIgnoreData(false, false, false, false);
             KOPbarycenter = false;
             KOPrelbarycenterBody = null;
         }

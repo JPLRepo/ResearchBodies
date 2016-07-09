@@ -1,4 +1,25 @@
-﻿V1.7.2 (01-06-2016) ==
+﻿V1.8.0 (xx-xx-2016) ==
+*Re-factored so much of the code... Under the hood now uses Scenarios to automatically save and load the game state to the persistent.sfs file.
+*If you have an old researchbodies.cfg file in your save folder V1.8.0 will read it and convert it into the new format,save your game into the persistent.sfs file and
+delete the old savegame file (researchbodies.cfg).
+*Moved Mod Folder from \GameData\ResearchBodies to \GameData\REPOSoftTech\ResearchBodies. Please ensure you remove any \GameData\ResearchBodies folders from your install.
+*The database file and locales files remain as the default settings for new games.
+*Fixed a whole bunch of little bugs along the way (both real and potential).
+*Re-factored how the Discovery mechanism works. So no more clicking forever, but still some randomness. There was a potential bug that meant the more
+you clicked and didn't find anything the less likely you would on following clicks, which only reset when you changed game scene.
+*Science reward for finding a body with the telescope is now the base science reward (that you get in the Observatory) PLUS the science reward that is
+set in the config file for each telescope part.
+*Some more screen messages, eg: When you don't actually have enough EC to scan for bodies (previously you got no indication that was the problem).
+*Fixed the Part Menu - messages now display correctly for when you discover and don't discovery bodies. Also added a list of the already
+discovered bodies to the Menu so you can see what bodies have been discovered and it will update when you do discovery new bodies in flight.
+*The ResearchBodies part action button (right click menu) is now disabled (not visible) if ResearchBodies is not enabled in current save file. eg: sandbox game and config has enableinsandbox = false.
+*Ignored/Auto-discovered Bodies (based on difficulty setting at start of new game) also display in the Observatory menu.
+*Input (keyboard) Control locks are set on for new games until you select your new game settings. (can't use menus, flight, etc).
+*NOW the BIG one:- Progressive CelestialBody visibility is now included. Yes the celestial bodies will start with very low detail in flight and
+in the tracking station. As you find them and research them, the details become clearer. This is still very basic functionality. Plan to expand this
+greatly to include other mod integration like SCANsat scanning to provide the final levels of details.
+
+V1.7.2 (01-06-2016) ==
 *Changed Contract cancellation (when a contract is generated for a body not yet discovered) to Withdraw instead of Cancel. 
 This will not penalise reputation.
 *Fixed bug where above code was causing issues when cancelling contracts making the Mission Control building inaccessible.

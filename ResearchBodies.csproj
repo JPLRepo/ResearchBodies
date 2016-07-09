@@ -33,16 +33,14 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\KSPDLLs\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\KSPDLLs - 1.1.3\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\KSPDLLs\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\KSPDLLs - 1.1.3\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="KSPUtil">
-      <HintPath>..\..\KSPDLLs\KSPUtil.dll</HintPath>
+      <HintPath>..\KSPDLLs - 1.1.3\KSPUtil.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,72 +48,40 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\KSPDLLs\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>..\KSPDLLs - 1.1.3\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\KSPDLLs\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\KSPDLLs - 1.1.3\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\REPOSoftTechKSPUtils\AppLauncherToolBarExtension.cs">
-      <Link>AppLauncherToolBarExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\..\REPOSoftTechKSPUtils\RectExtentions.cs">
-      <Link>RectExtentions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\REPOSoftTechKSPUtils\RSTutilities.cs">
-      <Link>RSTutilities.cs</Link>
-    </Compile>
+    <Compile Include="API\PCBMWrapper.cs" />
+    <Compile Include="BodyIgnoreData.cs" />
     <Compile Include="CelestialBodyInfo.cs" />
-    <Compile Include="..\..\REPOSoftTechKSPUtils\ToolBarManager.cs">
-      <Link>ToolBarManager.cs</Link>
-    </Compile>
     <Compile Include="Database.cs" />
     <Compile Include="Locale.cs" />
     <Compile Include="PartModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RBEnums.cs" />
-    <None Include="RBGameSettings.cs" />
+    <Compile Include="RBGameSettings.cs" />
     <Compile Include="RBInstructor.cs" />
+    <Compile Include="REPOSoftTechUtils\AppLauncherToolBarExtension.cs" />
+    <Compile Include="REPOSoftTechUtils\RectExtentions.cs" />
+    <Compile Include="REPOSoftTechUtils\RSTutilities.cs" />
+    <Compile Include="REPOSoftTechUtils\ToolBarManager.cs" />
     <Compile Include="ResearchBodies.cs" />
-    <Compile Include="ResearchBodiesGUI.cs" />
+    <Compile Include="ResearchBodiesController.cs" />
+    <Compile Include="ResearchBodiesControllerGUI.cs" />
     <Compile Include="RSTLogWriter.cs" />
     <Compile Include="Textures.cs" />
-    <Compile Include="TSTWrapper.cs" />
+    <Compile Include="API\TSTWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Distribution\GameData\ModuleManager.2.6.24.dll" />
-    <Content Include="Distribution\GameData\ResearchBodies\Changelog.txt" />
-    <Content Include="Distribution\GameData\ResearchBodies\images\icon.png" />
-    <Content Include="Distribution\GameData\ResearchBodies\LICENSE.txt" />
-    <Content Include="Distribution\GameData\ResearchBodies\MiniAVC Licence.txt" />
-    <Content Include="Distribution\GameData\ResearchBodies\MiniAVC.dll" />
-    <Content Include="Distribution\GameData\ResearchBodies\MiniAVC.xml" />
-    <Content Include="Distribution\GameData\ResearchBodies\Parts\telescope\TB-75M.png" />
-    <Content Include="Distribution\GameData\ResearchBodies\Plugins\ResearchBodies.dll" />
-    <Content Include="Distribution\GameData\ResearchBodies\Plugins\ResearchBodies.dll.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Distribution\GameData\ResearchBodies\Plugins\ResearchBodies.pdb" />
-    <Content Include="Distribution\GameData\ResearchBodies\README.txt" />
     <Content Include="LocalDev\7za_dir.txt" />
     <Content Include="LocalDev\ksp_dir.txt" />
     <Content Include="LocalDev\mono_exe.txt" />
     <Content Include="LocalDev\pdb2mdb_exe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Distribution\GameData\README.md" />
-    <None Include="Distribution\GameData\ResearchBodies\database.cfg" />
-    <None Include="Distribution\GameData\ResearchBodies\Locales.cfg" />
-    <None Include="Distribution\GameData\ResearchBodies\Parts\telescope\TB-75M.mu" />
-    <None Include="Distribution\GameData\ResearchBodies\Parts\telescope\telescope.cfg" />
-    <None Include="Distribution\GameData\ResearchBodies\PluginData\cacheLocale" />
-    <None Include="Distribution\GameData\ResearchBodies\Plugins\PluginData\cacheLocale" />
-    <None Include="Distribution\GameData\ResearchBodies\ResearchBodies.version" />
-    <None Include="Distribution\GameData\ResearchBodies\ResearchBodies_AsteroidDay.cfg" />
-    <None Include="Distribution\ResearchBodies_V1.7.1.0.zip" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="PostBuildMacros">
@@ -139,12 +105,12 @@ set /p PDB2MDB_EXE_DIR=&lt;"$(ProjectDir)LocalDev\pdb2mdb_exe.txt"
 
 set /p ZA_DIR=&lt;"$(ProjectDir)LocalDev\7za_dir.txt"
 
-xcopy "$(TargetPath)" "$(SolutionDir)Distribution\GameData\$(ProjectName)\Plugins\" /Y
-xcopy "$(TargetDir)$(ProjectName).pdb" "$(SolutionDir)Distribution\GameData\$(ProjectName)\Plugins\" /Y
+xcopy "$(TargetPath)" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
+xcopy "$(TargetDir)$(ProjectName).pdb" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
 
 cd "$(TargetDir)"
 "%25MONO_EXE_DIR%25" "%25PDB2MDB_EXE_DIR%25" "$(TargetFileName)"
-xcopy "$(TargetDir)$(ProjectName).dll.mdb" "$(SolutionDir)Distribution\GameData\$(ProjectName)\Plugins\" /Y
+xcopy "$(TargetDir)$(ProjectName).dll.mdb" "$(SolutionDir)Distribution\GameData\REPOSoftTech\$(ProjectName)\Plugins\" /Y
 
 where /q %25ZA_DIR%25:7za.exe
 if %25ERRORLEVEL%25 == 1 (  echo Cannot find 7-zip to package build) else (  echo Packaging build  ) 

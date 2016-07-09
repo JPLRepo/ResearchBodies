@@ -1,8 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*
+ * RBGameSettings.cs
+ * (C) Copyright 2016, Jamie Leighton 
+ * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+ * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
+ * project is in no way associated with nor endorsed by Squad.
+ *
+ *  ResearchBodies is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ *
+ */
 using System.IO;
 using System.Linq;
-using System.Text;
 using RSTUtils;
 
 namespace ResearchBodies
@@ -10,16 +20,19 @@ namespace ResearchBodies
     public class RBGameSettings
     {
         private const string configNodeName = "RBGameSettings";
-
+        
         public bool Enabled;
-        public List<CelestialBody> BodyList { get; set; }
-        public Dictionary<CelestialBody, CelestialBodyInfo> RBCelestialBodyInfo;
         public int Difficulty;
-        public float ResearchCost;
-        public float ProgressResearchCost;
-        public float ScienceReward;
-
-
+        public int ResearchCost;
+        public int ProgressResearchCost;
+        public int ScienceReward;
+        public bool UseAppLauncher;
+        public bool DebugLogging;
+        public int chances;
+        public int[] StartResearchCosts, ProgressResearchCosts, ScienceRewards;
+        public bool enableInSandbox; 
+        public bool allowTSlevel1;
+        
 
         public RBGameSettings()
         {
@@ -28,76 +41,78 @@ namespace ResearchBodies
             ResearchCost = 10;
             ProgressResearchCost = 5;
             ScienceReward = 5;
-            BodyList = new List<CelestialBody>();
-            RBCelestialBodyInfo = new Dictionary<CelestialBody, CelestialBodyInfo>();
+            UseAppLauncher = true;
+            DebugLogging = false;
+            chances = 3;
+            enableInSandbox = false;
+            allowTSlevel1 = false;
         }
 
         public void Load(ConfigNode node)
         {
-            BodyList.Clear();
-            BodyList = FlightGlobals.Bodies.ToList(); 
-            if (Utilities.IsTSTInstalled && TSTWrapper.APITSTReady) //If TST is installed add the TST Galaxies to the list.
-            {
-                BodyList = BodyList.Concat(TSTWrapper.actualTSTAPI.CBGalaxies).ToList();
-            }
-            RBCelestialBodyInfo.Clear();
+            //Does ano old save file exist? If not then we load from persistent.SFS config nodes.
             if (!File.Exists("saves/" + HighLogic.SaveFolder + "/researchbodies.cfg"))
             {
-                if (node.HasNode(configNodeName))
+                if (node.HasNode(configNodeName)) //Load SFS config nodes
                 {
                     ConfigNode RBsettingsNode = node.GetNode(configNodeName);
 
-                    node.TryGetValue("Enabled", ref Enabled);
-                    node.TryGetValue("Difficulty", ref Difficulty);
-                    node.TryGetValue("ResearchCost", ref ResearchCost);
-                    node.TryGetValue("ProgressResearchCost", ref ProgressResearchCost);
-                    node.TryGetValue("ScienceReward", ref ScienceReward);
-                    
+                    RBsettingsNode.TryGetValue("Enabled", ref Enabled);
+                    RBsettingsNode.TryGetValue("Difficulty", ref Difficulty);
+                    RBsettingsNode.TryGetValue("ResearchCost", ref ResearchCost);
+                    RBsettingsNode.TryGetValue("ProgressResearchCost", ref ProgressResearchCost);
+                    RBsettingsNode.TryGetValue("ScienceReward", ref ScienceReward);
+                    RBsettingsNode.TryGetValue("UseAppLauncher", ref UseAppLauncher);
+                    RBsettingsNode.TryGetValue("DebugLogging", ref DebugLogging);
+                    RBsettingsNode.TryGetValue("chances", ref chances);
+                    RBsettingsNode.TryGetValue("enableInSandbox", ref enableInSandbox);
+                    RBsettingsNode.TryGetValue("allowTSlevel1", ref allowTSlevel1);
+
                     var bodyNodes = RBsettingsNode.GetNodes(CelestialBodyInfo.ConfigNodeName);
                     foreach (ConfigNode bodyNode in bodyNodes)
                     {
                         if (bodyNode.HasValue("body"))
                         {
-                            
                             CelestialBodyInfo bodyInfo = CelestialBodyInfo.Load(bodyNode);
                             CelestialBody CB = FlightGlobals.Bodies.FirstOrDefault(a => a.GetName() == bodyInfo.body);
                             if (CB != null)
                             {
-                                RBCelestialBodyInfo[CB] = bodyInfo;
+                                Database.instance.CelestialBodies[CB].isResearched = bodyInfo.isResearched;
+                                Database.instance.CelestialBodies[CB].researchState = bodyInfo.researchState;
+                                Database.instance.CelestialBodies[CB].ignore = bodyInfo.ignore;
                             }
                         }
                     }
                 }
-                else  //No config node, so create default.
+                else  //No config node, so Must be NEW Game!
                 {
-                    foreach (CelestialBody body in BodyList)
+                    Enabled = true;
+                    chances = Database.instance.chances;
+                    enableInSandbox = Database.instance.enableInSandbox;
+                    allowTSlevel1 = Database.instance.allowTSlevel1;
+                    ResearchBodiesController.instance.showStartUI = true;
+                    
+                    foreach (CelestialBody body in Database.instance.BodyList)
                     {
                         CelestialBodyInfo bodyInfo = new CelestialBodyInfo(body.GetName());
-                        RBCelestialBodyInfo[body] = bodyInfo;
+                        Database.instance.CelestialBodies[body].isResearched = bodyInfo.isResearched;
+                        Database.instance.CelestialBodies[body].researchState = bodyInfo.researchState;
+                        Database.instance.CelestialBodies[body].ignore = bodyInfo.ignore;
                     }
                 }
-                //Now we check we have a Dictionary entry for all the bodies in the BodyList.
-                foreach (CelestialBody body in BodyList)
-                {
-                    
-                }
+                
             }
             else //OLD Save file found, convert to persistent.sfs confignode and delete file.
             {
                 RSTLogWriter.Log("Converting Old Save file to new persistent.sfs config node - Loading old save file");
                 ConfigNode mainnode = ConfigNode.Load("saves/" + HighLogic.SaveFolder + "/researchbodies.cfg");
-                ResearchBodies.toolbar = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("difficulty") ?? "0"); // DEPRECATED!
+                Difficulty = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("difficulty") ?? "0"); // DEPRECATED!
 
-                ResearchBodies.ResearchCost = float.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ResearchCost") ?? "10");
-                ResearchBodies.ProgressResearchCost = float.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ProgressResearchCost") ?? "5");
-                ResearchBodies.ScienceReward = float.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ResearchCost") ?? "5");
-
-                BodyList = FlightGlobals.Bodies.ToList(); 
-                if (Utilities.IsModInstalled("TarsierSpaceTech") && TSTWrapper.APITSTReady)
-                {
-                    BodyList = BodyList.Concat(TSTWrapper.actualTSTAPI.CBGalaxies).ToList();
-                }
-                foreach (CelestialBody cb in BodyList)
+                ResearchCost = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ResearchCost") ?? "10");
+                ProgressResearchCost = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ProgressResearchCost") ?? "5");
+                ScienceReward = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ResearchCost") ?? "5");
+                
+                foreach (CelestialBody cb in Database.instance.BodyList)
                 {
                     bool fileContainsCB = false;
                     foreach (ConfigNode oldnode in mainnode.GetNode("RESEARCHBODIES").nodes)
@@ -106,19 +121,19 @@ namespace ResearchBodies
                         {
                             if (bool.Parse(oldnode.GetValue("ignore")))
                             {
-                                ResearchBodies.TrackedBodies[cb] = true;
-                                ResearchBodies.ResearchState[cb] = 100;
+                                Database.instance.CelestialBodies[cb].isResearched = true;
+                                Database.instance.CelestialBodies[cb].researchState = 100;
                             }
                             else
                             {
-                                ResearchBodies.TrackedBodies[cb] = bool.Parse(oldnode.GetValue("isResearched"));
+                                Database.instance.CelestialBodies[cb].isResearched = bool.Parse(oldnode.GetValue("isResearched"));
                                 if (oldnode.HasValue("researchState"))
                                 {
-                                    ResearchBodies.ResearchState[cb] = int.Parse(oldnode.GetValue("researchState"));
+                                    Database.instance.CelestialBodies[cb].researchState = int.Parse(oldnode.GetValue("researchState"));
                                 }
                                 else
                                 {
-                                    ResearchBodies.ResearchState[cb] = 0;
+                                    Database.instance.CelestialBodies[cb].researchState = 0;
                                 }
                             }
                             fileContainsCB = true;
@@ -126,29 +141,47 @@ namespace ResearchBodies
                     }
                     if (!fileContainsCB)
                     {
-                        ResearchBodies.TrackedBodies[cb] = false;
-                        ResearchBodies.ResearchState[cb] = 0;
+                        Database.instance.CelestialBodies[cb].isResearched = false;
+                        Database.instance.CelestialBodies[cb].researchState = 0;
                     }
                 }
                 File.Delete("saves/" + HighLogic.SaveFolder + "/researchbodies.cfg");
                 RSTLogWriter.Log("Converted Old Save file to new persistent.sfs config node - Loading/Conversion complete. Old save file deleted");
             }
-            RSTUtils.Utilities.Log_Debug("RBGameSettings Loading Complete");
+
+            RSTLogWriter.Log("RBGameSettings Loading Complete");
         }
 
         public void Save(ConfigNode node)
         {
-            var settingsNode = node.HasNode(configNodeName) ? node.GetNode(configNodeName) : node.AddNode(configNodeName);
-
-            settingsNode.AddValue("Enabled", Enabled);
-
-            foreach (var entry in KnownVessels)
+            ConfigNode settingsNode;
+            if (node.HasNode(configNodeName))
             {
-                ConfigNode vesselNode = entry.Value.Save(settingsNode);
-                RSTUtils.Utilities.Log_Debug("RBGameSettings Saving Guid = {0}", entry.Key.ToString());
-                vesselNode.AddValue("Guid", entry.Key);
+                settingsNode = node.GetNode(configNodeName);
+                settingsNode.ClearData();
             }
-            RSTUtils.Utilities.Log_Debug("RBGameSettings Saving Complete");
+            else
+            {
+                settingsNode = node.AddNode(configNodeName);
+            }
+            settingsNode.AddValue("Enabled", Enabled);
+            settingsNode.AddValue("Difficulty", Difficulty);
+            settingsNode.AddValue("ResearchCost", ResearchCost);
+            settingsNode.AddValue("ProgressResearchCost", ProgressResearchCost);
+            settingsNode.AddValue("ScienceReward", ScienceReward);
+            settingsNode.AddValue("UseAppLauncher", UseAppLauncher);
+            settingsNode.AddValue("DebugLogging", DebugLogging);
+            settingsNode.AddValue("chances", chances);
+            settingsNode.AddValue("enableInSandbox", enableInSandbox);
+            settingsNode.AddValue("allowTSlevel1", allowTSlevel1);
+
+            foreach (var entry in Database.instance.CelestialBodies)
+            {
+                ConfigNode CBNode = entry.Value.Save(settingsNode);
+                RSTUtils.Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.GetName());
+                //CBNode.AddValue("body", entry.Key.GetName());
+            }
+            RSTLogWriter.Log("RBGameSettings Saving Complete");
         }
     }
     
