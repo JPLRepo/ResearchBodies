@@ -85,7 +85,7 @@ namespace TarsierSpaceTech
             actualRBSC = null;
             actualRBDB = null;
 
-            LogFormatted_DebugOnly("Attempting to Grab ResearchBodies Types...");
+            LogFormatted("Attempting to Grab ResearchBodies Types...");
 
             //find the base type
             RBAPIType = AssemblyLoader.loadedAssemblies
@@ -98,7 +98,7 @@ namespace TarsierSpaceTech
                 return false;
             }
 
-            LogFormatted_DebugOnly("ResearchBodies Version:{0}", RBAPIType.Assembly.GetName().Version.ToString());
+            LogFormatted("ResearchBodies Version:{0}", RBAPIType.Assembly.GetName().Version.ToString());
             
             //find the base type
             RBSCAPIType = AssemblyLoader.loadedAssemblies
@@ -134,7 +134,7 @@ namespace TarsierSpaceTech
             }
 
             //now grab the running instances
-            LogFormatted_DebugOnly("Got Assembly Types, grabbing Instances");
+            LogFormatted("Got Assembly Types, grabbing Instances");
             try
             {
                 actualRB = RBAPIType.GetField("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null);
@@ -183,8 +183,7 @@ namespace TarsierSpaceTech
                 return false;
             }
 
-            //If we get this far we can set up the local object and its methods/functions
-            LogFormatted_DebugOnly("Got Instance, Creating Wrapper Objects");
+            //If we get this far we can set up the local object and its methods/functions            
             RBactualAPI = new RBAPI(actualRB, actualRBSC, actualRBDB);
             _RBWrapped = true;
             return true;
@@ -210,30 +209,13 @@ namespace TarsierSpaceTech
                 //WORK OUT THE STUFF WE NEED TO HOOK FOR PEOPLE HERE
 
                 //Methods
-
-                LogFormatted_DebugOnly("Getting enabled Method");
-                enabledMethod = RBAPIType.GetMethod("get_enabled", BindingFlags.Public | BindingFlags.Static);
-                LogFormatted_DebugOnly("Success: " + (enabledMethod != null));
-
-                LogFormatted_DebugOnly("Getting FoundBody Method");
-                FoundBodyMethod = RBSCAPIType.GetMethod("FoundBody", BindingFlags.Public | BindingFlags.Static);
-                LogFormatted_DebugOnly("Success: " + (FoundBodyMethod != null));
-
-                LogFormatted_DebugOnly("Getting Research Method");
-                ResearchMethod = RBSCAPIType.GetMethod("Research", BindingFlags.Public | BindingFlags.Static);
-                LogFormatted_DebugOnly("Success: " + (ResearchMethod != null));
-
-                LogFormatted_DebugOnly("Getting LaunchResearchPlan Method");
-                LaunchResearchPlanMethod = RBSCAPIType.GetMethod("LaunchResearchPlan", BindingFlags.Public | BindingFlags.Static);
-                LogFormatted_DebugOnly("Success: " + (LaunchResearchPlanMethod != null));
-
-                LogFormatted_DebugOnly("Getting StopResearchPlan Method");
-                StopResearchPlanMethod = RBSCAPIType.GetMethod("StopResearchPlan", BindingFlags.Public | BindingFlags.Static);
-                LogFormatted_DebugOnly("Success: " + (StopResearchPlanMethod != null));
-
-                LogFormatted_DebugOnly("Getting CelestialBodies field");
-                CelestialBodiesField = RBDBAPIType.GetField("CelestialBodies", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-                LogFormatted_DebugOnly("Success: " + (CelestialBodiesField != null));
+                
+                enabledMethod = RBAPIType.GetMethod("get_enabled", BindingFlags.Public | BindingFlags.Static);                
+                FoundBodyMethod = RBSCAPIType.GetMethod("FoundBody", BindingFlags.Public | BindingFlags.Static);                
+                ResearchMethod = RBSCAPIType.GetMethod("Research", BindingFlags.Public | BindingFlags.Static);                
+                LaunchResearchPlanMethod = RBSCAPIType.GetMethod("LaunchResearchPlan", BindingFlags.Public | BindingFlags.Static);                
+                StopResearchPlanMethod = RBSCAPIType.GetMethod("StopResearchPlan", BindingFlags.Public | BindingFlags.Static);                
+                CelestialBodiesField = RBDBAPIType.GetField("CelestialBodies", BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);              
 
             }
 
@@ -427,38 +409,15 @@ namespace TarsierSpaceTech
                 //these sections get and store the reflection info and actual objects where required. Later in the properties we then read the values from the actual objects
                 //for events we also add a handler
 
-                //WORK OUT THE STUFF WE NEED TO HOOK FOR PEOPLE HERE
-                //LogFormatted("Getting body field");
-                bodyField = RBDBCelestialBodyType.GetField("body", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (bodyField != null));
-
-                //LogFormatted("Getting isResearched field");
-                isResearchedField = RBDBCelestialBodyType.GetField("isResearched", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (isResearchedField != null));
-
-                //LogFormatted("Getting researchState field");
-                researchStateField = RBDBCelestialBodyType.GetField("researchState", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (researchStateField != null));
-
-                //LogFormatted("Getting ignore field");
-                ignoreField = RBDBCelestialBodyType.GetField("ignore", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (ignoreField != null));
-
-                //LogFormatted("Getting priority field");
-                priorityField = RBDBCelestialBodyType.GetField("priority", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (priorityField != null));
-
-                //LogFormatted("Getting discoveryMessage field");
-                discoveryMessageField = RBDBCelestialBodyType.GetField("discoveryMessage", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (discoveryMessageField != null));
-
-                //LogFormatted("Getting KOPbarycenter field");
-                KOPbarycenterField = RBDBCelestialBodyType.GetField("KOPbarycenter", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (KOPbarycenterField != null));
-
-                //LogFormatted("Getting KOPrelbarycenterBody field");
-                KOPrelbarycenterBodyField = RBDBCelestialBodyType.GetField("KOPrelbarycenterBody", BindingFlags.Public | BindingFlags.Instance);
-                //LogFormatted_DebugOnly("Success: " + (KOPrelbarycenterBodyField != null));
+                //WORK OUT THE STUFF WE NEED TO HOOK FOR PEOPLE HERE                
+                bodyField = RBDBCelestialBodyType.GetField("body", BindingFlags.Public | BindingFlags.Instance);                
+                isResearchedField = RBDBCelestialBodyType.GetField("isResearched", BindingFlags.Public | BindingFlags.Instance);                
+                researchStateField = RBDBCelestialBodyType.GetField("researchState", BindingFlags.Public | BindingFlags.Instance);                
+                ignoreField = RBDBCelestialBodyType.GetField("ignore", BindingFlags.Public | BindingFlags.Instance);                
+                priorityField = RBDBCelestialBodyType.GetField("priority", BindingFlags.Public | BindingFlags.Instance);                
+                discoveryMessageField = RBDBCelestialBodyType.GetField("discoveryMessage", BindingFlags.Public | BindingFlags.Instance);                
+                KOPbarycenterField = RBDBCelestialBodyType.GetField("KOPbarycenter", BindingFlags.Public | BindingFlags.Instance);                
+                KOPrelbarycenterBodyField = RBDBCelestialBodyType.GetField("KOPrelbarycenterBody", BindingFlags.Public | BindingFlags.Instance);                
             }
 
             private Object APIactualCelestialBodyInfo;
@@ -602,19 +561,7 @@ namespace TarsierSpaceTech
         }
         
         #region Logging Stuff
-
-        /// <summary>
-        /// Some Structured logging to the debug file - ONLY RUNS WHEN TST Debug mode is on
-        /// </summary>
-        /// <param name="Message">Text to be printed - can be formatted as per String.format</param>
-        /// <param name="strParams">Objects to feed into a String.format</param>        
-        internal static void LogFormatted_DebugOnly(String Message, params Object[] strParams)
-        {
-            TSTSettings TSTsettings = TSTMstStgs.Instance.TSTsettings;
-            if (TSTsettings.debugging)
-                LogFormatted(Message, strParams);
-        }
-
+        
         /// <summary>
         /// Some Structured logging to the debug file
         /// </summary>
