@@ -1,6 +1,6 @@
 ResearchBodies mod by simon56modder, Well, JPLRepo
 ==============================================
-	  Made for KSP v1.1.2
+	  Made for KSP v1.1.3
 ==============================================
 	   	ABOUT
 ==============================================
@@ -16,7 +16,7 @@ new zone of the sky, and if you're lucky... You find a new celestial body !
   (so you reset the ResearchBodies data)
 
 ==============================================
-ResearchBodies v1.7.2, released on June 1st, 2016                   
+ResearchBodies v1.8.1, released on July 30th, 2016                   
 ==============================================
 	      INSTALLATION
 ==============================================
@@ -38,6 +38,11 @@ Moved to Changelog.txt
 ==============================================
 		LICENSE
 ==============================================
+All plug-in Code is
+	-- MIT license --
+https://opensource.org/licenses/MIT
+
+All Graphics art and models is
 	 -- CC BY-NC-SA 4.0 --
 http://creativecommons.org/licenses/by-nc-sa/4.0/
 
