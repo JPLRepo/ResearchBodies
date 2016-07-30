@@ -115,12 +115,19 @@ namespace ResearchBodies
         }
         
         /// <summary>
-        /// Called by GameEvent onOffered. Will check contract parameters for reference to untracked bodies.
+        /// Called by GameEvent onOffered. 
+        /// If Contract name == "ConfiguredContract" it's a Contract Configurator mod contract, which is RB aware, so ignore it.
+        /// Will check contract parameters for reference to untracked bodies.
         /// If it finds a reference it will Withdraw the contract.
         /// </summary>
         /// <param name="contract"></param>
         private void CheckContracts(Contract contract)
         {
+            //Ignore Contract Configurator Contracts.
+            if (contract.GetType().Name == "ConfiguredContract")
+            {
+                return;
+            }
             
             foreach (ContractParameter cp in contract.AllParameters.ToList())
             {
