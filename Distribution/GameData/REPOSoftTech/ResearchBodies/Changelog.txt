@@ -1,4 +1,6 @@
-﻿V1.8.0 (07-10-2016) ==
+﻿V1.8.1 (07-30-2016) ==
+Improved integration with Contract Configurator Mod.
+V1.8.0 (07-10-2016) ==
 *Re-factored so much of the code... Under the hood now uses Scenarios to automatically save and load the game state to the persistent.sfs file.
 *If you have an old researchbodies.cfg file in your save folder V1.8.0 will read it and convert it into the new format,save your game into the persistent.sfs file and
 delete the old savegame file (researchbodies.cfg).
