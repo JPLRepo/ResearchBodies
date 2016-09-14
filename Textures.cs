@@ -30,6 +30,9 @@ namespace ResearchBodies
         internal static Texture2D BtnResize = new Texture2D(16, 16, TextureFormat.ARGB32, false);
         internal static Texture2D BtnResizeHeight = new Texture2D(16, 16, TextureFormat.ARGB32, false);
         internal static Texture2D BtnResizeWidth = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+        internal static Texture2D SpriteObservatory = new Texture2D(256, 256, TextureFormat.ARGB32, false);
+
+       
 
         internal static String PathIconsPath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder.Substring(0, RSTLogWriter.AssemblyFolder.IndexOf("/ResearchBodies/") + 16), "Icons").Replace("\\", "/");
         internal static String PathToolbarIconsPath = PathIconsPath.Substring(PathIconsPath.ToLower().IndexOf("/gamedata/") + 10);
@@ -46,6 +49,7 @@ namespace ResearchBodies
                 LoadImageFromFile(ref BtnResize, "RBbtnResize.png", PathIconsPath);
                 LoadImageFromFile(ref BtnResizeHeight, "RBbtnResizeHeight.png", PathIconsPath);
                 LoadImageFromFile(ref BtnResizeWidth, "RBbtnResizeWidth.png", PathIconsPath);
+                LoadImageFromFile(ref SpriteObservatory, "SpriteObservPicker.png", PathIconsPath);
             }
             catch (Exception)
             {
@@ -97,7 +101,16 @@ namespace ResearchBodies
 
         internal static void SetupStyles()
         {
-            GUI.skin = HighLogic.Skin;
+            if (HighLogic.Skin != null)
+            {
+                GUI.skin = HighLogic.Skin;
+                Debug.Log("Highlogic.Skin Applied");
+            }
+            else
+            {
+                
+            }
+
 
             //Init styles
 

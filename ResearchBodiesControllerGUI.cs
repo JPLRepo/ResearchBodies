@@ -1,14 +1,15 @@
 ﻿/*
  * ResearchBodiesControllerGUI.cs
  * (C) Copyright 2016, Jamie Leighton 
- * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
- * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Original code by KSP forum User simon56modder.
+ * License : MIT 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Original code was developed by 
  * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  * project is in no way associated with nor endorsed by Squad.
- *
- *  ResearchBodies is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
  *
  */
 using System;
@@ -21,7 +22,7 @@ namespace ResearchBodies
 {
     public partial class ResearchBodiesController : MonoBehaviour
     {
-        private AppLauncherToolBar RBMenuAppLToolBar;
+        internal AppLauncherToolBar RBMenuAppLToolBar;
         private Vector2 InstructorscrollViewVector = Vector2.zero;
         private Vector2 ResearchscrollViewVector = Vector2.zero;
         private Vector2 scrollViewVector = Vector2.zero;
@@ -40,9 +41,6 @@ namespace ResearchBodies
         private string tmpToolTip;
         private bool haveTrackedBodies = false;
         private int difficulty;
-        private float ResearchCost;
-        private float ScienceReward;
-        private float ProgressResearchCost;
 
         private static string LOCK_ID = "ResearchBodies_KeyBinder";
 
@@ -63,7 +61,7 @@ namespace ResearchBodies
                 RBMenuAppLToolBar.GuiVisible = showGUI;
             }
         }
-
+        /*
         /// <summary>
         ///     Called by unity every frame.
         /// </summary>
@@ -117,7 +115,7 @@ namespace ResearchBodies
             {
                 if (value)
                 {
-                    InputLockManager.SetControlLock(ControlTypes.All | ControlTypes.KSC_ALL | ControlTypes.APPLAUNCHER_BUTTONS | ControlTypes.ACTIONS_ALL, LOCK_ID);
+                    InputLockManager.SetControlLock(ControlTypes.All, LOCK_ID);
                 }
                 else
                 {
@@ -125,7 +123,7 @@ namespace ResearchBodies
                 }
             }
         }
-
+        */
         public void OnGUI()
         {
             if (!enable) return;
@@ -151,11 +149,11 @@ namespace ResearchBodies
                 hoverwindow = GUI.Window(_hoverwindowId, hoverwindow, DrawHoverwin, "Research Bodies", HighLogic.Skin.window);
             }
 
-            if (showStartUI)
-            {
-                startWindow.ClampInsideScreen();
-                startWindow = GUILayout.Window(_startwindowId, startWindow, DrawStartWindow, "ResearchBodies " + Locales.currentLocale.Values["misc_settings"]);
-            }
+            //if (showStartUI)
+            //{
+            //    startWindow.ClampInsideScreen();
+            //    startWindow = GUILayout.Window(_startwindowId, startWindow, DrawStartWindow, "ResearchBodies " + Locales.currentLocale.Values["misc_settings"]);
+            //}
 
             if (!RBMenuAppLToolBar.GuiVisible || RBMenuAppLToolBar.gamePaused || RBMenuAppLToolBar.hideUI) return;
 
@@ -200,7 +198,7 @@ namespace ResearchBodies
         public static void OnLocaleChanged(Locale target)
         {
             Database.instance.difficultyStrings = new string[] { target.Values["start_easy"], target.Values["start_normal"], target.Values["start_medium"], target.Values["start_hard"] };
-        }
+        }/*
         private void DrawStartWindow(int id)
         {
             GUILayout.BeginVertical();
@@ -211,7 +209,7 @@ namespace ResearchBodies
                 if (GUILayout.Button(Locales.locales[i].LocaleFull))
                 {
                     Locales.currentLocale = Locales.locales[i];
-                    Locales.Save(Locales.locales[i]);
+                    //Locales.Save(Locales.locales[i]);
                     Locales.LoadDiscoveryMessages();
                     OnLocaleChanged(Locales.currentLocale);
                 }
@@ -251,15 +249,15 @@ namespace ResearchBodies
                     }
                 }
                 ResearchBodies.Instance.RBgameSettings.Difficulty = difficulty;
-                ResearchBodies.Instance.RBgameSettings.ResearchCost = Convert.ToInt32(ResearchCost);
-                ResearchBodies.Instance.RBgameSettings.ScienceReward = Convert.ToInt32(ScienceReward);
+                Database.Instance.RB_SettingsParms.ResearchCost = Convert.ToInt32(ResearchCost);
+                Database.Instance.RB_SettingsParms.ScienceReward = Convert.ToInt32(ScienceReward);
                 SetBodyDiscoveryLevels();
                 showStartUI = false;
             }
             GUILayout.EndVertical();
             Utilities.SetTooltipText();
             GUI.DragWindow();
-        }
+        }*/
         private void DrawSettings(int id)
         {
             GUIContent closeContent = new GUIContent(Textures.BtnRedCross, "Close Window");
@@ -279,7 +277,7 @@ namespace ResearchBodies
                 if (GUILayout.Button(Locales.locales[i].LocaleFull))
                 {
                     Locales.currentLocale = Locales.locales[i];
-                    Locales.Save(Locales.locales[i]);
+                    //Locales.Save(Locales.locales[i]);
                     Locales.LoadDiscoveryMessages();
                     OnLocaleChanged(Locales.currentLocale);
                 }
@@ -334,6 +332,7 @@ namespace ResearchBodies
             {
                 RBMenuAppLToolBar.onAppLaunchToggle();
                 showSettings = false;
+                ResearchBodies_Observatory.Instance.SpaceCenterObservatory.DeActivateObservatory_SC_Facility();
                 return;
             }
             GUILayout.BeginHorizontal();
@@ -419,7 +418,7 @@ namespace ResearchBodies
                     GUILayout.Label(string.Format(Locales.currentLocale.Values["research_researchState"], Database.instance.CelestialBodies[selectedBody].researchState), GUILayout.Width(502));
                     if (Database.instance.CelestialBodies[selectedBody].researchState == 0)
                     {
-                        if (GUILayout.Button("<color=green>" + string.Format(Locales.currentLocale.Values["research_launchPlan"], selectedBody.GetName()) + " </color><size=10><i>(" + string.Format(Locales.currentLocale.Values["research_launchPlanCost"], (ResearchBodies.Instance.RBgameSettings.ResearchCost + ResearchBodies.Instance.RBgameSettings.ProgressResearchCost).ToString() /* 10 */) + ")</i></size>", GUILayout.Width(502)))  
+                        if (GUILayout.Button("<color=green>" + string.Format(Locales.currentLocale.Values["research_launchPlan"], selectedBody.GetName()) + " </color><size=10><i>(" + string.Format(Locales.currentLocale.Values["research_launchPlanCost"], (Database.instance.RB_SettingsParms.ResearchCost + Database.instance.RB_SettingsParms.ProgressResearchCost).ToString() /* 10 */) + ")</i></size>", GUILayout.Width(502)))  
                         {
                             LaunchResearchPlan(selectedBody);
                             PlayNiceEmote();
@@ -430,7 +429,7 @@ namespace ResearchBodies
                         if (!Database.instance.CelestialBodies[selectedBody].ignore)
                         {
                             if (
-                                GUILayout.Button("<color=red>" + string.Format(Locales.currentLocale.Values["research_stopPlan"], selectedBody.GetName()) + " </color><size=10><i>(" + string.Format(Locales.currentLocale.Values["research_stopPlanGives"], ResearchBodies.Instance.RBgameSettings.ResearchCost /* 5 */) + ")</i></size>", GUILayout.Width(502)))
+                                GUILayout.Button("<color=red>" + string.Format(Locales.currentLocale.Values["research_stopPlan"], selectedBody.GetName()) + " </color><size=10><i>(" + string.Format(Locales.currentLocale.Values["research_stopPlanGives"], Database.instance.RB_SettingsParms.ResearchCost /* 5 */) + ")</i></size>", GUILayout.Width(502)))
                             {
                                 StopResearchPlan(selectedBody);
                                 PlayBadEmote();
@@ -447,7 +446,7 @@ namespace ResearchBodies
                         else if (Database.instance.CelestialBodies[selectedBody].researchState >= 40 && Database.instance.CelestialBodies[selectedBody].researchState < 100)
                         {
                             GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_aspect"] + " ✓</color></i>", GUILayout.Width(502)); 
-                            if (GUILayout.Button(Locales.currentLocale.Values["researchData_caracteristics"], GUILayout.Width(502))) 
+                            if (GUILayout.Button(Locales.currentLocale.Values["researchData_characteristics"], GUILayout.Width(502))) 
                             {
                                 PlayNiceEmote();
                                 Research(selectedBody, 10);
@@ -456,7 +455,7 @@ namespace ResearchBodies
                         else if (Database.instance.CelestialBodies[selectedBody].researchState >= 100)
                         {
                             GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_aspect"] + " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 227, 502, 32), 
-                            GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_caracteristics"] + " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 264, 502, 32), 
+                            GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_characteristics"] + " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 264, 502, 32), 
 
                             GUILayout.Label("<b>" + string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_sendVessels"], selectedBody.GetName()) + "</b>", GUILayout.Width(502)); //new Rect(188, 301, 502, 32), 
 

@@ -4,14 +4,15 @@ using System.Linq;
 /*
  * Locale.cs
  * (C) Copyright 2016, Jamie Leighton 
- * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
- * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Original code by KSP forum User simon56modder.
+ * License : MIT 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Original code was developed by 
  * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  * project is in no way associated with nor endorsed by Squad.
- *
- *  ResearchBodies is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
  *
  */
 using UnityEngine;
@@ -30,9 +31,7 @@ namespace ResearchBodies
 
         public static List<Locale> locales = new List<Locale>();
         public static Locale currentLocale;
-        private Locale precedentLocale;
-        private bool status = true; // true = save, false = check
-        internal static String PathcacheLocalePath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder, "PluginData/cacheLocale").Replace("\\", "/");
+        //internal static String PathcacheLocalePath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder, "PluginData/cacheLocale").Replace("\\", "/");
         internal static String PathDatabasePath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder.Substring(0, RSTLogWriter.AssemblyFolder.IndexOf("/ResearchBodies/") + 16), "database.cfg").Replace("\\", "/");
 
         public void Start()
@@ -44,49 +43,60 @@ namespace ResearchBodies
                 {
                     Locale l = new Locale(node);
                     locales.Add(l);
-                    RSTLogWriter.Log_Debug("Added locale \"{0}\"", l.LocaleId);
+                    RSTLogWriter.Log("Added locale \"{0}\"", l.LocaleId);
                 }
             }
 
-            if (File.Exists(PathcacheLocalePath))
+            if (locales.Count == 0)
+                RSTLogWriter.Log("No locale added !");
+            else
+                RSTLogWriter.Log("Added {0}  locales", locales.Count);
+            RSTLogWriter.Flush();
+        }
+        
+        /// <summary>
+        /// Set the Locale (Language) If a language string is passed in it will attempt to find a locale with that name and set the locale to that.
+        /// If it cannot find it will default to English.
+        /// If HighLogic.CurrentGame is not null it will try to use the Custom Settings Parameter to set the Locale.
+        /// Otherwise it will again default to English.
+        /// If the Database.Instance has started will re-load the Celestial Body Discovery messages
+        /// </summary>
+        /// <param name="language"></param>
+        public static void setLocale(string language)
+        {
+            if (HighLogic.CurrentGame != null)
             {
-                StreamReader sr = new StreamReader(PathcacheLocalePath);
-                string line = sr.ReadLine();
+                if (language == "")
+                {
+                    language = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().language;
+                }
                 foreach (Locale l in locales)
                 {
-                    if (l.LocaleId == line)
-                    {
+                    if (l.LocaleFull == language)
                         currentLocale = l;
-                        RSTLogWriter.Log_Debug("Loaded {0}  from cache", l.LocaleFull);
-                    }
                 }
-                sr.Close();
             }
-            else
+
+            if (currentLocale == null)
             {
+                if (language != "")
+                {
+                    foreach (Locale l in locales)
+                    {
+                        if (l.LocaleFull == language)
+                            currentLocale = l;
+                    }
+                    if (currentLocale != null)
+                        return;
+                }
                 foreach (Locale l in locales)
                 {
                     if (l.LocaleId == "en")
                         currentLocale = l;
                 }
-                TextWriter tw = new StreamWriter(PathcacheLocalePath);
-                tw.Write(currentLocale.LocaleId);
-                tw.Close();
             }
-
-            if (locales.Count == 0)
-                RSTLogWriter.Log_Debug("No locale added !");
-            else
-                RSTLogWriter.Log_Debug("Added {0}  locales", locales.Count);
-        }
-
-        public static void Save(Locale l)
-        {
-            if (File.Exists(PathcacheLocalePath))
-                File.Delete(PathcacheLocalePath);
-            TextWriter tw = new StreamWriter(PathcacheLocalePath);
-            tw.Write(l.LocaleId);
-            tw.Close();
+            if (Database.instance != null)
+                LoadDiscoveryMessages();
         }
 
         public static void LoadDiscoveryMessages()
@@ -125,9 +135,18 @@ namespace ResearchBodies
         }
     }
 
+    
+
     public class Locale
     {
-        Dictionary<string, string> _values;
+        public string LocaleFull;
+        public string LocaleId;
+        private Dictionary<string, string> _values;
+        public Dictionary<string, string> Values
+        {
+            get { return this._values; }
+            set { this._values = value; }
+        }
 
         public Locale(ConfigNode baseCfg)
         {
@@ -144,16 +163,5 @@ namespace ResearchBodies
                 this.LocaleId = baseCfg.GetValue("LocaleId");
             }
         }
-
-        public Dictionary<string, string> Values
-        {
-            get { return this._values; }
-            set { this._values = value; }
-        }
-
-        public string LocaleFull;
-        public string LocaleId;
-
     }
-    
 }

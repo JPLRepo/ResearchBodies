@@ -33,14 +33,13 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\KSPDLLs - 1.1.3\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\KSPDLLs - 1.2\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\KSPDLLs - 1.1.3\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>..\KSPDLLs - 1.1.3\KSPUtil.dll</HintPath>
+    <Reference Include="KSPAssets, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\KSPDLLs - 1.2\KSPAssets.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,11 +47,13 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\KSPDLLs - 1.1.3\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\KSPDLLs - 1.2\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\KSPDLLs - 1.1.3\UnityEngine.UI.dll</HintPath>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\KSPDLLs - 1.2\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -60,7 +61,9 @@
     <Compile Include="BodyIgnoreData.cs" />
     <Compile Include="CelestialBodyInfo.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="REPOSoftTechUtils\GameObjectAddComponent.cs" />
     <Compile Include="Locale.cs" />
+    <Compile Include="Observatory.cs" />
     <Compile Include="PartModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RBEnums.cs" />
@@ -74,14 +77,19 @@
     <Compile Include="ResearchBodiesController.cs" />
     <Compile Include="ResearchBodiesControllerGUI.cs" />
     <Compile Include="RSTLogWriter.cs" />
+    <Compile Include="SettingsParms.cs" />
     <Compile Include="Textures.cs" />
     <Compile Include="API\TSTWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Distribution\GameData\REPOSoftTech\ResearchBodies\Changelog.txt" />
     <Content Include="LocalDev\7za_dir.txt" />
     <Content Include="LocalDev\ksp_dir.txt" />
     <Content Include="LocalDev\mono_exe.txt" />
     <Content Include="LocalDev\pdb2mdb_exe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="PostBuildMacros">

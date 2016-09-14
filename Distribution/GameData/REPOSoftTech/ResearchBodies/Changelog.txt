@@ -1,4 +1,9 @@
-﻿V1.8.1 (07-30-2016) ==
+﻿V1.9.0 (xx-xx-2016) ==
+*Fixed typo in locales for Characteristics and Orbit in UI.
+*Added Observatory SpaceCenter Facility. Yes - this Facility acts exactly like a stock one. It has TWO upgrade levels that provide different features, functions and contracts for Finding an Researching 
+celestial bodies.
+*Oh, did I mention contracts?
+V1.8.1 (07-30-2016) ==
 Improved integration with Contract Configurator Mod.
 V1.8.0 (07-10-2016) ==
 *Re-factored so much of the code... Under the hood now uses Scenarios to automatically save and load the game state to the persistent.sfs file.

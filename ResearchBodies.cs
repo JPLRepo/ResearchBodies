@@ -1,14 +1,15 @@
 ﻿/*
  * ResearchBodies.cs
  * (C) Copyright 2016, Jamie Leighton 
- * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
- * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Original code by KSP forum User simon56modder.
+ * License : MIT 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Original code was developed by 
  * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  * project is in no way associated with nor endorsed by Squad.
- *
- *  ResearchBodies is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
  *
  */
 using System.Collections.Generic;
@@ -24,25 +25,26 @@ namespace ResearchBodies
         public static ResearchBodies Instance;
         public static bool APIReady;
         internal RBGameSettings RBgameSettings;
-        //private readonly string globalConfigFilename;
-        //private ConfigNode globalNode = new ConfigNode();
         private List<Component> children = new List<Component>();
 
         private bool _enabled;
-        public static bool enabled
+        public static bool Enabled
         {
             get { return Instance._enabled;  }
-            private set { Instance._enabled = value; }
+            internal set { Instance._enabled = value; }
         }
 
         public ResearchBodies()
         {
             RSTLogWriter.Log("ResearchBodies Constructor");
+            if (Instance != null)
+            {
+                RSTLogWriter.Log("Instance exists, destroying Usurper");
+                Destroy(this);
+            }
             Instance = this;
             APIReady = false;
             RBgameSettings = new RBGameSettings();
-            //globalConfigFilename = Path.Combine(RSTLogWriter.AssemblyFolder, "PluginData/Config.cfg").Replace("\\", "/");
-            //RSTLogWriter.Log("globalConfigFilename = " + globalConfigFilename);
         }
 
         public override void OnAwake()
@@ -82,19 +84,8 @@ namespace ResearchBodies
         {
             base.OnLoad(gameNode);
             RBgameSettings.Load(gameNode);
-            // Load the global settings
-            //if (File.Exists(globalConfigFilename))
-            //{
-            //    globalNode = ConfigNode.Load(globalConfigFilename);
-            //    foreach (Savable s in children.Where(c => c is Savable))
-            //    {
-            //        s.Load(globalNode);
-            //    }
-            //}
-            RSTLogWriter.debuggingOn = RBgameSettings.DebugLogging;
-            if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX && !Database.instance.enableInSandbox)
-                RBgameSettings.Enabled = false;
-            enabled = RBgameSettings.Enabled;
+            if (Database.instance.RB_SettingsParms != null)
+                RSTLogWriter.debuggingOn = Database.instance.RB_SettingsParms.DebugLogging;
             APIReady = true;
             if (RSTLogWriter.debuggingOn)
                 RSTLogWriter.Log_Debug("Scenario: " + HighLogic.LoadedScene + " OnLoad: \n ");
@@ -103,6 +94,7 @@ namespace ResearchBodies
             {
                 RSTLogWriter.Log("ResearchBodies Scenario Onload Completed.");
             }
+            RSTLogWriter.Flush();
         }
 
         public override void OnSave(ConfigNode gameNode)
@@ -122,6 +114,7 @@ namespace ResearchBodies
             {
                 RSTLogWriter.Log("ResearchBodies Scenario OnSave completed.");
             }
+            RSTLogWriter.Flush();
         }
 
         protected void OnGameSceneLoadRequested(GameScenes gameScene)
@@ -143,11 +136,4 @@ namespace ResearchBodies
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
         }
     }
-
-    //internal interface Savable
-    //{
-    //    void Load(ConfigNode globalNode);
-
-    //    void Save(ConfigNode globalNode);
-    //}
 }
