@@ -31,16 +31,14 @@ namespace ResearchBodies
         public void Awake()
         {
             instance = this;
-            _startwindowId = Utilities.getnextrandomInt();
             _hoverwindowId = Utilities.getnextrandomInt();
             _RBwindowId = Utilities.getnextrandomInt();
-            _settingswindowId = Utilities.getnextrandomInt();
 
-            RBMenuAppLToolBar = new AppLauncherToolBar("ResearchBodies", "ResearchBodies",
-                Textures.PathToolbarIconsPath + "/RBToolBaricon",
-                ApplicationLauncher.AppScenes.SPACECENTER,
-                (Texture)Textures.ApplauncherIcon, (Texture)Textures.ApplauncherIcon,
-                GameScenes.SPACECENTER);
+            //RBMenuAppLToolBar = new AppLauncherToolBar("ResearchBodies", "ResearchBodies",
+            //    Textures.PathToolbarIconsPath + "/RBToolBaricon",
+            //    ApplicationLauncher.AppScenes.SPACECENTER,
+            //   (Texture)Textures.ApplauncherIcon, (Texture)Textures.ApplauncherIcon,
+            //    GameScenes.SPACECENTER);
         }
 
         public void Start()
@@ -73,17 +71,19 @@ namespace ResearchBodies
                 {
                     Database.instance.UseAppLauncher = true;
                 }
-                RBMenuAppLToolBar.Start(Database.instance.UseAppLauncher);
-                GameEvents.onGUIRnDComplexSpawn.Add(TurnUIOff);
-                GameEvents.onGUIMissionControlSpawn.Add(TurnUIOff);
-                GameEvents.onGUIAstronautComplexSpawn.Add(TurnUIOff);
-                GameEvents.onGUIAdministrationFacilitySpawn.Add(TurnUIOff);
-                GameEvents.onGUIRnDComplexDespawn.Add(TurnUIOn);
-                GameEvents.onGUIMissionControlDespawn.Add(TurnUIOn);
-                GameEvents.onGUIAstronautComplexDespawn.Add(TurnUIOn);
-                GameEvents.onGUIAdministrationFacilityDespawn.Add(TurnUIOn);
+                //RBMenuAppLToolBar.Start(Database.instance.UseAppLauncher);
+                //GameEvents.onGUIRnDComplexSpawn.Add(TurnUIOff);
+                //GameEvents.onGUIMissionControlSpawn.Add(TurnUIOff);
+                //GameEvents.onGUIAstronautComplexSpawn.Add(TurnUIOff);
+                //GameEvents.onGUIAdministrationFacilitySpawn.Add(TurnUIOff);
+                //GameEvents.onGUIRnDComplexDespawn.Add(TurnUIOn);
+                //GameEvents.onGUIMissionControlDespawn.Add(TurnUIOn);
+                //GameEvents.onGUIAstronautComplexDespawn.Add(TurnUIOn);
+                //GameEvents.onGUIAdministrationFacilityDespawn.Add(TurnUIOn);
                 GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
                 Utilities.setScaledScreen();
+                windowRect = new Rect(1, 1, Utilities.scaledScreenWidth-2, Utilities.scaledScreenHeight-2);
+                GameEvents.onScreenResolutionModified.Add(onScreenResolutionModified);
             }
         }
 
@@ -94,17 +94,18 @@ namespace ResearchBodies
 
             if (_instructor != null)
                 Destroy(_instructor.gameObject);
-            if (enable)
-                RBMenuAppLToolBar.Destroy();
-            GameEvents.onGUIRnDComplexDespawn.Remove(TurnUIOff);
-            GameEvents.onGUIMissionControlDespawn.Remove(TurnUIOff);
-            GameEvents.onGUIAstronautComplexSpawn.Remove(TurnUIOff);
-            GameEvents.onGUIAdministrationFacilitySpawn.Remove(TurnUIOff);
-            GameEvents.onGUIRnDComplexDespawn.Remove(TurnUIOn);
-            GameEvents.onGUIMissionControlDespawn.Remove(TurnUIOn);
-            GameEvents.onGUIAstronautComplexDespawn.Remove(TurnUIOn);
-            GameEvents.onGUIAdministrationFacilityDespawn.Remove(TurnUIOn);
+            //if (enable)
+            //    RBMenuAppLToolBar.Destroy();
+            //GameEvents.onGUIRnDComplexDespawn.Remove(TurnUIOff);
+            //GameEvents.onGUIMissionControlDespawn.Remove(TurnUIOff);
+            //GameEvents.onGUIAstronautComplexSpawn.Remove(TurnUIOff);
+            //GameEvents.onGUIAdministrationFacilitySpawn.Remove(TurnUIOff);
+            //GameEvents.onGUIRnDComplexDespawn.Remove(TurnUIOn);
+            //GameEvents.onGUIMissionControlDespawn.Remove(TurnUIOn);
+            //GameEvents.onGUIAstronautComplexDespawn.Remove(TurnUIOn);
+            //GameEvents.onGUIAdministrationFacilityDespawn.Remove(TurnUIOn);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
+            GameEvents.onScreenResolutionModified.Remove(onScreenResolutionModified);
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Remove(CheckContracts);
         }

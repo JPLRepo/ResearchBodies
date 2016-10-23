@@ -54,10 +54,14 @@ namespace ResearchBodies
             }
             instance = this;
             DontDestroyOnLoad(this);
-            LoadDatabase();
             GameEvents.onGameStatePostLoad.Add(onGameStatePostLoad);
             GameEvents.OnGameSettingsApplied.Add(ApplySettings);
             //GameEvents.onGameStateLoad.Add(ApplySettings);
+        }
+
+        public void Start()
+        {
+            LoadDatabase();
         }
 
         public void OnDestroy()
@@ -74,22 +78,23 @@ namespace ResearchBodies
             Locales.setLocale("");
             //string _bodies = Locales.currentLocale.Values["start_availableBodies"] + " : ";
             string _bodies = "";
+            List<CelestialBody> TempBodiesList = new List<CelestialBody>();
             for (int i = 0; i < BodyList.Count; i++)
             {
                 if (CelestialBodies[BodyList[i]].IgnoreData.GetLevel(l) &&  (BodyList[i].Radius > 100 || BodyList[i].name.Contains("TSTGalaxies")))
                 {
-                    
-                    _bodies += BodyList[i].GetName();
-                    if (i < BodyList.Count - 1)
-                    {
-                        _bodies += ", ";
-                    }
+
+                    TempBodiesList.Add(BodyList[i]);
                 }
             }
-            //foreach (CelestialBody body in BodyList.Where(b => CelestialBodies[b].IgnoreData.GetLevel(l) && (b.Radius > 100 || b.name.Contains("TSTGalaxies"))))
-            //{
-            //    _bodies += body.GetName() + ", ";
-            //}
+            for (int i = 0; i < TempBodiesList.Count; i++)
+            {
+                _bodies += BodyList[i].GetName();
+                if (i < TempBodiesList.Count - 1)
+                {
+                    _bodies += ", ";
+                }
+            }
             return _bodies;
         }
         
@@ -358,8 +363,24 @@ namespace ResearchBodies
         public void onGameStatePostLoad(ConfigNode node)
         {
             RSTLogWriter.Log("onGameStatePostLoad");
-            RB_SettingsParms = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>();
-            ApplySettings();
+            if (HighLogic.CurrentGame != null)
+            {
+                RB_SettingsParms = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>();
+                ApplySettings();
+                foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> CB in CelestialBodies)
+                {
+                    CB.Value.ignore = CB.Value.IgnoreData.GetLevel(HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().difficulty);
+                    if (CB.Value.ignore)
+                    {
+                        CB.Value.isResearched = true;
+                        CB.Value.researchState = 100;
+                    }
+                }
+            }
+            else
+            {
+                RSTLogWriter.Log("Highlogic.CurrentGame is NULL cannot set Settings!!");
+            }
         }
 
         public void ApplySettings()
@@ -374,12 +395,12 @@ namespace ResearchBodies
                         HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().RBEnabled;
                 chances = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().DiscoverySeed;
                 allowTSlevel1 = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().Enabledtslvl1;
-                if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar != UseAppLauncher)
-                {
-                    UseAppLauncher = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar;
-                    if (ResearchBodiesController.instance != null)
-                        ResearchBodiesController.instance.RBMenuAppLToolBar.chgAppIconStockToolBar(UseAppLauncher);
-                }
+                //if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar != UseAppLauncher)
+                //{
+                //    UseAppLauncher = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar;
+                //    if (ResearchBodiesController.instance != null)
+                //        ResearchBodiesController.instance.RBMenuAppLToolBar.chgAppIconStockToolBar(UseAppLauncher);
+                //}
                 if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().language !=
                     Locales.currentLocale.LocaleFull)
                 {
@@ -390,15 +411,6 @@ namespace ResearchBodies
             {
                 RSTLogWriter.Log("Database Failed to apply settings - Fatal Error");
             }
-            /*
-       
-
-        [GameParameters.CustomParameterUI("Extra Debug Logging")]
-        public bool DebugLogging = false;
-
-        
-        */
-            
         }
     }
 }

@@ -23,8 +23,10 @@ namespace ResearchBodies
 
         //Toolbar Icons
         internal static Texture2D ToolbarIcon = new Texture2D(24, 24, TextureFormat.ARGB32, false);
-        
+
         //Button Icons
+
+        internal static Texture2D ObsWinBgnd = new Texture2D(10, 10, TextureFormat.ARGB32, false);
         internal static Texture2D TooltipBox = new Texture2D(10, 10, TextureFormat.ARGB32, false);
         internal static Texture2D BtnRedCross = new Texture2D(16, 16, TextureFormat.ARGB32, false);
         internal static Texture2D BtnResize = new Texture2D(16, 16, TextureFormat.ARGB32, false);
@@ -45,6 +47,7 @@ namespace ResearchBodies
                 LoadImageFromFile(ref ApplauncherIcon, "RBAppLaunchericon.png", PathIconsPath); 
                 LoadImageFromFile(ref ToolbarIcon, "RBToolBaricon.png", PathIconsPath);
                 LoadImageFromFile(ref TooltipBox, "RBToolTipBox.png", PathIconsPath);
+                LoadImageFromFile(ref ObsWinBgnd, "RBObsWinBgnd.png", PathIconsPath);
                 LoadImageFromFile(ref BtnRedCross, "RBbtnRedCross.png", PathIconsPath);
                 LoadImageFromFile(ref BtnResize, "RBbtnResize.png", PathIconsPath);
                 LoadImageFromFile(ref BtnResizeHeight, "RBbtnResizeHeight.png", PathIconsPath);
@@ -96,6 +99,7 @@ namespace ResearchBodies
         internal static GUIStyle ResizeStyle, ClosebtnStyle;
         internal static GUIStyle sectionTitleStyle, subsystemButtonStyle, statusStyle, warningStyle, PartListStyle, PartListPartStyle;
         internal static GUIStyle scrollStyle, resizeStyle;
+        internal static GUISkin ObsSkin;
 
         internal static bool StylesSet = false;
 
@@ -104,6 +108,12 @@ namespace ResearchBodies
             if (HighLogic.Skin != null)
             {
                 GUI.skin = HighLogic.Skin;
+                ObsSkin = HighLogic.Skin;
+                ObsSkin.window.normal.background = ObsWinBgnd;
+                ObsSkin.window.active.background = ObsWinBgnd;
+                ObsSkin.window.onActive.background = ObsWinBgnd;
+                ObsSkin.window.onNormal.background = ObsWinBgnd;
+                ObsSkin.window.onFocused.background = ObsWinBgnd;
                 Debug.Log("Highlogic.Skin Applied");
             }
             else

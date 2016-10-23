@@ -90,12 +90,6 @@ namespace ResearchBodies
                 }
                 else  //No config node, so Must be NEW Game!
                 {
-                    //Enabled = true;
-                    //chances = Database.instance.chances;
-                    //enableInSandbox = Database.instance.enableInSandbox;
-                    //allowTSlevel1 = Database.instance.allowTSlevel1;
-                    //ResearchBodiesController.instance.showStartUI = true;
-                    
                     foreach (CelestialBody body in Database.instance.BodyList)
                     {
                         CelestialBodyInfo bodyInfo = new CelestialBodyInfo(body.GetName());
@@ -166,7 +160,7 @@ namespace ResearchBodies
                     Database.instance.RB_SettingsParms.ResearchCost = ResearchCost;
                     Database.instance.RB_SettingsParms.ProgressResearchCost = ProgressResearchCost;
                     Database.instance.RB_SettingsParms.ScienceReward = ScienceReward;
-                    Database.instance.RB_SettingsParms.UseAppLToolbar = UseAppLauncher;
+                    //Database.instance.RB_SettingsParms.UseAppLToolbar = UseAppLauncher;
                     Database.instance.RB_SettingsParms.DebugLogging = DebugLogging;
                     Database.instance.RB_SettingsParms.DiscoverySeed = chances;
                     Database.instance.RB_SettingsParms.Enabledtslvl1 = allowTSlevel1;
@@ -177,6 +171,11 @@ namespace ResearchBodies
                     RSTLogWriter.Log("Failed to apply old game settings to new Stock settings integration");
                 }
 
+            }
+            else
+            {
+                //Database.instance.ApplySettings();
+                Database.instance.onGameStatePostLoad(node);
             }
             RSTLogWriter.Log("RBGameSettings Loading Complete");
             RSTLogWriter.Flush();
@@ -199,7 +198,7 @@ namespace ResearchBodies
             foreach (var entry in Database.instance.CelestialBodies)
             {
                 ConfigNode CBNode = entry.Value.Save(settingsNode);
-                RSTUtils.Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.GetName());
+                Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.GetName());
                 //CBNode.AddValue("body", entry.Key.GetName());
             }
             RSTLogWriter.Log("RBGameSettings Saving Complete");

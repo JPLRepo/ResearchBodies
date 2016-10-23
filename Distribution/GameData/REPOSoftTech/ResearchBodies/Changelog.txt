@@ -2,7 +2,7 @@
 *Fixed typo in locales for Characteristics and Orbit in UI.
 *Added Observatory SpaceCenter Facility. Yes - this Facility acts exactly like a stock one. It has TWO upgrade levels that provide different features, functions and contracts for Finding an Researching 
 celestial bodies.
-*Oh, did I mention contracts?
+*New Game and Settings for this mod are now accessed via the Stock Difficulty Settings for new game and existing game.
 V1.8.1 (07-30-2016) ==
 Improved integration with Contract Configurator Mod.
 V1.8.0 (07-10-2016) ==

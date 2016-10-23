@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using RSTUtils;
 using UnityEngine;
 
 namespace ResearchBodies
@@ -25,6 +26,9 @@ namespace ResearchBodies
         [GameParameters.CustomParameterUI("ResearchBodies Enabled in this save")]
         public bool RBEnabled = true;
 
+        [GameParameters.CustomParameterUI("Planet Visibility", toolTip = "Setting this difficulty determines which bodies\nare automatically discovered at the start of the game.", newGameOnly = true)]
+        public Level difficulty = Level.Normal;
+
         [GameParameters.CustomStringParameterUI("Test String UI", autoPersistance = true, lines = 5,title = "Celestial Bodies already discovered", toolTip = "Depending on the Difficulty Setting these Bodies will be\n already discovered at the start of the game.")]
         public string CBstring = "";
 
@@ -40,8 +44,8 @@ namespace ResearchBodies
         [GameParameters.CustomIntParameterUI("Body Discovery Chance Seed Value", toolTip = "The higher this value the harder it will be to find a new Celestial Body", minValue = 1, maxValue = 6, stepSize = 1, newGameOnly = true)]
         public int DiscoverySeed = 3;
 
-        [GameParameters.CustomParameterUI("Use Stock Application Launcher Icon", toolTip = "If on, the Stock Application launcher will be used,\nif off will use Blizzy Toolbar if installed")]
-        public bool UseAppLToolbar = true;
+        //[GameParameters.CustomParameterUI("Use Stock Application Launcher Icon", toolTip = "If on, the Stock Application launcher will be used,\nif off will use Blizzy Toolbar if installed")]
+        //public bool UseAppLToolbar = true;
 
         [GameParameters.CustomParameterUI("Extra Debug Logging", toolTip = "Turn this On to capture lots of extra information into the KSP log for reporting a problem.")]
         public bool DebugLogging = false;
@@ -59,32 +63,36 @@ namespace ResearchBodies
                     ResearchCost = 20;
                     ProgressResearchCost = 10;
                     ScienceReward = 100;
-                    CBstring = Database.instance.GetIgnoredBodies(Level.Easy);
+                    difficulty = Level.Easy;
+                    CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;
                 case GameParameters.Preset.Normal:
                     ResearchCost = 400;
                     ProgressResearchCost = 200;
                     ScienceReward = 75;
-                    CBstring = Database.instance.GetIgnoredBodies(Level.Normal);
+                    difficulty = Level.Normal;
+                    CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;
                 case GameParameters.Preset.Moderate:
                     ResearchCost = 700;
                     ProgressResearchCost = 350;
                     ScienceReward = 35;
-                    CBstring = Database.instance.GetIgnoredBodies(Level.Medium);
+                    difficulty = Level.Medium;
+                    CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;
                 case GameParameters.Preset.Hard:
                     ResearchCost = 1000;
                     ProgressResearchCost = 500;
                     ScienceReward = 10;
-                    CBstring = Database.instance.GetIgnoredBodies(Level.Hard);
+                    difficulty = Level.Hard;
+                    CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;
                 case GameParameters.Preset.Custom:
                     CBstring = "how do we deal with custom????";
                     break;
             }
         }
-
+        /*
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {
             if (member.Name == "RBEnabled") //RbEnabled must always be enabled.
@@ -93,13 +101,29 @@ namespace ResearchBodies
                 return false;
             return true; //otherwise return true
         }
-
+        */
         public override bool Interactible(MemberInfo member, GameParameters parameters)
         {
             if (member.Name == "RBEnabled") //RbEnabled must always be enabled.
                 return true;
-            if (RBEnabled == false)  //Otherwise it depends on the value of RBEnabled if it's false return false
+            if (RBEnabled == false)
                 return false;
+            if (member.Name == "difficulty")
+            {
+                CBstring = Database.instance.GetIgnoredBodies(difficulty);
+                if (HighLogic.LoadedScene != GameScenes.MAINMENU)
+                {
+                    return false;
+                }
+            }
+            //if (member.Name == "UseAppLToolbar")
+            //{
+            //    if (!ToolbarManager.ToolbarAvailable)
+            //    {
+            //        UseAppLToolbar = true;
+            //        return false;
+            //    }
+            //}
             return true; //otherwise return true
         }
 
@@ -116,13 +140,9 @@ namespace ResearchBodies
                 language = setLanguage;
                 return myIlist;
             }
-            else
-            {
-                return null;
-            }
-            
-        
+            return null;
         }
+
         public override void OnLoad(ConfigNode node)
         {
             node.TryGetValue("language", ref setLanguage);
@@ -132,6 +152,7 @@ namespace ResearchBodies
             }
             else
             {
+                Locales.setLocale("");
                 setLanguage = Locales.currentLocale.LocaleFull;
             }
         }

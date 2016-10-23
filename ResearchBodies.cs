@@ -18,8 +18,7 @@ using RSTUtils;
 
 namespace ResearchBodies
 {
-    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.SPACECENTER, GameScenes.EDITOR, GameScenes.FLIGHT,
-        GameScenes.TRACKSTATION)]
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.SPACECENTER, GameScenes.EDITOR, GameScenes.FLIGHT,GameScenes.TRACKSTATION)]
     public class ResearchBodies : ScenarioModule
     {
         public static ResearchBodies Instance;

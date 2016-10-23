@@ -362,122 +362,122 @@ namespace RSTUtils
 		}
 
 
-        // The following two methods are modified from DebugStuff by Sarbian. Which is covered by MIT
-        private static StringBuilder sb = new StringBuilder();
+		// The following two methods are modified from DebugStuff by Sarbian. Which is covered by MIT
+		private static StringBuilder sb = new StringBuilder();
 
-        internal static void DumpGameObjectHierarchy(GameObject p)
-        {
-            sb.Length = 0;
-            DumpGameObjectChilds(p, "", sb);
-            Debug.Log(sb.ToString());
-        }
+		internal static void DumpGameObjectHierarchy(GameObject p)
+		{
+			sb.Length = 0;
+			DumpGameObjectChilds(p, "", sb);
+			Debug.Log(sb.ToString());
+		}
 
-        // A bit messy. The code could be simplified by beeing smarter with when I add
-        // characters to pre but it works like that and it does not need to be efficient
-        internal static void DumpGameObjectChilds(GameObject go, string pre, StringBuilder sb)
-        {
-            bool first = pre == "";
-            List<GameObject> neededChilds = new List<GameObject>();
-            int count = go.transform.childCount;
-            for (int i = 0; i < count; i++)
-            {
-                GameObject child = go.transform.GetChild(i).gameObject;
-                if (!child.GetComponent<Part>() && child.name != "main camera pivot")
-                    neededChilds.Add(child);
-            }
+		// A bit messy. The code could be simplified by beeing smarter with when I add
+		// characters to pre but it works like that and it does not need to be efficient
+		internal static void DumpGameObjectChilds(GameObject go, string pre, StringBuilder sb)
+		{
+			bool first = pre == "";
+			List<GameObject> neededChilds = new List<GameObject>();
+			int count = go.transform.childCount;
+			for (int i = 0; i < count; i++)
+			{
+				GameObject child = go.transform.GetChild(i).gameObject;
+				if (!child.GetComponent<Part>() && child.name != "main camera pivot")
+					neededChilds.Add(child);
+			}
 
-            count = neededChilds.Count;
+			count = neededChilds.Count;
 
-            sb.Append(pre);
-            if (!first)
-            {
-                sb.Append(count > 0 ? "--+" : "---");
-            }
-            else
-            {
-                sb.Append("+");
-            }
-            if (go.transform.parent != null)
-                sb.AppendFormat("{0} T:{1} L:{2} ({3}) P:{4} AH:{5} AS:{6}\n", go.name, go.tag, go.layer, LayerMask.LayerToName(go.layer), go.transform.parent.name, go.activeInHierarchy, go.activeSelf);
-            else
-                sb.AppendFormat("{0} T:{1} L:{2} ({3}) P:Null AH:{4} AS:{5}\n", go.name, go.tag, go.layer, LayerMask.LayerToName(go.layer), go.activeInHierarchy, go.activeSelf);
+			sb.Append(pre);
+			if (!first)
+			{
+				sb.Append(count > 0 ? "--+" : "---");
+			}
+			else
+			{
+				sb.Append("+");
+			}
+			if (go.transform.parent != null)
+				sb.AppendFormat("{0} T:{1} L:{2} ({3}) P:{4} AH:{5} AS:{6}\n", go.name, go.tag, go.layer, LayerMask.LayerToName(go.layer), go.transform.parent.name, go.activeInHierarchy, go.activeSelf);
+			else
+				sb.AppendFormat("{0} T:{1} L:{2} ({3}) P:Null AH:{4} AS:{5}\n", go.name, go.tag, go.layer, LayerMask.LayerToName(go.layer), go.activeInHierarchy, go.activeSelf);
 
-            string front = first ? "" : "  ";
-            string preComp = pre + front + (count > 0 ? "| " : "  ");
+			string front = first ? "" : "  ";
+			string preComp = pre + front + (count > 0 ? "| " : "  ");
 
-            Component[] comp = go.GetComponents<Component>();
+			Component[] comp = go.GetComponents<Component>();
 
-            for (int i = 0; i < comp.Length; i++)
-            {
-                if (comp[i] is Transform)
-                {
-                    sb.AppendFormat("{0}  {1} - {2} (Transform) Pos:{3} Rot:{4} LPos:{5} LRot:{6}\n", preComp, comp[i].GetType().Name, go.transform.name, go.transform.position, go.transform.rotation, go.transform.localPosition, go.transform.localRotation);
-                }
-                else
-                {
-                    sb.AppendFormat("{0}  {1} - {2} (Component)", preComp, comp[i].GetType().Name, comp[i].name);
-                    if (comp[i] is NestedPrefabSpawner)
-                        sb.AppendFormat(" (NestedPrefabSpawner):-");
-                    if (comp[i] is DestructibleBuilding)
-                        sb.AppendFormat(" (DestructibleBuilding):-");
-                    if (comp[i] is Upgradeables.UpgradeableFacility && !(comp[i] is Upgradeables.UpgradeableSlave))
-                        sb.AppendFormat(" (UpgradeableFacility):-");
-                    sb.AppendFormat("\n");
-                    try
-                    {
-                        if (comp[i] is NestedPrefabSpawner)
-                        {
-                            var nps = (NestedPrefabSpawner) comp[i];
-                            for (int j = 0; j < nps.Prefabs.Count; j++)
-                            {
-                                if (nps.Prefabs[j].prefab != null)
-                                    DumpGameObjectChilds(nps.Prefabs[j].prefab, preComp + "NestedPrefabSpawner:", sb);
-                            }
-                        }
-                        if (comp[i] is DestructibleBuilding)
-                        {
-                            var dsb = (DestructibleBuilding) comp[i];
-                            for (int j = 0; j < dsb.CollapsibleObjects.Length; j++)
-                            {
-                                if (dsb.CollapsibleObjects[j].collapseObject != null)
-                                    DumpGameObjectChilds(dsb.CollapsibleObjects[j].collapseObject, preComp + "collapseObject:", sb);
-                                if (dsb.CollapsibleObjects[j].replacementObject != null)
-                                    DumpGameObjectChilds(dsb.CollapsibleObjects[j].replacementObject,preComp + " ReplacementObject:", sb);
-                            }
-                        }
-                        if (comp[i] is Upgradeables.UpgradeableFacility && !(comp[i] is Upgradeables.UpgradeableSlave))
-                        {
-                            var ugf = (Upgradeables.UpgradeableFacility) comp[i];
+			for (int i = 0; i < comp.Length; i++)
+			{
+				if (comp[i] is Transform)
+				{
+					sb.AppendFormat("{0}  {1} - {2} (Transform) Pos:{3} Rot:{4} LPos:{5} LRot:{6}\n", preComp, comp[i].GetType().Name, go.transform.name, go.transform.position, go.transform.rotation, go.transform.localPosition, go.transform.localRotation);
+				}
+				else
+				{
+					sb.AppendFormat("{0}  {1} - {2} (Component)", preComp, comp[i].GetType().Name, comp[i].name);
+					if (comp[i] is NestedPrefabSpawner)
+						sb.AppendFormat(" (NestedPrefabSpawner):-");
+					if (comp[i] is DestructibleBuilding)
+						sb.AppendFormat(" (DestructibleBuilding):-");
+					if (comp[i] is Upgradeables.UpgradeableFacility && !(comp[i] is Upgradeables.UpgradeableSlave))
+						sb.AppendFormat(" (UpgradeableFacility):-");
+					sb.AppendFormat("\n");
+					try
+					{
+						if (comp[i] is NestedPrefabSpawner)
+						{
+							var nps = (NestedPrefabSpawner) comp[i];
+							for (int j = 0; j < nps.Prefabs.Count; j++)
+							{
+								if (nps.Prefabs[j].prefab != null)
+									DumpGameObjectChilds(nps.Prefabs[j].prefab, preComp + "NestedPrefabSpawner:", sb);
+							}
+						}
+						if (comp[i] is DestructibleBuilding)
+						{
+							var dsb = (DestructibleBuilding) comp[i];
+							for (int j = 0; j < dsb.CollapsibleObjects.Length; j++)
+							{
+								if (dsb.CollapsibleObjects[j].collapseObject != null)
+									DumpGameObjectChilds(dsb.CollapsibleObjects[j].collapseObject, preComp + "collapseObject:", sb);
+								if (dsb.CollapsibleObjects[j].replacementObject != null)
+									DumpGameObjectChilds(dsb.CollapsibleObjects[j].replacementObject,preComp + " ReplacementObject:", sb);
+							}
+						}
+						if (comp[i] is Upgradeables.UpgradeableFacility && !(comp[i] is Upgradeables.UpgradeableSlave))
+						{
+							var ugf = (Upgradeables.UpgradeableFacility) comp[i];
 
-                            for (int j = 0; j < ugf.UpgradeLevels.Length; j++)
-                            {
-                                if (ugf.UpgradeLevels[j].facilityPrefab != null)
-                                    DumpGameObjectChilds(ugf.UpgradeLevels[j].facilityPrefab, preComp + "facilityPrefab:", sb);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Log("DumpGos Components Failed");
-                        Debug.Log(ex);
-                        Debug.Log(comp[i].name);
-                    }
-                }
-            }
+							for (int j = 0; j < ugf.UpgradeLevels.Length; j++)
+							{
+								if (ugf.UpgradeLevels[j].facilityPrefab != null)
+									DumpGameObjectChilds(ugf.UpgradeLevels[j].facilityPrefab, preComp + "facilityPrefab:", sb);
+							}
+						}
+					}
+					catch (Exception ex)
+					{
+						Debug.Log("DumpGos Components Failed");
+						Debug.Log(ex);
+						Debug.Log(comp[i].name);
+					}
+				}
+			}
 
-            sb.AppendLine(preComp);
+			sb.AppendLine(preComp);
 
-            for (int i = 0; i < count; i++)
-            {
-                DumpGameObjectChilds(neededChilds[i], i == count - 1 ? pre + front + " " : pre + front + "|", sb);
-            }
-        }
+			for (int i = 0; i < count; i++)
+			{
+				DumpGameObjectChilds(neededChilds[i], i == count - 1 ? pre + front + " " : pre + front + "|", sb);
+			}
+		}
 
-        #endregion ObjectsandTransforms
+		#endregion ObjectsandTransforms
 
-        #region Cameras
+		#region Cameras
 
-        internal static Camera FindCamera(string name)
+		internal static Camera FindCamera(string name)
 		{
 			return Camera.allCameras.FirstOrDefault(c => c.name == name);
 		}
@@ -909,32 +909,32 @@ namespace RSTUtils
 		}
 
 
-        public static void PartHighlight(Part part, bool on)
-        {
-            if (on)
-            {
-                if (part.HighlightActive)
-                {
-                    var color = XKCDColors.Yellow;
-                    part.SetHighlightColor(color);
-                    part.SetHighlight(true, false);
-                }
-            }
-            else
-            {
-                if (part.HighlightActive)
-                {
-                    part.SetHighlightDefault();
-                    part.SetHighlight(false, false);
-                }
-            }
-        }
+		public static void PartHighlight(Part part, bool on)
+		{
+			if (on)
+			{
+				if (part.HighlightActive)
+				{
+					var color = XKCDColors.Yellow;
+					part.SetHighlightColor(color);
+					part.SetHighlight(true, false);
+				}
+			}
+			else
+			{
+				if (part.HighlightActive)
+				{
+					part.SetHighlightDefault();
+					part.SetHighlight(false, false);
+				}
+			}
+		}
 
-        #endregion Vessels
+		#endregion Vessels
 
-        #region Temperature
-        //Temperature
-        internal static float KelvintoCelsius(float kelvin)
+		#region Temperature
+		//Temperature
+		internal static float KelvintoCelsius(float kelvin)
 		{
 			return kelvin - 273.15f;
 		}
