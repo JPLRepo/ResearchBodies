@@ -239,7 +239,12 @@ namespace ResearchBodies
                     //Offset Observatory Level 0 prefab onto the concrete slab base
                     newupgradelevels[0].facilityPrefab.transform.position = upgradeablefacility.transform.position;
                     newupgradelevels[0].facilityPrefab.transform.rotation = upgradeablefacility.transform.rotation;
-                    newupgradelevels[0].facilityPrefab.transform.localPosition = upgradeablefacility.transform.localPosition;
+                    newupgradelevels[0].facilityPrefab.transform.localPosition = upgradeablefacility.transform.position;
+                    newupgradelevels[0].facilityPrefab.transform.localRotation = upgradeablefacility.transform.rotation;
+                    var targetBuildingTransform = newupgradelevels[0].facilityPrefab.transform.FindChild("RB_observatory");
+                    targetBuildingTransform.localPosition = new Vector3(21.03f, 0.37f, 4.35f);
+                    Quaternion rotation = Quaternion.Euler(0f, 248.023f, 0f);
+                    targetBuildingTransform.localRotation = rotation;
                     newupgradelevels[0].facilityPrefab.AddComponentWithInit<CrashObjectName>(f =>
                     {
                         f.name = facilityName;
@@ -282,6 +287,11 @@ namespace ResearchBodies
                     newupgradelevels[1].facilityPrefab.transform.position = upgradeablefacility.transform.position;
                     newupgradelevels[1].facilityPrefab.transform.rotation = upgradeablefacility.transform.rotation;
                     newupgradelevels[1].facilityPrefab.transform.localPosition = upgradeablefacility.transform.localPosition;
+                    newupgradelevels[1].facilityPrefab.transform.localRotation = upgradeablefacility.transform.rotation;
+                    var targetBuildingTransform = newupgradelevels[1].facilityPrefab.transform.FindChild("RB_observatory");
+                    targetBuildingTransform.localPosition = new Vector3(26.25f, 0.39f, 7.93f);
+                    Quaternion rotation = Quaternion.Euler(0f, -111.97f, 0f);
+                    targetBuildingTransform.localRotation = rotation;
                     newupgradelevels[1].facilityPrefab.AddComponentWithInit<CrashObjectName>(f =>
                     {
                         f.name = facilityName;

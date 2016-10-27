@@ -69,10 +69,8 @@
     <Compile Include="RBEnums.cs" />
     <Compile Include="RBGameSettings.cs" />
     <Compile Include="RBInstructor.cs" />
-    <Compile Include="REPOSoftTechUtils\AppLauncherToolBarExtension.cs" />
     <Compile Include="REPOSoftTechUtils\RectExtentions.cs" />
     <Compile Include="REPOSoftTechUtils\RSTutilities.cs" />
-    <Compile Include="REPOSoftTechUtils\ToolBarManager.cs" />
     <Compile Include="ResearchBodies.cs" />
     <Compile Include="ResearchBodiesController.cs" />
     <Compile Include="ResearchBodiesControllerGUI.cs" />

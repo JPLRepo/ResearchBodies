@@ -68,10 +68,7 @@ namespace ResearchBodies
             LogFormatted("Attempting to Grab Progressive CB Maps Types...");
 
             //find the base type
-            PCBMAPIType = AssemblyLoader.loadedAssemblies
-                .Select(a => a.assembly.GetExportedTypes())
-                .SelectMany(t => t)
-                .FirstOrDefault(t => t.FullName == "ProgressiveCBMaps.VisualMaps");
+            PCBMAPIType = getType("ProgressiveCBMaps.VisualMaps");
 
             if (PCBMAPIType == null)
             {
@@ -98,10 +95,7 @@ namespace ResearchBodies
             }
 
             //find the CelestialBodyInfo Type
-            PCBMCelestialBodyInfoType = AssemblyLoader.loadedAssemblies
-                .Select(a => a.assembly.GetExportedTypes())
-                .SelectMany(t => t)
-                .FirstOrDefault(t => t.FullName == "ProgressiveCBMaps.CelestialBodyInfo");
+            PCBMCelestialBodyInfoType = getType("ProgressiveCBMaps.CelestialBodyInfo");
 
             if (PCBMCelestialBodyInfoType == null)
             {
@@ -116,6 +110,23 @@ namespace ResearchBodies
             return true;
         }
 
+        internal static Type getType(string name)
+        {
+            Type type = null;
+            AssemblyLoader.loadedAssemblies.TypeOperation(t =>
+
+            {
+                if (t.FullName == name)
+                    type = t;
+            }
+            );
+
+            if (type != null)
+            {
+                return type;
+            }
+            return null;
+        }
 
         /// <summary>
         /// The Type that is an analogue of the real Progressive CB Maps. This lets you access all the API-able properties and Methods of Progressive CB Maps VisualMaps class

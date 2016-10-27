@@ -61,26 +61,10 @@ namespace ResearchBodies
             windowRect = new Rect(1, 1, Utilities.scaledScreenWidth  - 2, Utilities.scaledScreenHeight - 2);
         }
 
-        private void TurnUIOff()
-        {
-            //if (RBMenuAppLToolBar != null)
-            //{
-            showGUI = false; //RBMenuAppLToolBar.GuiVisible;
-            //    RBMenuAppLToolBar.GuiVisible = false;
-            //}
-        }
-
-        private void TurnUIOn()
-        {
-            //if (RBMenuAppLToolBar != null)
-            //{
-            showGUI = true; //    RBMenuAppLToolBar.GuiVisible = showGUI;
-            //}
-        }
-
+        #if DEBUGFACILITY
         private void Update()
         {
-            /*
+
             if (HighLogic.LoadedScene == GameScenes.SPACECENTER)
             {
                 if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.Z))
@@ -299,8 +283,10 @@ namespace ResearchBodies
                         }
                     }
                 }
-            }*/
+            }
+
         }
+        #endif
 
         public void OnGUI()
         {
@@ -316,22 +302,12 @@ namespace ResearchBodies
             }
 
             GUI.skin = Textures.ObsSkin;
-            /*
-            if (RBMenuAppLToolBar.ShowHoverText)
-            {
-                hoverwindow.xMin = Input.mousePosition.x - 200;
-                hoverwindow.yMin = (Screen.height - Input.mousePosition.y) - 100;
-                hoverwindow.xMax = Input.mousePosition.x;
-                hoverwindow.yMax = (Screen.height - Input.mousePosition.y);
-                hoverwindow.ClampInsideScreen();
-                hoverwindow = GUI.Window(_hoverwindowId, hoverwindow, DrawHoverwin, "Research Bodies",
-                    HighLogic.Skin.window);
-            }*/
-
+            #if DEBUGFACILITY
             if (showObsdebugUI)
             {
                 observRect = GUILayout.Window(_RBwindowId + 1, observRect, DrawObservDebug, "Research Bodies");
             }
+            #endif
 
             //if (!RBMenuAppLToolBar.GuiVisible || RBMenuAppLToolBar.gamePaused || RBMenuAppLToolBar.hideUI) return;
             if (!showGUI) return;
@@ -343,15 +319,10 @@ namespace ResearchBodies
                 return;
             }
 
-
             try
             {
-                //if (RBMenuAppLToolBar.GuiVisible)
-                //{
-                    windowRect.ClampInsideScreen();
-                    windowRect = GUILayout.Window(_RBwindowId, windowRect, DrawWindow, "Research Bodies");
-                //}
-
+                windowRect.ClampInsideScreen();
+                windowRect = GUILayout.Window(_RBwindowId, windowRect, DrawWindow, "Research Bodies");
                 Utilities.DrawToolTip();
             }
             catch (Exception ex)
@@ -362,12 +333,7 @@ namespace ResearchBodies
 
         }
 
-        private void DrawHoverwin(int id)
-        {
-            GUI.Label(new Rect(3, 28, 194, 70), Locales.currentLocale.Values["misc_researchbodiesLabel"]);
-        }
-
-        public static void OnLocaleChanged(Locale target)
+       public static void OnLocaleChanged(Locale target)
         {
             Database.instance.difficultyStrings = new string[]
             {
@@ -382,7 +348,6 @@ namespace ResearchBodies
             Rect closeRect = new Rect(windowRect.width - 65, 4, 16, 16);
             if (GUI.Button(closeRect, closeContent, Textures.ClosebtnStyle))
             {
-                //RBMenuAppLToolBar.onAppLaunchToggle();
                 ResearchBodies_Observatory.SpaceCenterObservatory.DeActivateObservatory_SC_Facility();
                 return;
             }
@@ -392,7 +357,7 @@ namespace ResearchBodies
             GUILayout.BeginVertical();
             GUILayout.BeginVertical();
 
-            #region Wernher_Portrait Panel 1
+#region Wernher_Portrait Panel 1
 
             InstructorscrollViewVector = GUILayout.BeginScrollView(InstructorscrollViewVector, GUILayout.Width(148),
                 GUILayout.Height(186));
@@ -413,14 +378,14 @@ namespace ResearchBodies
                     GUILayout.Height(128));
             }
 
-            #endregion
+#endregion
 
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
             GUILayout.BeginVertical();
 
-            #region BodyList Panel 2
+#region BodyList Panel 2
 
             scrollViewVector = GUILayout.BeginScrollView(scrollViewVector, GUILayout.Width(148), GUILayout.Height(342));
             GUILayout.BeginVertical();
@@ -445,13 +410,13 @@ namespace ResearchBodies
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
 
-            #endregion
+#endregion
 
             GUILayout.EndVertical();
             GUILayout.EndVertical();
             GUILayout.BeginVertical();
 
-            #region Research Panel 3
+#region Research Panel 3
 
             ResearchscrollViewVector = GUILayout.BeginScrollView(ResearchscrollViewVector, GUILayout.Width(550),
                 GUILayout.Height(530));
@@ -567,7 +532,7 @@ namespace ResearchBodies
                 }
             }
 
-            #endregion
+#endregion
 
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
