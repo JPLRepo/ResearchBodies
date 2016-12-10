@@ -406,6 +406,7 @@ namespace ResearchBodies
                 {
                     Locales.setLocale(HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().language);
                 }
+                RSTLogWriter.debuggingOn = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().DebugLogging;
             }
             else
             {

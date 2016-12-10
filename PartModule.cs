@@ -283,7 +283,7 @@ namespace ResearchBodies
 
             for (int i = 0; i < hitInfo.Length; i++)
             {
-                if (hitInfo[i].transform != Target.transform)
+                if (hitInfo[i].transform.name != Target.transform.name)
                 {
                     RSTLogWriter.Log_Debug("View Obstructed by {0} , Origin: {1} , Target {2} , Direction {3} , Hit: {4}, Layer: {5}",
                     hitInfo[i].collider.name, Origin.position, Target.position, direction, hitInfo[i].transform.position, hitInfo[i].collider.gameObject.layer);
