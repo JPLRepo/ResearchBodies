@@ -37,6 +37,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\KSPDLLs - 1.2\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="ContractConfigurator">
+      <HintPath>..\..\..\Downloads\KSP 1.2 Mods\ContractConfigurator_1.21.0\GameData\ContractConfigurator\ContractConfigurator.dll</HintPath>
+    </Reference>
     <Reference Include="KSPAssets, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\KSPDLLs - 1.2\KSPAssets.dll</HintPath>
@@ -59,6 +62,7 @@
   <ItemGroup>
     <Compile Include="API\PCBMWrapper.cs" />
     <Compile Include="BodyIgnoreData.cs" />
+    <Compile Include="CCContractExtensions.cs" />
     <Compile Include="CelestialBodyInfo.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="REPOSoftTechUtils\GameObjectAddComponent.cs" />

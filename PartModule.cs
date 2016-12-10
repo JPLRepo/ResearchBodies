@@ -12,6 +12,8 @@
  * project is in no way associated with nor endorsed by Squad.
  *
  */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RSTUtils;
@@ -178,7 +180,10 @@ namespace ResearchBodies
                                     //Is it within the maximum tracking distance of this part?
                                     if (distance <= maxTrackDistance)
                                     {
-                                        BodiesInView.Add(body);  //We got one!
+                                        if (!IsViewObstructed(this.part.transform, body.transform))
+                                        {
+                                            BodiesInView.Add(body); //We got one!
+                                        }
                                     }
                                     //Too far away.
                                     else
@@ -263,6 +268,51 @@ namespace ResearchBodies
             GUILayout.EndScrollView();
             GUILayout.EndVertical();
             GUI.DragWindow();
+        }
+
+        internal bool IsViewObstructed(Transform Origin, Transform Target)
+        {
+            float distance = Vector3.Distance(Target.position, Origin.position);
+            RaycastHit[] hitInfo;
+            Vector3 direction = (Target.position - Origin.position).normalized;
+            if (RSTLogWriter.debuggingOn)
+            {
+                drawMyLine(Origin.position, Target.position, Color.yellow, 5f);
+            }
+            hitInfo = Physics.RaycastAll(new Ray(Origin.position, direction), distance, 3245585, QueryTriggerInteraction.Ignore);
+
+            for (int i = 0; i < hitInfo.Length; i++)
+            {
+                if (hitInfo[i].transform != Target.transform)
+                {
+                    RSTLogWriter.Log_Debug("View Obstructed by {0} , Origin: {1} , Target {2} , Direction {3} , Hit: {4}, Layer: {5}",
+                    hitInfo[i].collider.name, Origin.position, Target.position, direction, hitInfo[i].transform.position, hitInfo[i].collider.gameObject.layer);
+                    return true;
+                }
+            }
+
+            RSTLogWriter.Log_Debug("No View obstruction");
+            return false;
+        }
+
+        internal void drawMyLine(Vector3 start, Vector3 end, Color color, float duration = 0.12f)
+        {
+            StartCoroutine(drawLine(start, end, color, duration));
+        }
+
+        internal static IEnumerator drawLine(Vector3 start, Vector3 end, Color color, float duration = 0.1f)
+        {
+            GameObject myLine = new GameObject();
+            myLine.transform.position = start;
+            myLine.AddComponent<LineRenderer>();
+            LineRenderer lr = myLine.GetComponent<LineRenderer>();
+            lr.material = new Material(Shader.Find("Particles/Additive"));
+            lr.SetColors(color, color);
+            lr.SetWidth(0.01f, 0.01f);
+            lr.SetPosition(0, start);
+            lr.SetPosition(1, end);
+            yield return new WaitForSeconds(duration);
+            GameObject.Destroy(myLine);
         }
     }
 }

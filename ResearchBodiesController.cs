@@ -31,14 +31,7 @@ namespace ResearchBodies
         public void Awake()
         {
             instance = this;
-            _hoverwindowId = Utilities.getnextrandomInt();
             _RBwindowId = Utilities.getnextrandomInt();
-
-            //RBMenuAppLToolBar = new AppLauncherToolBar("ResearchBodies", "ResearchBodies",
-            //    Textures.PathToolbarIconsPath + "/RBToolBaricon",
-            //    ApplicationLauncher.AppScenes.SPACECENTER,
-            //   (Texture)Textures.ApplauncherIcon, (Texture)Textures.ApplauncherIcon,
-            //    GameScenes.SPACECENTER);
         }
 
         public void Start()
@@ -121,7 +114,7 @@ namespace ResearchBodies
         {
             try
             {
-                RSTLogWriter.Log("WithDrew contract \"{0}\"" , c.Title);
+                //RSTLogWriter.Log("WithDrew contract \"{0}\"" , c.Title);
                 c.Withdraw(); //Changed to Withdraw - this will not penalize reputation.
             }
             catch (Exception e)
@@ -190,7 +183,11 @@ namespace ResearchBodies
                 if (Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody.referenceBody))
                     Database.instance.CelestialBodies[bodyFound.referenceBody].isResearched = true;
                 if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                {
                     Database.instance.CelestialBodies[bodyFound].isResearched = true;
+                    var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound, Database.instance.CelestialBodies[bodyFound]);
+                    setCBContractWeight(tempEntry, false);
+                }
                 withParent = true;
                 parentBody = bodyFound.referenceBody;
                 //check for Barycenter as well.
@@ -201,6 +198,8 @@ namespace ResearchBodies
                         Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody.referenceBody))
                     {
                         Database.instance.CelestialBodies[bodyFound.referenceBody.referenceBody].isResearched = true;
+                        var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound.referenceBody.referenceBody, Database.instance.CelestialBodies[bodyFound.referenceBody.referenceBody]);
+                        setCBContractWeight(tempEntry, false);
                     }
                 }
                 RSTLogWriter.Log("Found body {0} orbiting around {1} !", bodyFound.GetName(), bodyFound.referenceBody.GetName());
@@ -208,7 +207,11 @@ namespace ResearchBodies
             else //No parent or parent is already discovered. So we just found this body.
             {
                 if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                {
                     Database.instance.CelestialBodies[bodyFound].isResearched = true;
+                    var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound, Database.instance.CelestialBodies[bodyFound]);
+                    setCBContractWeight(tempEntry, false);
+                }
                 withParent = false;
                 RSTLogWriter.Log("Found body {0} !", bodyFound.GetName());
             }
@@ -224,8 +227,10 @@ namespace ResearchBodies
                     //if (Funding.Instance.Funds >= ResearchBodies.Instance.RBgameSettings.ProgressResearchCost)
 
                     if (Funding.Instance.Funds >= Database.instance.RB_SettingsParms.ProgressResearchCost)
-                        {
+                    {
                         Database.instance.CelestialBodies[body].researchState += researchToAdd;
+                        if (Database.instance.CelestialBodies[body].researchState > 100)
+                            Database.instance.CelestialBodies[body].researchState = 100;
                         //Funding.Instance.AddFunds(-ResearchBodies.Instance.RBgameSettings.ProgressResearchCost, TransactionReasons.None);
                         Funding.Instance.AddFunds(-Database.instance.RB_SettingsParms.ProgressResearchCost, TransactionReasons.Progression);
                     }
@@ -357,38 +362,47 @@ namespace ResearchBodies
             if (isPCBMInstalled  && (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION))  //If progressive CB maps are installed set the level of the meshmap.
             {
                 if (cb.Value.ignore)
+                {
+                    setCBContractWeight(cb, true);
                     return;
+                }
 
                 if (!cb.Value.isResearched)
                 {
+                    setCBContractWeight(cb, false);
                     SetBodyProgressiveCBMap(cb.Key, 1);
                 }
                 else
                 {
                     if (cb.Value.researchState < 30)
                     {
+                        setCBContractWeight(cb, false);
                         SetBodyProgressiveCBMap(cb.Key, 2);
                     }
                     else
                     {
                         if (cb.Value.researchState < 50)
                         {
+                            setCBContractWeight(cb, false);
                             SetBodyProgressiveCBMap(cb.Key, 3);
                         }
                         else
                         {
                             if (cb.Value.researchState < 70)
                             {
+                                setCBContractWeight(cb, false);
                                 SetBodyProgressiveCBMap(cb.Key, 4);
                             }
                             else
                             {
                                 if (cb.Value.researchState < 90)
                                 {
+                                    setCBContractWeight(cb, false);
                                     SetBodyProgressiveCBMap(cb.Key, 5);
                                 }
                                 else
                                 {
+                                    setCBContractWeight(cb, false);
                                     SetBodyProgressiveCBMap(cb.Key, 6);
                                 }
                             }
@@ -408,6 +422,35 @@ namespace ResearchBodies
                 if (PCBMWrapper.actualPCBMAPI.CBVisualMapsInfo.ContainsKey(cb))
                 {
                     PCBMWrapper.actualPCBMAPI.CBVisualMapsInfo[cb].setVisualLevel(level);
+                }
+            }
+        }
+
+        public static void setCBContractWeight(KeyValuePair<CelestialBody, CelestialBodyInfo> cb, bool setzero)
+        {
+            if (Contracts.ContractSystem.Instance != null)
+            {
+                //Find the Contract Weight.
+                int currentvalue = 0;
+                if (Contracts.ContractSystem.ContractWeights.TryGetValue(cb.Key.name, out currentvalue))
+                {
+                    //If setzero is it not already zero? Save current value then set to zero.
+                    //If not setzero restore saved value.
+                    if (setzero)
+                    {
+                        if (currentvalue != 0)
+                        {
+                            cb.Value.ContractsWeight = currentvalue;
+                        }
+                        Contracts.ContractSystem.WeightAssignment(cb.Key.name, 0, true);
+                    }
+                    else
+                    {
+                        if (cb.Value.ContractsWeight != 0)
+                        {
+                            Contracts.ContractSystem.WeightAssignment(cb.Key.name, cb.Value.ContractsWeight, true);
+                        }
+                    }
                 }
             }
         }

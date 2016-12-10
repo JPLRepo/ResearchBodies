@@ -26,7 +26,8 @@ namespace ResearchBodies
         public BodyIgnoreData IgnoreData; //Use when setting the difficulty at start of new game.
         public bool KOPbarycenter;        //True if this body is actually a Kopernicus barycenter
         public CelestialBody KOPrelbarycenterBody;  //Will be null unless this body's parent is a Kopernicus barycenter, then it will be set to that barycenter
-        
+        public int ContractsWeight; //Original contracts weight for this body.
+
 
         public CelestialBodyInfo(string inputbody)
         {
@@ -39,6 +40,7 @@ namespace ResearchBodies
             IgnoreData = new BodyIgnoreData(false, false, false, false);
             KOPbarycenter = false;
             KOPrelbarycenterBody = null;
+            ContractsWeight = 30;
         }
 
         public static CelestialBodyInfo Load(ConfigNode node)
@@ -51,6 +53,7 @@ namespace ResearchBodies
             node.TryGetValue("isResearched", ref info.isResearched);
             node.TryGetValue("researchState", ref info.researchState);
             node.TryGetValue("ignore", ref info.ignore);
+            node.TryGetValue("ContractsWeight", ref info.ContractsWeight);
             return info;
         }
 
@@ -61,6 +64,7 @@ namespace ResearchBodies
             node.AddValue("isResearched", isResearched);
             node.AddValue("researchState", researchState);
             node.AddValue("ignore", ignore);
+            node.AddValue("ContractsWeight", ContractsWeight);
             return node;
         }
     }

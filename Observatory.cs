@@ -200,6 +200,7 @@ namespace ResearchBodies
                 //Remove all the upgrade levels, we just want the last one which has the observatory.
                 //Then remove all the components that aren't part of the Observatory from the prefab.//Instantiate our new Facility.
                 upgradeablefacility = Instantiate(ResearchAndDevUpgradable, spacecentertransform.position,trackingstationtransform.rotation) as Upgradeables.UpgradeableFacility;
+                //upgradeablefacility = new Upgradeables.UpgradeableFacility();
                 upgradeablefacility.name = facilityName;
                 upgradeablefacility.id = "SpaceCenter/" + facilityName;
                 upgradeablefacility.transform.NestToParent(spacecentertransform);
@@ -235,6 +236,7 @@ namespace ResearchBodies
                 }
                 else
                 {
+                    //ObservLevel0Prefab.tag = "RB_Obsvtry";
                     newupgradelevels[0].facilityPrefab = Instantiate(ObservLevel0Prefab.gameObject, upgradeablefacility.transform.position, upgradeablefacility.transform.rotation) as GameObject;
                     //Offset Observatory Level 0 prefab onto the concrete slab base
                     newupgradelevels[0].facilityPrefab.transform.position = upgradeablefacility.transform.position;
@@ -245,6 +247,7 @@ namespace ResearchBodies
                     targetBuildingTransform.localPosition = new Vector3(21.03f, 0.37f, 4.35f);
                     Quaternion rotation = Quaternion.Euler(0f, 248.023f, 0f);
                     targetBuildingTransform.localRotation = rotation;
+                    //newupgradelevels[0].facilityPrefab.tag = "KSC_RB_Obs";
                     newupgradelevels[0].facilityPrefab.AddComponentWithInit<CrashObjectName>(f =>
                     {
                         f.name = facilityName;
@@ -282,6 +285,7 @@ namespace ResearchBodies
                 }
                 else
                 {
+                    //ObservLevel1Prefab.tag = "RB_Obsvtry";
                     newupgradelevels[1].facilityPrefab = Instantiate(ObservLevel1Prefab.gameObject, upgradeablefacility.transform.position, upgradeablefacility.transform.rotation) as GameObject;
                     //Offset Observatory Level 0 prefab onto the concrete slab base
                     newupgradelevels[1].facilityPrefab.transform.position = upgradeablefacility.transform.position;
@@ -292,6 +296,7 @@ namespace ResearchBodies
                     targetBuildingTransform.localPosition = new Vector3(26.25f, 0.39f, 7.93f);
                     Quaternion rotation = Quaternion.Euler(0f, -111.97f, 0f);
                     targetBuildingTransform.localRotation = rotation;
+                    //newupgradelevels[1].facilityPrefab.tag = "KSC_RB_Obs";
                     newupgradelevels[1].facilityPrefab.AddComponentWithInit<CrashObjectName>(f =>
                     {
                         f.name = facilityName;
@@ -322,6 +327,7 @@ namespace ResearchBodies
                 newupgradelevels[2].facilityPrefab.transform.position = upgradeablefacility.transform.position;
                 newupgradelevels[2].facilityPrefab.transform.rotation = upgradeablefacility.transform.rotation;
                 newupgradelevels[2].facilityPrefab.transform.localPosition = upgradeablefacility.transform.localPosition;
+                newupgradelevels[2].facilityPrefab.tag = "KSC_RB_Obs";
                 newupgradelevels[2].facilityPrefab.name = "KSC_Observatory_Lvl2";
                 newupgradelevels[2].levelCost = 600000f;
                 newupgradelevels[2].levelText = ScriptableObject.CreateInstance<KSCUpgradeableLevelText>();// new KSCUpgradeableLevelText();
@@ -333,7 +339,7 @@ namespace ResearchBodies
                 newupgradelevels[2].levelStats.facility = SpaceCenterFacility.TrackingStation;
                 newupgradelevels[2].levelStats.textBase = newupgradelevels[2].levelText.textBase;
                 DontDestroyOnLoad(newupgradelevels[2].facilityPrefab);
-                */                
+                */
                 //Set the UpgradeLevels for our new Facility.
                 upgradeablefacility.UpgradeLevels = newupgradelevels;
 
@@ -630,6 +636,7 @@ namespace ResearchBodies
                             if (child.name.Contains("Observatory"))
                             {
                                 child.transform.position = newposition;
+                                //child.tag = "KSC_RB_Obs";
                             }
                         }
                     }
@@ -711,6 +718,7 @@ namespace ResearchBodies
                 //We need to re-position it slightly if offset != zero
                 tmpGo.transform.position = attachposition.position;
                 tmpGo.transform.localPosition = offset;
+                //tmpGo.tag = "KSC_RB_Obs";
                 DontDestroyOnLoad(tmpGo);
             }
             catch (Exception ex)

@@ -1,8 +1,15 @@
 ﻿V1.9.0 (xx-xx-2016) ==
 *Fixed typo in locales for Characteristics and Orbit in UI.
 *Added Observatory SpaceCenter Facility. Yes - this Facility acts exactly like a stock one. It has TWO upgrade levels that provide different features, functions and contracts for Finding an Researching 
-celestial bodies.
+celestial bodies. NB: UNTIL CONTRACTS SYSTEM FOR RESEARCH BODIES IS IMPLEMENTED LEVEL 1 and LEVEL 2 OBSERVATORY HAVE THE SAME FUNCTION.
 *New Game and Settings for this mod are now accessed via the Stock Difficulty Settings for new game and existing game.
+*Fixes issue with Contract Configurator.
+*Fixes integration with TST (V6.6 and above).
+*Bodies occluding the telescopes are taken into account when searching for new bodies. 
+*Capped Research Percentage at 100%
+*Amended Contract processing to use Weighting System override in KSP 1.2.1 so that contracts should not be generated for undiscovered bodies.
+*Fixed GUI for when Research State is < 10%.
+*Integrated Contract Configurator mod for ResearchBodies Contracts. Contract Configurator mod is now a dependency and must be installed alongside this mod.
 V1.8.1 (07-30-2016) ==
 Improved integration with Contract Configurator Mod.
 V1.8.0 (07-10-2016) ==

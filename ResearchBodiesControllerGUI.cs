@@ -29,10 +29,7 @@ namespace ResearchBodies
         private CelestialBody selectedBody = null;
         internal bool enable = true, showGUI = false;
         private Rect windowRect = new Rect(10, 90, 700, 550);
-        private Rect observRect = new Rect(10, 90, 700, 550);
-        private Rect hoverwindow = new Rect(0, 0, 160, 80);
-
-        private static int _hoverwindowId;
+        
         private static int _RBwindowId;
         private string tmpToolTip;
         private bool haveTrackedBodies = false;
@@ -53,7 +50,7 @@ namespace ResearchBodies
         private bool ObsLvl3 = false;
         private Transform tmpTransform;
 
-        private static string LOCK_ID = "ResearchBodies_KeyBinder";
+        //private static string LOCK_ID = "ResearchBodies_KeyBinder";
 
         public void onScreenResolutionModified(int width, int height)
         {
@@ -469,7 +466,7 @@ namespace ResearchBodies
                             PlayNiceEmote();
                         }
                     }
-                    else if (Database.instance.CelestialBodies[selectedBody].researchState >= 10)
+                    else if (Database.instance.CelestialBodies[selectedBody].researchState >= 1)
                     {
                         if (!Database.instance.CelestialBodies[selectedBody].ignore)
                         {
@@ -487,7 +484,7 @@ namespace ResearchBodies
                             }
                         }
                         if (Database.instance.CelestialBodies[selectedBody].researchState < 40 &&
-                            Database.instance.CelestialBodies[selectedBody].researchState >= 10)
+                            Database.instance.CelestialBodies[selectedBody].researchState >= 1)
                         {
                             if (GUILayout.Button(Locales.currentLocale.Values["researchData_aspect"],
                                 GUILayout.Width(502)))
