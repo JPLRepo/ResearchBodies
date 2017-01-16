@@ -13,7 +13,6 @@
  *
  */
 
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RSTUtils;
@@ -24,6 +23,7 @@ namespace ResearchBodies
     public class ModuleTrackBodies : PartModule
     {
         private bool showGUI = false, foundBody = false, withParent = false, canResearch = true;
+        private bool foundpopup = false;
         private bool checkedEnabledFlag = false;
         private bool foundBodyTooWeak = false;
         private string nothing = "";
@@ -83,6 +83,29 @@ namespace ResearchBodies
                     Events["Research Bodies"].guiActive = false;
                     Events["Research Bodies"].active = false;
                 }
+            }
+            //Pop-up box if something was found.
+            if (foundBody && !foundpopup)
+            {
+                Vector2 anchormin = new Vector2(0.5f, 0.5f);
+                Vector2 anchormax = new Vector2(0.5f, 0.5f);
+                string msg = "";
+                if (withParent) //And was a parent body also discovered?
+                {
+                    msg = Database.instance.CelestialBodies[bodyFound].discoveryMessage;
+                    msg += "\n" + Database.instance.CelestialBodies[parentBody].discoveryMessage;
+                }
+                else
+                {
+                    msg = Database.instance.CelestialBodies[bodyFound].discoveryMessage;
+                }
+                string title = "Research Bodies";
+                UISkinDef skin = HighLogic.UISkin;
+                DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
+                dialogGUIBase[0] = new DialogGUIButton("Ok", delegate { foundpopup = false; foundBody = false; });
+                PopupDialog.SpawnPopupDialog(anchormin, anchormax,
+                    new MultiOptionDialog(msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true,
+                    string.Empty);
             }
         }
 
@@ -231,6 +254,8 @@ namespace ResearchBodies
                 }
                 
             } //endif button
+            
+            //Populate RB GUI if found.
             if (searchButtonDisplay)
             {
                 if (Planetarium.GetUniversalTime() - searchButtonDisplayTimer > 60)
@@ -277,7 +302,7 @@ namespace ResearchBodies
             Vector3 direction = (Target.position - Origin.position).normalized;
             if (RSTLogWriter.debuggingOn)
             {
-                drawMyLine(Origin.position, Target.position, Color.yellow, 5f);
+                Debug.DrawRay(Origin.position, direction*distance, Color.red, 5f);
             }
             hitInfo = Physics.RaycastAll(new Ray(Origin.position, direction), distance, 3245585, QueryTriggerInteraction.Ignore);
 
@@ -293,26 +318,6 @@ namespace ResearchBodies
 
             RSTLogWriter.Log_Debug("No View obstruction");
             return false;
-        }
-
-        internal void drawMyLine(Vector3 start, Vector3 end, Color color, float duration = 0.12f)
-        {
-            StartCoroutine(drawLine(start, end, color, duration));
-        }
-
-        internal static IEnumerator drawLine(Vector3 start, Vector3 end, Color color, float duration = 0.1f)
-        {
-            GameObject myLine = new GameObject();
-            myLine.transform.position = start;
-            myLine.AddComponent<LineRenderer>();
-            LineRenderer lr = myLine.GetComponent<LineRenderer>();
-            lr.material = new Material(Shader.Find("Particles/Additive"));
-            lr.SetColors(color, color);
-            lr.SetWidth(0.01f, 0.01f);
-            lr.SetPosition(0, start);
-            lr.SetPosition(1, end);
-            yield return new WaitForSeconds(duration);
-            GameObject.Destroy(myLine);
         }
     }
 }

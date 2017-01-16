@@ -33,9 +33,9 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Assembly-CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\KSPDLLs - 1.2\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\KSP\KSP\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="ContractConfigurator">
       <HintPath>..\..\..\Downloads\KSP 1.2 Mods\ContractConfigurator_1.21.0\GameData\ContractConfigurator\ContractConfigurator.dll</HintPath>
@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="API\PCBMWrapper.cs" />
     <Compile Include="BodyIgnoreData.cs" />
+    <None Include="CCContractExtensionParser.cs" />
     <Compile Include="CCContractExtensions.cs" />
     <Compile Include="CelestialBodyInfo.cs" />
     <Compile Include="Database.cs" />

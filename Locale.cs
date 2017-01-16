@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-/*
+﻿/*
  * Locale.cs
  * (C) Copyright 2016, Jamie Leighton 
  * Original code by KSP forum User simon56modder.
@@ -15,8 +12,10 @@ using System.Linq;
  * project is in no way associated with nor endorsed by Squad.
  *
  */
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using System.IO;
 using RSTUtils;
 
 namespace ResearchBodies

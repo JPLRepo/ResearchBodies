@@ -37,6 +37,9 @@ namespace ResearchBodies
         //This is a deprecated dictionary that stores Priority #'s against the CelestialBodies. Loaded from PRIORITIES node in database.cfg
         public Dictionary<CelestialBody, int> Priority = new Dictionary<CelestialBody, int>();
         public ResearchBodies_SettingsParms RB_SettingsParms;
+        public float Observatorylvl1Range;
+        public float Observatorylvl2Range;
+        public bool AllowOldResearchinCareer;
 
         /// <summary>
         /// Tarsier Space Tech Interface fields
@@ -161,6 +164,10 @@ namespace ResearchBodies
             //===========================
             ConfigNode cfg = ConfigNode.Load(Locales.PathDatabasePath);
             string[] sep = new string[] { " " };
+
+            Observatorylvl1Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl1range"));
+            Observatorylvl2Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl2range"));
+            AllowOldResearchinCareer = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowOldResearchinCareer"));
 
             //Get Costs
             string[] _startResearchCosts;

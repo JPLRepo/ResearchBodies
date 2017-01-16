@@ -59,7 +59,7 @@ namespace ResearchBodies
             if (enable)
             {
                 SetBodyDiscoveryLevels();
-                
+                GameEvents.onLevelWasLoaded.Add(onLevelWasLoaded);
                 GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
                 Utilities.setScaledScreen();
                 windowRect = new Rect(1, 1, Utilities.scaledScreenWidth-2, Utilities.scaledScreenHeight-2);
@@ -74,12 +74,47 @@ namespace ResearchBodies
 
             if (_instructor != null)
                 Destroy(_instructor.gameObject);
+            GameEvents.onLevelWasLoaded.Remove(onLevelWasLoaded);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             GameEvents.onScreenResolutionModified.Remove(onScreenResolutionModified);
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Remove(CheckContracts);
         }
-        
+
+        private void onLevelWasLoaded(GameScenes scene)
+        {
+            if (scene == GameScenes.TRACKSTATION || scene == GameScenes.FLIGHT)
+            {
+                base.StartCoroutine(CallbackUtil.DelayedCallback(5, new Callback(this.fireonLevelWasLoaded)));
+            }
+        }
+
+        private void fireonLevelWasLoaded()
+        {
+            foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> cb in Database.instance.CelestialBodies)
+            {
+                if (!cb.Value.ignore)
+                {
+                    if (!cb.Value.isResearched)
+                    {
+                        SetCBIconNode(cb.Key, false);
+
+                    }
+                    else if (cb.Value.isResearched && cb.Value.researchState < 50)
+                    {
+                        SetCBIconNode(cb.Key, true);
+                    }
+                    else
+                    {
+                        SetCBIconNode(cb.Key, true);
+                    }
+                }
+                else
+                {
+                    SetCBIconNode(cb.Key, true);
+                }
+            }
+        }
         /// <summary>
         /// Called by GameEvent onOffered. 
         /// If Contract name == "ConfiguredContract" it's a Contract Configurator mod contract, which is RB aware, so ignore it.
@@ -330,19 +365,23 @@ namespace ResearchBodies
                 if (!cb.Value.isResearched)
                 {
                     SetBodyDiscoveryLevel(cb, DiscoveryLevels.Presence);
+                    SetCBIconNode(cb.Key, false);
                 }
                 else if (cb.Value.isResearched && cb.Value.researchState < 50)
                 {
                     SetBodyDiscoveryLevel(cb, DiscoveryLevels.Appearance);
+                    SetCBIconNode(cb.Key, true);
                 }
                 else
                 {
                     SetBodyDiscoveryLevel(cb, DiscoveryLevels.Owned);
+                    SetCBIconNode(cb.Key, true);
                 }
             }
             else
             {
                 SetBodyDiscoveryLevel(cb, DiscoveryLevels.Owned);
+                SetCBIconNode(cb.Key, true);
             }
         }
 
@@ -359,6 +398,7 @@ namespace ResearchBodies
             catch (Exception)
             {// throw;
             }
+
             if (isPCBMInstalled  && (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION))  //If progressive CB maps are installed set the level of the meshmap.
             {
                 if (cb.Value.ignore)
@@ -407,6 +447,20 @@ namespace ResearchBodies
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        public void SetCBIconNode(CelestialBody cb, bool iconEnabled)
+        {
+            if (KSP.UI.Screens.Mapview.MapNode.AllMapNodes != null)
+            {
+                for (int i = 0; i < KSP.UI.Screens.Mapview.MapNode.AllMapNodes.Count; i++)
+                {
+                    if (KSP.UI.Screens.Mapview.MapNode.AllMapNodes[i].name == cb.bodyName + " Map Node")
+                    {
+                        KSP.UI.Screens.Mapview.MapNode.AllMapNodes[i].VisualIconData.iconEnabled = iconEnabled;
                     }
                 }
             }
