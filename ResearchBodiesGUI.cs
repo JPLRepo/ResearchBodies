@@ -346,7 +346,7 @@ namespace ResearchBodies
                         else if (ResearchState[selectedBody] >= 40 && ResearchState[selectedBody] < 100)
                         {
                             GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_aspect"] + " ✓</color></i>", GUILayout.Width(502)); 
-                            if (GUILayout.Button(Locales.currentLocale.Values["researchData_caracteristics"], GUILayout.Width(502))) 
+                            if (GUILayout.Button(Locales.currentLocale.Values["researchData_characteristics"], GUILayout.Width(502))) 
                             {
                                 PlayNiceEmote();
                                 Research(selectedBody, 10);
@@ -363,7 +363,7 @@ namespace ResearchBodies
                         else if (ResearchState[selectedBody] >= 100)
                         {
                             GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_aspect"] + " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 227, 502, 32), 
-                            GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_caracteristics"] + " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 264, 502, 32), 
+                            GUILayout.Label("<i><color=green>" + Locales.currentLocale.Values["researchData_characteristics"] + " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 264, 502, 32), 
 
                             GUILayout.Label("<b>" + string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_sendVessels"], selectedBody.GetName()) + "</b>", GUILayout.Width(502)); //new Rect(188, 301, 502, 32), 
 
