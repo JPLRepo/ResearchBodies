@@ -45,14 +45,14 @@ namespace ResearchBodies
         [GameParameters.CustomStringParameterUI("Test String UI", autoPersistance = true, lines = 5,title = "Celestial Bodies already discovered", toolTip = "Depending on the Difficulty Setting these Bodies will be\n already discovered at the start of the game.")]
         public string CBstring = "";
 
-        [GameParameters.CustomIntParameterUI("Research Plan Start Cost", toolTip = "The cost to start researching a Celestial Body", maxValue = 15000, stepSize = 100, gameMode = GameParameters.GameMode.CAREER, newGameOnly = true)]
-        public int ResearchCost = 200;
+        [GameParameters.CustomIntParameterUI("Research Plan Start Cost", toolTip = "The cost to start researching a Celestial Body", maxValue = 500000, stepSize = 1000, gameMode = GameParameters.GameMode.CAREER, newGameOnly = true)]
+        public int ResearchCost = 70000;
 
-        [GameParameters.CustomIntParameterUI("Research Progression Step Cost", toolTip = "The cost for each research step on a Celestial Body", maxValue = 20000, stepSize = 100, gameMode = GameParameters.GameMode.CAREER, newGameOnly = true)]
-        public int ProgressResearchCost = 200;
+        [GameParameters.CustomIntParameterUI("Research Progression Step Cost", toolTip = "The cost for each research step on a Celestial Body", maxValue = 500000, stepSize = 1000, gameMode = GameParameters.GameMode.CAREER, newGameOnly = true)]
+        public int ProgressResearchCost = 45000;
 
-        [GameParameters.CustomIntParameterUI("Science Reward on Body Found", toolTip = "The amount of science rewarded for finding a new Celestial Body", maxValue = 150, stepSize = 5, gameMode = GameParameters.GameMode.CAREER | GameParameters.GameMode.SCIENCE, newGameOnly = true)]
-        public int ScienceReward = 75;
+        [GameParameters.CustomIntParameterUI("Science Reward on Body Found", toolTip = "The amount of science rewarded for finding a new Celestial Body", maxValue = 1000, stepSize = 10, gameMode = GameParameters.GameMode.CAREER | GameParameters.GameMode.SCIENCE, newGameOnly = true)]
+        public int ScienceReward = 150;
         
         [GameParameters.CustomIntParameterUI("Body Discovery Chance Seed Value", toolTip = "The higher this value the harder it will be to find a new Celestial Body", minValue = 1, maxValue = 6, stepSize = 1, newGameOnly = true)]
         public int DiscoverySeed = 3;
@@ -73,30 +73,30 @@ namespace ResearchBodies
             switch (preset)
             {
                 case GameParameters.Preset.Easy:
-                    ResearchCost = 20;
-                    ProgressResearchCost = 10;
-                    ScienceReward = 100;
+                    ResearchCost = 20000;
+                    ProgressResearchCost = 20000;
+                    ScienceReward = 200;
                     difficulty = Level.Easy;
                     CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;
                 case GameParameters.Preset.Normal:
-                    ResearchCost = 400;
-                    ProgressResearchCost = 200;
-                    ScienceReward = 75;
+                    ResearchCost = 70000;
+                    ProgressResearchCost = 45000;
+                    ScienceReward = 150;
                     difficulty = Level.Normal;
                     CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;
                 case GameParameters.Preset.Moderate:
-                    ResearchCost = 700;
-                    ProgressResearchCost = 350;
-                    ScienceReward = 35;
+                    ResearchCost = 100000;
+                    ProgressResearchCost = 90000;
+                    ScienceReward = 50;
                     difficulty = Level.Medium;
                     CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;
                 case GameParameters.Preset.Hard:
-                    ResearchCost = 1000;
-                    ProgressResearchCost = 500;
-                    ScienceReward = 10;
+                    ResearchCost = 200000;
+                    ProgressResearchCost = 150000;
+                    ScienceReward = 20;
                     difficulty = Level.Hard;
                     CBstring = Database.instance.GetIgnoredBodies(difficulty);
                     break;

@@ -1,4 +1,4 @@
-﻿V1.9.0 (xx-xx-2017) ==
+﻿V1.9.1 (03-05-2017) ==
 *Fixed typo in locales for Characteristics and Orbit in UI.
 *Added Observatory SpaceCenter Facility. Yes - this Facility acts exactly like a stock one. It has TWO upgrade levels that provide different features, functions and contracts for Finding an Researching 
 celestial bodies.
@@ -13,6 +13,7 @@ celestial bodies.
 *Integrated Contract Configurator mod for ResearchBodies Contracts. Contract Configurator mod is now a dependency and must be installed alongside this mod.
 *Unfortunately the new features regarding Contracts and the Observatory are only available in English due to limitations in Contract Configurator. It is expected this will
 * be able to support other languages once KSP Localization release is out.
+* Changed default research and science values - to something a bit more balanced.
 V1.8.1 (07-30-2016) ==
 Improved integration with Contract Configurator Mod.
 V1.8.0 (07-10-2016) ==

@@ -454,7 +454,7 @@ namespace ResearchBodies
                     {
                         if (
                             GUILayout.Button(
-                                "<color=green>" +
+                                "<color=#0ef907>" +
                                 string.Format(Locales.currentLocale.Values["research_launchPlan"],
                                     selectedBody.GetName()) + " </color><size=10><i>(" +
                                 string.Format(Locales.currentLocale.Values["research_launchPlanCost"],
@@ -497,7 +497,7 @@ namespace ResearchBodies
                                  Database.instance.CelestialBodies[selectedBody].researchState < 100)
                         {
                             GUILayout.Label(
-                                "<i><color=green>" + Locales.currentLocale.Values["researchData_aspect"] +
+                                "<i><color=#0ef907>" + Locales.currentLocale.Values["researchData_aspect"] +
                                 " ✓</color></i>", GUILayout.Width(502));
                             if (GUILayout.Button(Locales.currentLocale.Values["researchData_characteristics"],
                                 GUILayout.Width(502)))
@@ -509,10 +509,10 @@ namespace ResearchBodies
                         else if (Database.instance.CelestialBodies[selectedBody].researchState >= 100)
                         {
                             GUILayout.Label(
-                                "<i><color=green>" + Locales.currentLocale.Values["researchData_aspect"] +
+                                "<i><color=#0ef907>" + Locales.currentLocale.Values["researchData_aspect"] +
                                 " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 227, 502, 32), 
                             GUILayout.Label(
-                                "<i><color=green>" + Locales.currentLocale.Values["researchData_characteristics"] +
+                                "<i><color=0ef907>" + Locales.currentLocale.Values["researchData_characteristics"] +
                                 " ✓</color></i>", GUILayout.Width(502)); //new Rect(188, 264, 502, 32), 
 
                             GUILayout.Label(

@@ -177,7 +177,7 @@ namespace ResearchBodies
                     if (!local)
                     {
                         canResearch = false;
-                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["telescope_mustHavePart"], requiredPart), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["telescope_mustHavePart"], requiredPart), 5.0f, ScreenMessageStyle.UPPER_CENTER);
                     }
                 }
                 
@@ -231,7 +231,7 @@ namespace ResearchBodies
                                 {
                                     bodyFound = BodiesInView[random.Next(BodiesInView.Count)]; //Randomly pick one.
                                     foundBody = true;
-                                    ScreenMessages.PostScreenMessage("Celestial Body Discovered !", 5f);
+                                    ScreenMessages.PostScreenMessage("Celestial Body Discovered !", 15f);
                                     difficulty = startingdifficulty; //Reset the difficulty factor to the starting factor now that we found something.
                                     ResearchBodiesController.FoundBody(scienceReward, bodyFound, out withParent, out parentBody);
                                 }
@@ -249,7 +249,7 @@ namespace ResearchBodies
                     }
                     else  // There wasn't enough EC!
                     {
-                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["ec_notEnough"]), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["ec_notEnough"]), 5.0f, ScreenMessageStyle.UPPER_CENTER);
                     }
                 }
                 
