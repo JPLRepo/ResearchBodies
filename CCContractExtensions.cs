@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ContractConfigurator;
 using Contracts;
+using RSTUtils;
 
 namespace ResearchBodies
 {
@@ -33,7 +34,7 @@ namespace ResearchBodies
             bool valid = base.LoadFromConfig(configNode);
 
             // Check on active contracts too
-            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
+            checkOnActiveContract = false;
 
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "facility", x => facility = x, this);
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minLevel", x => minLevel = x, this, 1, x => Validation.Between(x, 1, 3));
@@ -45,10 +46,9 @@ namespace ResearchBodies
         public override void OnLoad(ConfigNode configNode)
         {
             //Get facility
-            facility = ConfigNodeUtil.ParseValue<string>(configNode, "facility");
-            
+            facility = ConfigNodeUtil.ParseValue<string>(configNode, "facility", "Observatory");
             // Get minLevel
-            minLevel = ConfigNodeUtil.ParseValue<int>(configNode, "minLevel");
+            minLevel = ConfigNodeUtil.ParseValue<int>(configNode, "minLevel", 1);
         }
 
         public override void OnSave(ConfigNode configNode)
@@ -64,16 +64,20 @@ namespace ResearchBodies
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            if (contract == null)
+                return false;
+            if (contract.ContractState == Contract.State.Active)
+                return true;
             for (int i = 0; i < PSystemSetup.Instance.SpaceCenterFacilities.Length; i++)
             {
                 if (PSystemSetup.Instance.SpaceCenterFacilities[i].name == facility)
                 {
                     int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) *
                     ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility)) + 1;
-                    return level == 0 && contract != null && contract.ContractState == Contracts.Contract.State.Active ||
-                    level >= minLevel;
+                    return level >= minLevel;
                 }            
             }
+            RSTLogWriter.Log("Observatory NOT found....");
             return false; 
         }
     }
@@ -82,7 +86,7 @@ namespace ResearchBodies
     */
     public class RBSearchSkiesDurationFactory : ParameterFactory
     {
-        protected string facility { get; set; }
+        protected string facility;
         protected string preWaitText;
         protected string waitingText;
         protected string completionText;
@@ -93,10 +97,10 @@ namespace ResearchBodies
         {
             // Load base class
             bool valid = base.Load(configNode);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "facility", x => facility = x, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "preWaitText", x => preWaitText = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "waitingText", x => waitingText = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completionText", x => completionText = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "facility", x => facility = x, this, "Observatory");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "preWaitText", x => preWaitText = x, this, "The observatory will search the skies for a period of time.");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "waitingText", x => waitingText = x, this, "Searching the Skies.");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completionText", x => completionText = x, this, "The search is over.");
             valid &= ConfigNodeUtil.ParseValue<ContractConfigurator.Parameters.Duration.StartCriteria>(configNode, "startCriteria", x => startCriteria = x, this, ContractConfigurator.Parameters.Duration.StartCriteria.CONTRACT_ACCEPTANCE);
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this, new List<string>());
             valid &= ConfigNodeUtil.ValidateExcludedValue(configNode, "title", this);
@@ -117,13 +121,16 @@ namespace ResearchBodies
                     if (level == 1)
                     {
                         durationValue = 1;
+                        break;
                     }
                     if (level == 2)
                     {
                         durationValue = 0.5;
+                        break;
                     }
                 }
             }
+            durationValue *= KSPUtil.dateTimeFormatter.Year;
 
             return new ContractConfigurator.Parameters.Duration(durationValue, preWaitText, waitingText, completionText, startCriteria, parameter);
         }
@@ -168,13 +175,16 @@ namespace ResearchBodies
                     if (level == 1)
                     {
                         durationValue = 0.5;
+                        break;
                     }
                     if (level == 2)
                     {
                         durationValue = 0.25;
+                        break;
                     }
                 }
             }
+            durationValue *= KSPUtil.dateTimeFormatter.Year;
 
             return new ContractConfigurator.Parameters.Duration(durationValue, preWaitText, waitingText, completionText, startCriteria, parameter);
         }
@@ -192,9 +202,9 @@ namespace ResearchBodies
         {
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
-
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "host", x => host = x, this, "Observatory");
             // Check on active contracts too
-            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
+            checkOnActiveContract = false;
             
             return valid;
         }
@@ -202,7 +212,7 @@ namespace ResearchBodies
         public override void OnLoad(ConfigNode configNode)
         {
             //Get host
-            host = ConfigNodeUtil.ParseValue<string>(configNode, "host");
+            host = ConfigNodeUtil.ParseValue<string>(configNode, "host", "Observatory");
         }
 
         public override void OnSave(ConfigNode configNode)
@@ -264,9 +274,9 @@ namespace ResearchBodies
         {
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
-
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "host", x => host = x, this, "Observatory");
             // Check on active contracts too
-            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
+            checkOnActiveContract = false;
 
             return valid;
         }
@@ -274,7 +284,7 @@ namespace ResearchBodies
         public override void OnLoad(ConfigNode configNode)
         {
             //Get host
-            host = ConfigNodeUtil.ParseValue<string>(configNode, "host");
+            host = ConfigNodeUtil.ParseValue<string>(configNode, "host", "Observatory");
         }
 
         public override void OnSave(ConfigNode configNode)
@@ -376,7 +386,7 @@ namespace ResearchBodies
             DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
             dialogGUIBase[0] = new DialogGUIButton("Ok", delegate { });
             PopupDialog.SpawnPopupDialog(anchormin, anchormax,
-                new MultiOptionDialog(msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true,
+                new MultiOptionDialog(title, msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true,
                 string.Empty);
         }
         protected override void OnDeadlineExpired() { }
@@ -445,7 +455,7 @@ namespace ResearchBodies
             DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
             dialogGUIBase[0] = new DialogGUIButton("Ok", delegate { });
             PopupDialog.SpawnPopupDialog(anchormin, anchormax,
-                new MultiOptionDialog(msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true,
+                new MultiOptionDialog(title, msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true,
                 string.Empty);
         }
         protected override void OnDeadlineExpired() { }

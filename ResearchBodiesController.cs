@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Contracts;
+using KSP.UI.Screens.Mapview;
 using RSTUtils;
 
 namespace ResearchBodies
@@ -26,6 +27,9 @@ namespace ResearchBodies
         internal bool isPCBMInstalled = false;
         
         public static ResearchBodiesController instance;
+
+        private ResearchBodiesInstructor instructor_Werner;
+        private ResearchBodiesInstructor instructor_Linus;
         
         public void Awake()
         {
@@ -35,6 +39,7 @@ namespace ResearchBodies
 
         public void Start()
         {
+            French = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().french;
             isTSTInstalled = Database.instance.isTSTInstalled;
             isPCBMInstalled = Utilities.IsPCBMInstalled;
             if (isPCBMInstalled)  //If Progressive CB Maps assembly is present, initialise PCBM wrapper.
@@ -48,7 +53,8 @@ namespace ResearchBodies
             enable = ResearchBodies.Enabled;
             
             //Create Instructor
-            _instructor = Create("Instructor_Wernher");
+            instructor_Werner = new ResearchBodiesInstructor("Instructor_Wernher");
+            instructor_Linus = new ResearchBodiesInstructor("Strategy_ScienceGuy");
             
             //Register for Contract On offerred so we can remove ones that are for bodies not yet tracked.
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
@@ -62,18 +68,25 @@ namespace ResearchBodies
                 Utilities.setScaledScreen();
                 windowRect = new Rect(1, 1, Utilities.scaledScreenWidth-2, Utilities.scaledScreenHeight-2);
                 GameEvents.onScreenResolutionModified.Add(onScreenResolutionModified);
+                GameEvents.OnMapEntered.Add(onMapEntered);
+                if (HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                {
+                    onMapEntered();
+                }
             }
         }
 
         public void OnDestroy()
         {
-            if (_portrait != null)
-                _portrait.Release();
-
-            if (_instructor != null)
-                Destroy(_instructor.gameObject);
+            instructor_Werner.Destroy();
+            if (instructor_Werner.Instructor != null)
+                Destroy(instructor_Werner.Instructor.gameObject);
+            instructor_Linus.Destroy();
+            if (instructor_Linus.Instructor != null)
+                Destroy(instructor_Linus.Instructor.gameObject);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             GameEvents.onScreenResolutionModified.Remove(onScreenResolutionModified);
+            GameEvents.OnMapEntered.Remove(onMapEntered);
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Remove(CheckContracts);
         }
@@ -143,11 +156,11 @@ namespace ResearchBodies
                 if (Database.instance.CelestialBodies[HostedfromtoAction.to].researchState < 100)
                 { 
                     Database.instance.CelestialBodies[HostedfromtoAction.to].researchState = 100;
-                    //ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_funds"],HostedfromtoAction.to.GetName(), Database.Instance.RB_SettingsParms.ScienceReward), 5f);
+                    //ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["#autoLOC_RBodies_00012"],HostedfromtoAction.to.GetName(), Database.Instance.RB_SettingsParms.ScienceReward), 5f);
                     //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward,TransactionReasons.None);
-                    ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_funds"], HostedfromtoAction.to.GetName(), Database.instance.RB_SettingsParms.ScienceReward), 5f);
+                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", HostedfromtoAction.to.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
                     ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
-                    var keyvalue = Database.instance.CelestialBodies.FirstOrDefault(a => a.Key.theName == HostedfromtoAction.to.theName);
+                    var keyvalue = Database.instance.CelestialBodies.FirstOrDefault(a => a.Key.bodyName == HostedfromtoAction.to.bodyName);
                     if (keyvalue.Key != null)
                     {
                         SetIndividualBodyDiscoveryLevel(keyvalue);
@@ -234,7 +247,7 @@ namespace ResearchBodies
                     }
                     else
                     {
-                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["funds_notEnough"]), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00047"), 3.0f, ScreenMessageStyle.UPPER_CENTER);
                     }
                 }
                 else
@@ -250,7 +263,7 @@ namespace ResearchBodies
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cb);
                 if (Database.instance.CelestialBodies[body].researchState == 100 && ResearchAndDevelopment.Instance != null)
                 {
-                    ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_funds"], body.GetName(), Database.instance.RB_SettingsParms.ScienceReward), 5f);
+                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", body.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
                     //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                     ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                 }
@@ -275,9 +288,7 @@ namespace ResearchBodies
                         Research(cb, 10);
                     }
                     else
-                        ScreenMessages.PostScreenMessage(
-                            string.Format(Locales.currentLocale.Values["launchPlan_notEnoughScience"], cb.GetName()),
-                            3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00014", cb.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
                 }
                 else
                 {
@@ -288,7 +299,7 @@ namespace ResearchBodies
                 }
             }
             else
-                RSTLogWriter.Log(string.Format(Locales.currentLocale.Values["launchPlan_alreadyStarted"], cb.GetName()));
+                RSTLogWriter.Log(Locales.FmtLocaleString("#autoLOC_RBodies_00015", cb.displayName));
         }
         public static void StopResearchPlan(CelestialBody cb)
         {
@@ -305,7 +316,50 @@ namespace ResearchBodies
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cbd);
             }
             else
-                RSTLogWriter.Log(string.Format(Locales.currentLocale.Values["stopPlan_hasntBeenStarted"], cb.GetName()));
+                RSTLogWriter.Log(Locales.FmtLocaleString("#autoLOC_RBodies_00016", cb.displayName));
+        }
+
+        public void onMapEntered()
+        {
+            if (MapNode.AllMapNodes.Count == 0)
+            {
+                base.StartCoroutine(CallbackUtil.DelayedCallback(10, new Callback(this.processMapNodes)));
+            }
+            else
+            {
+                processMapNodes();
+            }
+        }
+
+        private void processMapNodes()
+        {
+            List<MapNode> allNodes = MapNode.AllMapNodes;
+            for (int i = 0; i < allNodes.Count; i++)
+            {
+                MapNode currentNode = allNodes[i];
+                if (currentNode != null)
+                {
+                    if (currentNode.mapObject != null)
+                    {
+                        if (currentNode.mapObject.celestialBody != null)
+                        {
+                            if (Database.instance.CelestialBodies.ContainsKey(currentNode.mapObject.celestialBody))
+                            {
+                                CelestialBodyInfo dbCBvalue =
+                                    Database.instance.CelestialBodies[currentNode.mapObject.celestialBody];
+                                if (!dbCBvalue.isResearched)
+                                {
+                                    currentNode.VisualIconData.iconEnabled = false;
+                                }
+                                else
+                                {
+                                    currentNode.VisualIconData.iconEnabled = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }            
         }
 
         /// <summary>

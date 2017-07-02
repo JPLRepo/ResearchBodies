@@ -2,8 +2,8 @@
 	"NAME":"ResearchBodies",
 	"URL":"http://ksp-avc.cybutek.net/version.php?id=295",
 	"DOWNLOAD":"http://spacedock.info/mod/684/ResearchBodies",
-	"VERSION":{"MAJOR":1,"MINOR":9,"PATCH":1,"BUILD":0},
-	"KSP_VERSION":{"MAJOR":1,"MINOR":2,"PATCH":2},
-	"KSP_VERSION_MIN":{"MAJOR":1,"MINOR":2,"PATCH":2},
-	"KSP_VERSION_MAX":{"MAJOR":1,"MINOR":2,"PATCH":2}
+	"VERSION":{"MAJOR":1,"MINOR":9,"PATCH":2,"BUILD":0},
+	"KSP_VERSION":{"MAJOR":1,"MINOR":3,"PATCH":0},
+	"KSP_VERSION_MIN":{"MAJOR":1,"MINOR":3,"PATCH":0},
+	"KSP_VERSION_MAX":{"MAJOR":1,"MINOR":3,"PATCH":0}
 }

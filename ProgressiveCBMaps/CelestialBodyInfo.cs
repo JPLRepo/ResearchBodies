@@ -23,12 +23,14 @@ namespace ProgressiveCBMaps
 		public MeshRenderer mesh;
 		public Texture originalMainTex;
 		public Texture originalBumpMap;
+	    public bool hasBumpMap;
 		public Texture2D newScaledMap;
 		public Texture2D smallScaledMap;
 		public bool multi;
 		public int pass = -1;
 		private float originalalpha;
 		public float alpha = 1;
+	    public bool hasShininess;
 		private float originalshiny;
 		public float shiny;
 		private int originalvisualHeight;
@@ -49,12 +51,21 @@ namespace ProgressiveCBMaps
 			mesh = body.scaledBody.GetComponent<MeshRenderer>();
 			if (mesh != null)
 			{
-				originalMainTex = mesh.material.GetTexture("_MainTex");
-				originalBumpMap = mesh.material.GetTexture("_BumpMap");
-				var s = mesh.material.GetFloat("_Shininess");
-				shiny = s;
-				originalshiny = shiny;
-				if (originalMainTex != null)
+                
+                originalMainTex = mesh.material.GetTexture("_MainTex");
+			    if (mesh.material.HasProperty("_BumpMap"))
+			    {
+			        originalBumpMap = mesh.material.GetTexture("_BumpMap");
+			        hasBumpMap = true;
+			    }
+			    if (mesh.material.HasProperty("_Shininess"))
+			    {
+			        hasShininess = true;
+                    var s = mesh.material.GetFloat("_Shininess");
+			        shiny = s;
+			        originalshiny = shiny;
+			    }
+			    if (originalMainTex != null)
 				{
 					visualHeight = originalMainTex.height;
 					originalvisualHeight = originalMainTex.height;
@@ -86,7 +97,8 @@ namespace ProgressiveCBMaps
 			//rescaleType = 0;
 			rescaleMap();
 			mesh.material.SetTexture("_MainTex", smallScaledMap);
-			mesh.material.SetFloat("_Shininess", shiny);
+            if (hasShininess)
+			    mesh.material.SetFloat("_Shininess", shiny);
 		}
 
 		/// <summary>
@@ -120,7 +132,7 @@ namespace ProgressiveCBMaps
 		/// <param name="level">integer 0 through 6</param>
 		public void setVisualLevel(int level)
 		{
-			if (mesh == null || Body.pqsController == null)
+			if (mesh == null)
 				return;
 
 			switch (level)
@@ -136,7 +148,8 @@ namespace ProgressiveCBMaps
 						Body.pqsController.DeactivateSphere();
 						Body.pqsController.DisableSphere();
 					}
-					mesh.enabled = false;
+                    removeFromPlanetariumCamera();
+                    mesh.enabled = false;
 					currentDetailLevel = 0;
 					break;
 
@@ -147,9 +160,9 @@ namespace ProgressiveCBMaps
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-
-					//visualHeight = 64;
-					visualHeight = 32;
+                    removeFromPlanetariumCamera();
+                    //visualHeight = 64;
+                    visualHeight = 32;
 					shiny = 0;
 					setVisualOn(true);
 					setBumpOff();
@@ -164,8 +177,9 @@ namespace ProgressiveCBMaps
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-					//visualHeight = 128;
-					visualHeight = 64;
+                    addToPlanetariumCamera();
+                    //visualHeight = 128;
+                    visualHeight = 64;
 					shiny = 0;
 					setVisualOn(true);
 					setBumpOff();
@@ -180,8 +194,9 @@ namespace ProgressiveCBMaps
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-					//visualHeight = originalvisualHeight / 4;
-					visualHeight = 128;
+                    addToPlanetariumCamera();
+                    //visualHeight = originalvisualHeight / 4;
+                    visualHeight = 128;
 					shiny = originalshiny/2;
 					setVisualOn(true);
 					setBumpOff();
@@ -196,7 +211,8 @@ namespace ProgressiveCBMaps
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-					visualHeight = Mathf.Max(128, originalvisualHeight / 4);
+                    addToPlanetariumCamera();
+                    visualHeight = Mathf.Max(128, originalvisualHeight / 4);
 					shiny = originalshiny;
 					setVisualOn(false);
 					setBumpOff();
@@ -211,7 +227,8 @@ namespace ProgressiveCBMaps
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-					visualHeight = originalvisualHeight / 2;
+                    addToPlanetariumCamera();
+                    visualHeight = originalvisualHeight / 2;
 					shiny = originalshiny;
 					setVisualOn(false);
 					setBumpOff();
@@ -226,7 +243,8 @@ namespace ProgressiveCBMaps
 						Body.pqsController.EnableSphere();
 						mesh.enabled = true;
 					}
-					visualHeight = originalvisualHeight;
+                    addToPlanetariumCamera();
+                    visualHeight = originalvisualHeight;
 					shiny = originalshiny;
 					setVisualOn(false);
 					setBumpOn();
@@ -236,6 +254,32 @@ namespace ProgressiveCBMaps
 			}
 		}
 
+        /// <summary>
+        /// Removes body from the PlanetariumCamera targets list so you can't tab alt-tab to it.
+        /// </summary>
+        internal void removeFromPlanetariumCamera() 
+        {
+            if (PlanetariumCamera.fetch == null)
+                return;
+            if (PlanetariumCamera.fetch.targets.Contains(Body.MapObject))
+            {
+                PlanetariumCamera.fetch.targets.Remove(Body.MapObject);
+            }
+        }
+
+        /// <summary>
+        /// Adds body to the PlanetariumCamera targets list so you can tab alt-tab to it.
+        /// </summary>
+        internal void addToPlanetariumCamera()
+        {
+            if (PlanetariumCamera.fetch == null)
+                return;
+            if (!PlanetariumCamera.fetch.targets.Contains(Body.MapObject))
+            {
+                PlanetariumCamera.fetch.targets.Add(Body.MapObject);
+            }
+        }
+
 		/// <summary>
 		/// Sets the visuals back to the original settings
 		/// </summary>
@@ -243,10 +287,14 @@ namespace ProgressiveCBMaps
 		{
 			if (mesh == null)
 				return;
-			mesh.material.SetFloat("_Shininess", originalshiny);
-			mesh.material.SetTexture("_MainTex", originalMainTex);
-			mesh.material.SetTexture("_BumpMap", originalBumpMap);
-			shiny = originalshiny;
+		    if (hasShininess)
+		    {
+		        mesh.material.SetFloat("_Shininess", originalshiny);
+		        shiny = originalshiny;
+		    }
+		    mesh.material.SetTexture("_MainTex", originalMainTex);
+            if (hasBumpMap)
+			    mesh.material.SetTexture("_BumpMap", originalBumpMap);
 			visualHeight = originalvisualHeight;
 			alpha = 1;
 			rescaleType = 1;
@@ -314,7 +362,7 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setBumpOn()
 		{
-			if (originalBumpMap != null)
+			if (hasBumpMap && originalBumpMap != null)
 				mesh.material.SetTexture("_BumpMap", originalBumpMap);
 		}
 
@@ -323,7 +371,8 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setBumpOff()
 		{
-			mesh.material.SetTexture("_BumpMap", null);
+            if (hasBumpMap)
+                mesh.material.SetTexture("_BumpMap", null);
 		}
 
 		/// <summary>

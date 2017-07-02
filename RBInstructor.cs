@@ -38,42 +38,48 @@ namespace ResearchBodies
     /// anim_false_sadA
     /// </summary>
 
-    public partial class ResearchBodiesController : MonoBehaviour
+    public class ResearchBodiesInstructor 
     {
         #region InstructorVariables
         private KerbalInstructor _instructor;
+        public KerbalInstructor Instructor { get { return _instructor; } }
         private RenderTexture _portrait;
+        public RenderTexture Portrait { get { return _portrait; } }
         private Dictionary<GUIContent, CharacterAnimationState> _responses;
         private const int PortraitWidth = 128;
         private System.Random random = new System.Random();
         #endregion
 
         #region Instructor Functions
-        private KerbalInstructor Create(string instructorName)
+        public ResearchBodiesInstructor(string instructorName)
         {
-            var prefab = AssetBase.GetPrefab(instructorName);
+            GameObject prefab = AssetBase.GetPrefab(instructorName);
             if (prefab == null)
                 throw new ArgumentException("Could not find instructor named '" + instructorName + "'");
 
-            var prefabInstance = (GameObject)Instantiate(prefab);
-            var instructor = prefabInstance.GetComponent<KerbalInstructor>();
+            GameObject prefabInstance = UnityEngine.Object.Instantiate(prefab);
+            _instructor = prefabInstance.GetComponent<KerbalInstructor>();
 
             _portrait = new RenderTexture(PortraitWidth, PortraitWidth, 8);
-            instructor.instructorCamera.targetTexture = _portrait;
+            _instructor.instructorCamera.targetTexture = _portrait;
 
-            _responses = instructor.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)
+            _responses = _instructor.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)
                 .Where(fi => fi.FieldType == typeof(CharacterAnimationState))
-                .Where(fi => fi.GetValue(instructor) != null)
-                .ToDictionary(fi => new GUIContent(fi.Name), fi => fi.GetValue(instructor) as CharacterAnimationState);
-
-            return instructor;
+                .Where(fi => fi.GetValue(_instructor) != null)
+                .ToDictionary(fi => new GUIContent(fi.Name), fi => fi.GetValue(_instructor) as CharacterAnimationState);
         }
 
-        private void PlayEmote(int emote)
+        public void Destroy()
+        {
+            if (_portrait != null)
+                _portrait.Release();
+        }
+
+        public void PlayEmote(int emote)
         {
             _instructor.PlayEmote(_responses[_responses.Keys.ToArray()[emote]]);
         }
-        private void PlayOKEmote()
+        public void PlayOKEmote()
         {
             int rand = random.Next(4);
             if (rand == 1)
@@ -83,7 +89,7 @@ namespace ResearchBodies
             else
                 _instructor.PlayEmote(_responses[_responses.Keys.ToArray()[7]]);
         }
-        private void PlayNiceEmote()
+        public void PlayNiceEmote()
         {
             int rand = random.Next(3);
             if (rand == 1)
@@ -91,7 +97,7 @@ namespace ResearchBodies
             else
                 _instructor.PlayEmote(_responses[_responses.Keys.ToArray()[5]]);
         }
-        private void PlayBadEmote()
+        public void PlayBadEmote()
         {
             int rand = random.Next(5);
             if (rand == 1)

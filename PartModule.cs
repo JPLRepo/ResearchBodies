@@ -14,6 +14,7 @@
  */
 
 using System.Collections.Generic;
+using KSP.Localization;
 using UnityEngine;
 using RSTUtils;
 using RSTUtils.Extensions;
@@ -58,6 +59,7 @@ namespace ResearchBodies
         private int startingdifficulty;
         private double searchButtonDisplayTimer;
         private bool searchButtonDisplay = false;
+        private bool French;
 
 
         public override void OnAwake()
@@ -67,6 +69,13 @@ namespace ResearchBodies
             {
                 _partwindowID = Utilities.getnextrandomInt();
                 startingdifficulty = difficulty;
+            }
+            if (HighLogic.CurrentGame != null)
+            {
+                if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().french)
+                {
+                    French = true;
+                }
             }
         }
 
@@ -92,19 +101,19 @@ namespace ResearchBodies
                 string msg = "";
                 if (withParent) //And was a parent body also discovered?
                 {
-                    msg = Database.instance.CelestialBodies[bodyFound].discoveryMessage;
-                    msg += "\n" + Database.instance.CelestialBodies[parentBody].discoveryMessage;
+                    msg = French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName) ;
+                    msg += "\n" + (French ? Database.instance.CelestialBodies[parentBody].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + parentBody.bodyName));
                 }
                 else
                 {
-                    msg = Database.instance.CelestialBodies[bodyFound].discoveryMessage;
+                    msg = French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName);
                 }
-                string title = "Research Bodies";
+                string title = Localizer.Format("#autoLOC_RBodies_00049");
                 UISkinDef skin = HighLogic.UISkin;
                 DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
                 dialogGUIBase[0] = new DialogGUIButton("Ok", delegate { foundpopup = false; foundBody = false; });
                 PopupDialog.SpawnPopupDialog(anchormin, anchormax,
-                    new MultiOptionDialog(msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true,
+                    new MultiOptionDialog(title, msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true,
                     string.Empty);
             }
         }
@@ -115,11 +124,11 @@ namespace ResearchBodies
             {
                 GUI.skin = HighLogic.Skin;
                 windowRect.ClampToScreen();
-                windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Locales.currentLocale.Values["telescope_trackBodies"]);
+                windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Locales.FmtLocaleString("#autoLOC_RBodies_00026"));
             }
         }
 
-        [KSPEvent(guiName = "Research Bodies", guiActiveEditor = false, guiActive = true)]
+        [KSPEvent(name = "Research Bodies", guiName = "#autoLOC_RBodies_00049", guiActiveEditor = false, guiActive = true)]
         public void ToggleGUI()
         {
             if (!this.vessel.Landed && this.vessel.atmDensity < 0.1 && this.vessel.altitude > minAltitude)
@@ -127,12 +136,12 @@ namespace ResearchBodies
                 showGUI = !showGUI;
             }
             else
-                ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["telescope_mustBeInSpace"], minAltitude), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00019", minAltitude.ToString()), 3.0f, ScreenMessageStyle.UPPER_CENTER);
         }
 
         void DrawWindow(int windowID)
         {
-            GUIContent closeContent = new GUIContent(Textures.BtnRedCross, "Close Window");
+            GUIContent closeContent = new GUIContent(Textures.BtnRedCross, Locales.FmtLocaleString("#autoLOC_RBodies_00050"));
             Rect closeRect = new Rect(windowRect.width - 21, 4, 16, 16);
             if (GUI.Button(closeRect, closeContent, Textures.ClosebtnStyle))
             {
@@ -142,7 +151,7 @@ namespace ResearchBodies
             GUILayout.BeginVertical();
             scrollViewBodiesVector = GUILayout.BeginScrollView(scrollViewBodiesVector, GUILayout.MaxHeight(200f));
             GUILayout.BeginVertical();
-            GUILayout.Label(Locales.currentLocale.Values["start_availableBodies"], Textures.sectionTitleStyle);
+            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00024"), Textures.sectionTitleStyle); //#autoLOC_RBodies_00024 = Available Bodies
             foreach (var body in Database.instance.CelestialBodies)
             {
                 if (body.Value.isResearched)
@@ -155,8 +164,8 @@ namespace ResearchBodies
 
             scrollViewVector = GUILayout.BeginScrollView(scrollViewVector);
             GUILayout.BeginVertical();
-            GUILayout.Label(string.Format(Locales.currentLocale.Values["telescope_trackBodies_EC"], electricChargeRequest));
-            if (GUILayout.Button(Locales.currentLocale.Values["telescope_trackBodies"]))
+            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00021", electricChargeRequest.ToString()));  //#autoLOC_RBodies_00021 = Each use of the Telescope will use <<1>> Electric Charge
+            if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00022"))) //#autoLOC_RBodies_00022 = Track Bodies
             {
                 foundBody = false;
                 withParent = false;
@@ -177,7 +186,7 @@ namespace ResearchBodies
                     if (!local)
                     {
                         canResearch = false;
-                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["telescope_mustHavePart"], requiredPart), 5.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00020", requiredPart), 5.0f, ScreenMessageStyle.UPPER_CENTER); //#autoLOC_RBodies_00020 = The vessel must have a <<1>> part attached to it!
                     }
                 }
                 
@@ -231,7 +240,7 @@ namespace ResearchBodies
                                 {
                                     bodyFound = BodiesInView[random.Next(BodiesInView.Count)]; //Randomly pick one.
                                     foundBody = true;
-                                    ScreenMessages.PostScreenMessage("Celestial Body Discovered !", 15f);
+                                    ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00051"), 15f); //#autoLOC_RBodies_00051 = Celestial Body Discovered!
                                     difficulty = startingdifficulty; //Reset the difficulty factor to the starting factor now that we found something.
                                     ResearchBodiesController.FoundBody(scienceReward, bodyFound, out withParent, out parentBody);
                                 }
@@ -249,7 +258,7 @@ namespace ResearchBodies
                     }
                     else  // There wasn't enough EC!
                     {
-                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["ec_notEnough"]), 5.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00048"), 5.0f, ScreenMessageStyle.UPPER_CENTER); //#autoLOC_RBodies_00048 = Not enough Electric Charge to operate the telescope.
                     }
                 }
                 
@@ -268,23 +277,23 @@ namespace ResearchBodies
                 {
                     if (withParent) //And was a parent body also discovered?
                     {
-                        GUILayout.Label(Database.instance.CelestialBodies[bodyFound].discoveryMessage);
-                        GUILayout.Label (Database.instance.CelestialBodies[parentBody].discoveryMessage);
+                        GUILayout.Label(French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName));
+                        GUILayout.Label(French ? Database.instance.CelestialBodies[parentBody].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + parentBody.bodyName));
                     }
                     else
                     {
-                        GUILayout.Label(Database.instance.CelestialBodies[bodyFound].discoveryMessage);
+                        GUILayout.Label(French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName));
                     }
                 }
                 else  //Nope, didn't find anything.
                 {
                     if (foundBodyTooWeak) //Was there something just out of telescope range?
                     {
-                        GUILayout.Label(Locales.currentLocale.Values["telescope_weaksignal"], HighLogic.Skin.label);
+                        GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00023"), HighLogic.Skin.label); //#autoLOC_RBodies_00023 = A faint signal has been detected but we need a more powerful Telescope.
                     }
                     else  //Nope there was absolutely nothing to see here.
                     {
-                        GUILayout.Label(nothing, HighLogic.Skin.label);
+                        GUILayout.Label(Localizer.Format(nothing), HighLogic.Skin.label);
                     }
                 }
             }

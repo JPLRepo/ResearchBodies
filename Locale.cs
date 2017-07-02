@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using RSTUtils;
+using KSP.Localization;
 
 namespace ResearchBodies
 {
@@ -67,7 +68,11 @@ namespace ResearchBodies
             {
                 if (language == "")
                 {
-                    language = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().language;
+                    language = "English";// HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().language;
+                }
+                if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().french)
+                {
+                    language = "Français";
                 }
                 foreach (Locale l in locales)
                 {
@@ -111,7 +116,7 @@ namespace ResearchBodies
                                 .GetNode("ONDISCOVERY")
                                 .values)
                     {
-                        if (value.name == body.GetName() && Database.instance.CelestialBodies.ContainsKey(body))
+                        if (value.name == body.bodyName && Database.instance.CelestialBodies.ContainsKey(body))
                         {
                             Database.instance.CelestialBodies[body].discoveryMessage = value.value;
                         }
@@ -123,14 +128,35 @@ namespace ResearchBodies
             {
                 foreach (CelestialBody body in FlightGlobals.Bodies)
                 {
-                    if (currentLocale.Values.ContainsKey("discovery_" + body.GetName()) &&
+                    if (currentLocale.Values.ContainsKey("#autoLOC_RBodies_discovery_" + body.bodyName) &&
                         Database.instance.CelestialBodies.ContainsKey(body))
                     {
                         Database.instance.CelestialBodies[body].discoveryMessage =
-                            currentLocale.Values["discovery_" + body.GetName()];
+                            currentLocale.Values["#autoLOC_RBodies_discovery_" + body.bodyName];
                     }
                 }
             }
+        }
+
+        public static string FmtLocaleString(string tag, params string[] list)
+        {
+            string returnString = String.Empty;
+            if (currentLocale.LocaleId == "fr")
+            {
+                if (list.Length == 0)
+                {
+                    returnString = Locales.currentLocale.Values[tag];
+                }
+                else
+                {
+                    returnString = string.Format(Locales.currentLocale.Values[tag], list);
+                }
+            }
+            else
+            {
+                returnString = Localizer.Format(tag, list);
+            }
+            return returnString;
         }
     }
 

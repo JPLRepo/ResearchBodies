@@ -996,7 +996,7 @@ namespace ResearchBodies
                     {
                         InputLockManager.RemoveControlLock("ResearchBodies_SC_Observatory");
                     });
-                    PopupDialog.SpawnPopupDialog(anchormin, anchormax, new MultiOptionDialog(msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true, string.Empty);
+                    PopupDialog.SpawnPopupDialog(anchormin, anchormax, new MultiOptionDialog(title, msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true, string.Empty);
                     return;
                 }
             }
@@ -1015,7 +1015,7 @@ namespace ResearchBodies
                 {
                     InputLockManager.RemoveControlLock("ResearchBodies_SC_Observatory");
                 });
-                PopupDialog.SpawnPopupDialog(anchormin, anchormax, new MultiOptionDialog(msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true, string.Empty);
+                PopupDialog.SpawnPopupDialog(anchormin, anchormax, new MultiOptionDialog(title, msg, title, skin, dialogGUIBase), false, HighLogic.UISkin, true, string.Empty);
                 return;
             }
             //Activate the Observatory - processes sound and locks SC UI
