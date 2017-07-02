@@ -1,14 +1,13 @@
 ﻿/*
- * CelestialBodyInfo.cs
- * (C) Copyright 2016, Jamie Leighton 
- * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
- * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * CelestialBodyInfo.cs 
+ * License : MIT
+ * Copyright (c) 2016 Jamie Leighton 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  * project is in no way associated with nor endorsed by Squad.
- *
- *  ResearchBodies is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
  *
  */
 
@@ -27,7 +26,8 @@ namespace ResearchBodies
         public BodyIgnoreData IgnoreData; //Use when setting the difficulty at start of new game.
         public bool KOPbarycenter;        //True if this body is actually a Kopernicus barycenter
         public CelestialBody KOPrelbarycenterBody;  //Will be null unless this body's parent is a Kopernicus barycenter, then it will be set to that barycenter
-        
+        public int ContractsWeight; //Original contracts weight for this body.
+
 
         public CelestialBodyInfo(string inputbody)
         {
@@ -40,6 +40,7 @@ namespace ResearchBodies
             IgnoreData = new BodyIgnoreData(false, false, false, false);
             KOPbarycenter = false;
             KOPrelbarycenterBody = null;
+            ContractsWeight = 30;
         }
 
         public static CelestialBodyInfo Load(ConfigNode node)
@@ -52,6 +53,7 @@ namespace ResearchBodies
             node.TryGetValue("isResearched", ref info.isResearched);
             node.TryGetValue("researchState", ref info.researchState);
             node.TryGetValue("ignore", ref info.ignore);
+            node.TryGetValue("ContractsWeight", ref info.ContractsWeight);
             return info;
         }
 
@@ -62,6 +64,7 @@ namespace ResearchBodies
             node.AddValue("isResearched", isResearched);
             node.AddValue("researchState", researchState);
             node.AddValue("ignore", ignore);
+            node.AddValue("ContractsWeight", ContractsWeight);
             return node;
         }
     }

@@ -1,14 +1,14 @@
 ﻿/*
- * RBGameSettings.cs
- * (C) Copyright 2016, Jamie Leighton 
- * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
- * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * RBGameSettings.cs 
+ * License : MIT
+ * Copyright (c) 2016 Jamie Leighton 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  * project is in no way associated with nor endorsed by Squad.
  *
- *  ResearchBodies is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
  *
  */
 using System.IO;
@@ -21,17 +21,18 @@ namespace ResearchBodies
     {
         private const string configNodeName = "RBGameSettings";
         
-        public bool Enabled;
-        public int Difficulty;
-        public int ResearchCost;
-        public int ProgressResearchCost;
-        public int ScienceReward;
-        public bool UseAppLauncher;
-        public bool DebugLogging;
-        public int chances;
-        public int[] StartResearchCosts, ProgressResearchCosts, ScienceRewards;
-        public bool enableInSandbox; 
-        public bool allowTSlevel1;
+        private bool Enabled;
+        private int Difficulty;
+        private int ResearchCost;
+        private int ProgressResearchCost;
+        private int ScienceReward;
+        private bool UseAppLauncher;
+        private bool DebugLogging;
+        private int chances;
+        private int[] StartResearchCosts, ProgressResearchCosts, ScienceRewards;
+        private bool enableInSandbox;
+        private bool allowTSlevel1;
+        private bool foundOldSettings;
         
 
         public RBGameSettings()
@@ -46,27 +47,28 @@ namespace ResearchBodies
             chances = 3;
             enableInSandbox = false;
             allowTSlevel1 = false;
+            foundOldSettings = false;
         }
 
         public void Load(ConfigNode node)
         {
-            //Does ano old save file exist? If not then we load from persistent.SFS config nodes.
+            //Does an old save file exist? If not then we load from persistent.SFS config nodes.
             if (!File.Exists("saves/" + HighLogic.SaveFolder + "/researchbodies.cfg"))
             {
                 if (node.HasNode(configNodeName)) //Load SFS config nodes
                 {
                     ConfigNode RBsettingsNode = node.GetNode(configNodeName);
 
-                    RBsettingsNode.TryGetValue("Enabled", ref Enabled);
-                    RBsettingsNode.TryGetValue("Difficulty", ref Difficulty);
-                    RBsettingsNode.TryGetValue("ResearchCost", ref ResearchCost);
-                    RBsettingsNode.TryGetValue("ProgressResearchCost", ref ProgressResearchCost);
-                    RBsettingsNode.TryGetValue("ScienceReward", ref ScienceReward);
-                    RBsettingsNode.TryGetValue("UseAppLauncher", ref UseAppLauncher);
-                    RBsettingsNode.TryGetValue("DebugLogging", ref DebugLogging);
-                    RBsettingsNode.TryGetValue("chances", ref chances);
-                    RBsettingsNode.TryGetValue("enableInSandbox", ref enableInSandbox);
-                    RBsettingsNode.TryGetValue("allowTSlevel1", ref allowTSlevel1);
+                    foundOldSettings = RBsettingsNode.TryGetValue("Enabled", ref Enabled);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("Difficulty", ref Difficulty);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("ResearchCost", ref ResearchCost);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("ProgressResearchCost", ref ProgressResearchCost);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("ScienceReward", ref ScienceReward);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("UseAppLauncher", ref UseAppLauncher);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("DebugLogging", ref DebugLogging);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("chances", ref chances);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("enableInSandbox", ref enableInSandbox);
+                    foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("allowTSlevel1", ref allowTSlevel1);
 
                     var bodyNodes = RBsettingsNode.GetNodes(CelestialBodyInfo.ConfigNodeName);
                     foreach (ConfigNode bodyNode in bodyNodes)
@@ -83,15 +85,11 @@ namespace ResearchBodies
                             }
                         }
                     }
+                    //if (Difficulty == 0) //If difficult == 0 user somehow hasn't selected new game difficulty. So show the startup UI.
+                    //    ResearchBodiesController.instance.showStartUI = true;
                 }
                 else  //No config node, so Must be NEW Game!
                 {
-                    Enabled = true;
-                    chances = Database.instance.chances;
-                    enableInSandbox = Database.instance.enableInSandbox;
-                    allowTSlevel1 = Database.instance.allowTSlevel1;
-                    ResearchBodiesController.instance.showStartUI = true;
-                    
                     foreach (CelestialBody body in Database.instance.BodyList)
                     {
                         CelestialBodyInfo bodyInfo = new CelestialBodyInfo(body.GetName());
@@ -105,13 +103,13 @@ namespace ResearchBodies
             else //OLD Save file found, convert to persistent.sfs confignode and delete file.
             {
                 RSTLogWriter.Log("Converting Old Save file to new persistent.sfs config node - Loading old save file");
+                foundOldSettings = true;
                 ConfigNode mainnode = ConfigNode.Load("saves/" + HighLogic.SaveFolder + "/researchbodies.cfg");
-                Difficulty = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("difficulty") ?? "0"); // DEPRECATED!
-
+                Difficulty = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("difficulty") ?? "0"); 
                 ResearchCost = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ResearchCost") ?? "10");
                 ProgressResearchCost = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ProgressResearchCost") ?? "5");
                 ScienceReward = int.Parse(mainnode.GetNode("RESEARCHBODIES").GetValue("ResearchCost") ?? "5");
-                
+
                 foreach (CelestialBody cb in Database.instance.BodyList)
                 {
                     bool fileContainsCB = false;
@@ -145,13 +143,45 @@ namespace ResearchBodies
                         Database.instance.CelestialBodies[cb].researchState = 0;
                     }
                 }
+                
                 File.Delete("saves/" + HighLogic.SaveFolder + "/researchbodies.cfg");
-                RSTLogWriter.Log("Converted Old Save file to new persistent.sfs config node - Loading/Conversion complete. Old save file deleted");
+                RSTLogWriter.Log("unable to load OLD save file. Old save file deleted");
             }
 
+
+            //So now we have CB data and we should have bunch of settings that from now on are handled by the stock settings integration.
+            //If we did find those settings we overwrite the stock settings intregration values, but after this they won't exist any more for this save as we won't save them again here.
+            if (foundOldSettings)
+            {
+                ResearchBodies.Enabled = Enabled;
+                RSTLogWriter.debuggingOn = DebugLogging;
+                if (Database.instance != null)
+                {
+                    Database.instance.RB_SettingsParms.ResearchCost = ResearchCost;
+                    Database.instance.RB_SettingsParms.ProgressResearchCost = ProgressResearchCost;
+                    Database.instance.RB_SettingsParms.ScienceReward = ScienceReward;
+                    //Database.instance.RB_SettingsParms.UseAppLToolbar = UseAppLauncher;
+                    Database.instance.RB_SettingsParms.DebugLogging = DebugLogging;
+                    Database.instance.RB_SettingsParms.DiscoverySeed = chances;
+                    Database.instance.RB_SettingsParms.Enabledtslvl1 = allowTSlevel1;
+                    Database.instance.ApplySettings();
+                }
+                else
+                {
+                    RSTLogWriter.Log("Failed to apply old game settings to new Stock settings integration");
+                }
+
+            }
+            else
+            {
+                //Database.instance.ApplySettings();
+                Database.instance.onGameStatePostLoad(node);
+            }
             RSTLogWriter.Log("RBGameSettings Loading Complete");
+            RSTLogWriter.Flush();
         }
 
+        
         public void Save(ConfigNode node)
         {
             ConfigNode settingsNode;
@@ -164,24 +194,15 @@ namespace ResearchBodies
             {
                 settingsNode = node.AddNode(configNodeName);
             }
-            settingsNode.AddValue("Enabled", Enabled);
-            settingsNode.AddValue("Difficulty", Difficulty);
-            settingsNode.AddValue("ResearchCost", ResearchCost);
-            settingsNode.AddValue("ProgressResearchCost", ProgressResearchCost);
-            settingsNode.AddValue("ScienceReward", ScienceReward);
-            settingsNode.AddValue("UseAppLauncher", UseAppLauncher);
-            settingsNode.AddValue("DebugLogging", DebugLogging);
-            settingsNode.AddValue("chances", chances);
-            settingsNode.AddValue("enableInSandbox", enableInSandbox);
-            settingsNode.AddValue("allowTSlevel1", allowTSlevel1);
 
             foreach (var entry in Database.instance.CelestialBodies)
             {
                 ConfigNode CBNode = entry.Value.Save(settingsNode);
-                RSTUtils.Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.GetName());
+                Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.GetName());
                 //CBNode.AddValue("body", entry.Key.GetName());
             }
             RSTLogWriter.Log("RBGameSettings Saving Complete");
+            RSTLogWriter.Flush();
         }
     }
     

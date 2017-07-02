@@ -1,14 +1,14 @@
 ﻿/*
  * ResearchBodiescontroller.cs
- * (C) Copyright 2016, Jamie Leighton 
- * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
- * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * (C) Copyright 2016, Jamie Leighton  
+ * License : MIT 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Original code was developed by 
  * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  * project is in no way associated with nor endorsed by Squad.
- *
- *  ResearchBodies is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
  *
  */
 using System;
@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Contracts;
-using KSP.UI.Screens;
+using KSP.UI.Screens.Mapview;
 using RSTUtils;
 
 namespace ResearchBodies
@@ -27,24 +27,19 @@ namespace ResearchBodies
         internal bool isPCBMInstalled = false;
         
         public static ResearchBodiesController instance;
+
+        private ResearchBodiesInstructor instructor_Werner;
+        private ResearchBodiesInstructor instructor_Linus;
         
         public void Awake()
         {
             instance = this;
-            _startwindowId = Utilities.getnextrandomInt();
-            _hoverwindowId = Utilities.getnextrandomInt();
             _RBwindowId = Utilities.getnextrandomInt();
-            _settingswindowId = Utilities.getnextrandomInt();
-
-            RBMenuAppLToolBar = new AppLauncherToolBar("ResearchBodies", "ResearchBodies",
-                Textures.PathToolbarIconsPath + "/RBToolBaricon",
-                ApplicationLauncher.AppScenes.SPACECENTER,
-                (Texture)Textures.ApplauncherIcon, (Texture)Textures.ApplauncherIcon,
-                GameScenes.SPACECENTER);
         }
 
         public void Start()
         {
+            French = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().french;
             isTSTInstalled = Database.instance.isTSTInstalled;
             isPCBMInstalled = Utilities.IsPCBMInstalled;
             if (isPCBMInstalled)  //If Progressive CB Maps assembly is present, initialise PCBM wrapper.
@@ -55,10 +50,11 @@ namespace ResearchBodies
                     isPCBMInstalled = false; //If the initialise of wrapper failed set bool to false, we won't be interfacing to PCBM today.
                 }
             }
-            enable = ResearchBodies.enabled;
+            enable = ResearchBodies.Enabled;
             
             //Create Instructor
-            _instructor = Create("Instructor_Wernher");
+            instructor_Werner = new ResearchBodiesInstructor("Instructor_Wernher");
+            instructor_Linus = new ResearchBodiesInstructor("Strategy_ScienceGuy");
             
             //Register for Contract On offerred so we can remove ones that are for bodies not yet tracked.
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
@@ -68,48 +64,29 @@ namespace ResearchBodies
             if (enable)
             {
                 SetBodyDiscoveryLevels();
-                
-                if (!ToolbarManager.ToolbarAvailable && !Database.instance.UseAppLauncher)
-                {
-                    Database.instance.UseAppLauncher = true;
-                }
-                RBMenuAppLToolBar.Start(Database.instance.UseAppLauncher);
-                GameEvents.onGUIRnDComplexSpawn.Add(TurnUIOff);
-                GameEvents.onGUIMissionControlSpawn.Add(TurnUIOff);
-                GameEvents.onGUIAstronautComplexSpawn.Add(TurnUIOff);
-                GameEvents.onGUIAdministrationFacilitySpawn.Add(TurnUIOff);
-                GameEvents.onGUIRnDComplexDespawn.Add(TurnUIOn);
-                GameEvents.onGUIMissionControlDespawn.Add(TurnUIOn);
-                GameEvents.onGUIAstronautComplexDespawn.Add(TurnUIOn);
-                GameEvents.onGUIAdministrationFacilityDespawn.Add(TurnUIOn);
                 GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
                 Utilities.setScaledScreen();
-
-                difficulty = ResearchBodies.Instance.RBgameSettings.Difficulty;
-                ResearchCost = ResearchBodies.Instance.RBgameSettings.ResearchCost;
-                ScienceReward = ResearchBodies.Instance.RBgameSettings.ScienceReward;
-                ProgressResearchCost = ResearchBodies.Instance.RBgameSettings.ProgressResearchCost;
+                windowRect = new Rect(1, 1, Utilities.scaledScreenWidth-2, Utilities.scaledScreenHeight-2);
+                GameEvents.onScreenResolutionModified.Add(onScreenResolutionModified);
+                GameEvents.OnMapEntered.Add(onMapEntered);
+                if (HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                {
+                    onMapEntered();
+                }
             }
         }
 
         public void OnDestroy()
         {
-            if (_portrait != null)
-                _portrait.Release();
-
-            if (_instructor != null)
-                Destroy(_instructor.gameObject);
-            if (enable)
-                RBMenuAppLToolBar.Destroy();
-            GameEvents.onGUIRnDComplexDespawn.Remove(TurnUIOff);
-            GameEvents.onGUIMissionControlDespawn.Remove(TurnUIOff);
-            GameEvents.onGUIAstronautComplexSpawn.Remove(TurnUIOff);
-            GameEvents.onGUIAdministrationFacilitySpawn.Remove(TurnUIOff);
-            GameEvents.onGUIRnDComplexDespawn.Remove(TurnUIOn);
-            GameEvents.onGUIMissionControlDespawn.Remove(TurnUIOn);
-            GameEvents.onGUIAstronautComplexDespawn.Remove(TurnUIOn);
-            GameEvents.onGUIAdministrationFacilityDespawn.Remove(TurnUIOn);
+            instructor_Werner.Destroy();
+            if (instructor_Werner.Instructor != null)
+                Destroy(instructor_Werner.Instructor.gameObject);
+            instructor_Linus.Destroy();
+            if (instructor_Linus.Instructor != null)
+                Destroy(instructor_Linus.Instructor.gameObject);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
+            GameEvents.onScreenResolutionModified.Remove(onScreenResolutionModified);
+            GameEvents.OnMapEntered.Remove(onMapEntered);
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Remove(CheckContracts);
         }
@@ -148,12 +125,13 @@ namespace ResearchBodies
         {
             try
             {
-                RSTLogWriter.Log("WithDrew contract \"{0}\"" , c.Title);
+                //RSTLogWriter.Log("WithDrew contract \"{0}\"" , c.Title);
                 c.Withdraw(); //Changed to Withdraw - this will not penalize reputation.
             }
             catch (Exception e)
             {
                 RSTLogWriter.Log("Unable to Withraw contract ! {0}" , e);
+                RSTLogWriter.Flush();
             }
         }
 
@@ -178,9 +156,11 @@ namespace ResearchBodies
                 if (Database.instance.CelestialBodies[HostedfromtoAction.to].researchState < 100)
                 { 
                     Database.instance.CelestialBodies[HostedfromtoAction.to].researchState = 100;
-                    ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_funds"],HostedfromtoAction.to.GetName(), ResearchBodies.Instance.RBgameSettings.ScienceReward), 5f);
-                    ResearchAndDevelopment.Instance.AddScience(ResearchBodies.Instance.RBgameSettings.ScienceReward,TransactionReasons.None);
-                    var keyvalue = Database.instance.CelestialBodies.FirstOrDefault(a => a.Key.theName == HostedfromtoAction.to.theName);
+                    //ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["#autoLOC_RBodies_00012"],HostedfromtoAction.to.GetName(), Database.Instance.RB_SettingsParms.ScienceReward), 5f);
+                    //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward,TransactionReasons.None);
+                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", HostedfromtoAction.to.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
+                    ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
+                    var keyvalue = Database.instance.CelestialBodies.FirstOrDefault(a => a.Key.bodyName == HostedfromtoAction.to.bodyName);
                     if (keyvalue.Key != null)
                     {
                         SetIndividualBodyDiscoveryLevel(keyvalue);
@@ -203,7 +183,8 @@ namespace ResearchBodies
             parentBody = null;
             if (HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)  //If not sandbox add the Science Points reward!
             {
-                var sciencePtsReward = scienceReward + ResearchBodies.Instance.RBgameSettings.ScienceReward;
+                //var sciencePtsReward = scienceReward + Database.Instance.RB_SettingsParms.ScienceReward;
+                var sciencePtsReward = scienceReward + Database.instance.RB_SettingsParms.ScienceReward;
                 ResearchAndDevelopment.Instance.AddScience(sciencePtsReward, TransactionReasons.None);
                 ScreenMessages.PostScreenMessage("Added " + sciencePtsReward + " science points !", 5f);
             }
@@ -213,7 +194,11 @@ namespace ResearchBodies
                 if (Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody.referenceBody))
                     Database.instance.CelestialBodies[bodyFound.referenceBody].isResearched = true;
                 if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                {
                     Database.instance.CelestialBodies[bodyFound].isResearched = true;
+                    var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound, Database.instance.CelestialBodies[bodyFound]);
+                    setCBContractWeight(tempEntry, false);
+                }
                 withParent = true;
                 parentBody = bodyFound.referenceBody;
                 //check for Barycenter as well.
@@ -224,6 +209,8 @@ namespace ResearchBodies
                         Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody.referenceBody))
                     {
                         Database.instance.CelestialBodies[bodyFound.referenceBody.referenceBody].isResearched = true;
+                        var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound.referenceBody.referenceBody, Database.instance.CelestialBodies[bodyFound.referenceBody.referenceBody]);
+                        setCBContractWeight(tempEntry, false);
                     }
                 }
                 RSTLogWriter.Log("Found body {0} orbiting around {1} !", bodyFound.GetName(), bodyFound.referenceBody.GetName());
@@ -231,10 +218,15 @@ namespace ResearchBodies
             else //No parent or parent is already discovered. So we just found this body.
             {
                 if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                {
                     Database.instance.CelestialBodies[bodyFound].isResearched = true;
+                    var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound, Database.instance.CelestialBodies[bodyFound]);
+                    setCBContractWeight(tempEntry, false);
+                }
                 withParent = false;
                 RSTLogWriter.Log("Found body {0} !", bodyFound.GetName());
             }
+            RSTLogWriter.Flush();
             return true;
         }
         public static bool Research(CelestialBody body, int researchToAdd)
@@ -243,14 +235,19 @@ namespace ResearchBodies
             {
                 if (Funding.Instance != null)
                 {
-                    if (Funding.Instance.Funds >= ResearchBodies.Instance.RBgameSettings.ProgressResearchCost)
+                    //if (Funding.Instance.Funds >= ResearchBodies.Instance.RBgameSettings.ProgressResearchCost)
+
+                    if (Funding.Instance.Funds >= Database.instance.RB_SettingsParms.ProgressResearchCost)
                     {
                         Database.instance.CelestialBodies[body].researchState += researchToAdd;
-                        Funding.Instance.AddFunds(-ResearchBodies.Instance.RBgameSettings.ProgressResearchCost, TransactionReasons.None);
+                        if (Database.instance.CelestialBodies[body].researchState > 100)
+                            Database.instance.CelestialBodies[body].researchState = 100;
+                        //Funding.Instance.AddFunds(-ResearchBodies.Instance.RBgameSettings.ProgressResearchCost, TransactionReasons.None);
+                        Funding.Instance.AddFunds(-Database.instance.RB_SettingsParms.ProgressResearchCost, TransactionReasons.Progression);
                     }
                     else
                     {
-                        ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["funds_notEnough"]), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00047"), 3.0f, ScreenMessageStyle.UPPER_CENTER);
                     }
                 }
                 else
@@ -266,8 +263,9 @@ namespace ResearchBodies
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cb);
                 if (Database.instance.CelestialBodies[body].researchState == 100 && ResearchAndDevelopment.Instance != null)
                 {
-                    ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["research_isNowFullyResearched_funds"], body.GetName(), ResearchBodies.Instance.RBgameSettings.ScienceReward), 5f);
-                    ResearchAndDevelopment.Instance.AddScience(ResearchBodies.Instance.RBgameSettings.ScienceReward, TransactionReasons.None);
+                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", body.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
+                    //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
+                    ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                 }
                 return true;
             }
@@ -282,15 +280,15 @@ namespace ResearchBodies
             {
                 if (Funding.Instance != null)
                 {
-                    if (Funding.Instance.Funds >= ResearchBodies.Instance.RBgameSettings.ResearchCost)
+                    //if (Funding.Instance.Funds >= Database.Instance.RB_SettingsParms.ResearchCost)
+                    if (Funding.Instance.Funds >= Database.instance.RB_SettingsParms.ResearchCost)
                     {
-                        Funding.Instance.AddFunds(-ResearchBodies.Instance.RBgameSettings.ResearchCost, TransactionReasons.None);
+                        //Funding.Instance.AddFunds(-Database.Instance.RB_SettingsParms.ResearchCost, TransactionReasons.None);
+                        Funding.Instance.AddFunds(-Database.instance.RB_SettingsParms.ResearchCost, TransactionReasons.Progression);
                         Research(cb, 10);
                     }
                     else
-                        ScreenMessages.PostScreenMessage(
-                            string.Format(Locales.currentLocale.Values["launchPlan_notEnoughScience"], cb.GetName()),
-                            3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00014", cb.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
                 }
                 else
                 {
@@ -301,7 +299,7 @@ namespace ResearchBodies
                 }
             }
             else
-                RSTLogWriter.Log(string.Format(Locales.currentLocale.Values["launchPlan_alreadyStarted"], cb.GetName()));
+                RSTLogWriter.Log(Locales.FmtLocaleString("#autoLOC_RBodies_00015", cb.displayName));
         }
         public static void StopResearchPlan(CelestialBody cb)
         {
@@ -309,7 +307,7 @@ namespace ResearchBodies
             {
                 if (Funding.Instance != null)
                 {
-                    Funding.Instance.AddFunds(ResearchBodies.Instance.RBgameSettings.ResearchCost, TransactionReasons.None);
+                    Funding.Instance.AddFunds(Database.instance.RB_SettingsParms.ResearchCost, TransactionReasons.Progression);
                 }
                 Database.instance.CelestialBodies[cb].researchState = 0;
                 KeyValuePair<CelestialBody, CelestialBodyInfo> cbd =
@@ -318,7 +316,50 @@ namespace ResearchBodies
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cbd);
             }
             else
-                RSTLogWriter.Log(string.Format(Locales.currentLocale.Values["stopPlan_hasntBeenStarted"], cb.GetName()));
+                RSTLogWriter.Log(Locales.FmtLocaleString("#autoLOC_RBodies_00016", cb.displayName));
+        }
+
+        public void onMapEntered()
+        {
+            if (MapNode.AllMapNodes.Count == 0)
+            {
+                base.StartCoroutine(CallbackUtil.DelayedCallback(10, new Callback(this.processMapNodes)));
+            }
+            else
+            {
+                processMapNodes();
+            }
+        }
+
+        private void processMapNodes()
+        {
+            List<MapNode> allNodes = MapNode.AllMapNodes;
+            for (int i = 0; i < allNodes.Count; i++)
+            {
+                MapNode currentNode = allNodes[i];
+                if (currentNode != null)
+                {
+                    if (currentNode.mapObject != null)
+                    {
+                        if (currentNode.mapObject.celestialBody != null)
+                        {
+                            if (Database.instance.CelestialBodies.ContainsKey(currentNode.mapObject.celestialBody))
+                            {
+                                CelestialBodyInfo dbCBvalue =
+                                    Database.instance.CelestialBodies[currentNode.mapObject.celestialBody];
+                                if (!dbCBvalue.isResearched)
+                                {
+                                    currentNode.VisualIconData.iconEnabled = false;
+                                }
+                                else
+                                {
+                                    currentNode.VisualIconData.iconEnabled = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }            
         }
 
         /// <summary>
@@ -370,41 +411,51 @@ namespace ResearchBodies
             catch (Exception)
             {// throw;
             }
+
             if (isPCBMInstalled  && (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION))  //If progressive CB maps are installed set the level of the meshmap.
             {
                 if (cb.Value.ignore)
+                {
+                    setCBContractWeight(cb, true);
                     return;
+                }
 
                 if (!cb.Value.isResearched)
                 {
+                    setCBContractWeight(cb, false);
                     SetBodyProgressiveCBMap(cb.Key, 1);
                 }
                 else
                 {
                     if (cb.Value.researchState < 30)
                     {
+                        setCBContractWeight(cb, false);
                         SetBodyProgressiveCBMap(cb.Key, 2);
                     }
                     else
                     {
                         if (cb.Value.researchState < 50)
                         {
+                            setCBContractWeight(cb, false);
                             SetBodyProgressiveCBMap(cb.Key, 3);
                         }
                         else
                         {
                             if (cb.Value.researchState < 70)
                             {
+                                setCBContractWeight(cb, false);
                                 SetBodyProgressiveCBMap(cb.Key, 4);
                             }
                             else
                             {
                                 if (cb.Value.researchState < 90)
                                 {
+                                    setCBContractWeight(cb, false);
                                     SetBodyProgressiveCBMap(cb.Key, 5);
                                 }
                                 else
                                 {
+                                    setCBContractWeight(cb, false);
                                     SetBodyProgressiveCBMap(cb.Key, 6);
                                 }
                             }
@@ -413,7 +464,7 @@ namespace ResearchBodies
                 }
             }
         }
-
+        
         /// <summary>
         /// Set Body Graphics levels in ProgressiveCBMaps
         /// </summary>
@@ -427,39 +478,34 @@ namespace ResearchBodies
                 }
             }
         }
-        
-    }
-    /*
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-    public class ResearchBodies_Observatory : MonoBehaviour
-    {
-        Collider ObservatoryCollid;
-        public bool observatoryCloned = false;
 
-        public void Update()
+        public static void setCBContractWeight(KeyValuePair<CelestialBody, CelestialBodyInfo> cb, bool setzero)
         {
-            if (Input.GetKeyDown(KeyCode.C))
+            if (Contracts.ContractSystem.Instance != null)
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-                if (Physics.Raycast(ray, out hit))
+                //Find the Contract Weight.
+                int currentvalue = 0;
+                if (Contracts.ContractSystem.ContractWeights.TryGetValue(cb.Key.name, out currentvalue))
                 {
-                    Log.log("Object : distance : " + hit.distance + ", name: " + hit.transform.name + ", gameObject name : " + hit.transform.gameObject.name);
-                }
-            }
-            if (!observatoryCloned)
-            {
-                ObservatoryCollid = FindObjectsOfType<Collider>().FirstOrDefault(collider => collider.name.Contains("Observatory_Mesh"));
-                if (ObservatoryCollid != null)
-                {
-                    //  GameObject obj = new GameObject("Observatory_ResearchBodies");
-                    Instantiate(ObservatoryCollid.transform, new Vector3(215f, -362f, 460f), ObservatoryCollid.transform.rotation);
-                    //   NewObserv.transform.position = new Vector3(215f, -362f, 460f);
-                    // NewObserv.transform.parent = null;
-                    Log.log("Cloned observatory mesh");
-                    observatoryCloned = true;
+                    //If setzero is it not already zero? Save current value then set to zero.
+                    //If not setzero restore saved value.
+                    if (setzero)
+                    {
+                        if (currentvalue != 0)
+                        {
+                            cb.Value.ContractsWeight = currentvalue;
+                        }
+                        Contracts.ContractSystem.WeightAssignment(cb.Key.name, 0, true);
+                    }
+                    else
+                    {
+                        if (cb.Value.ContractsWeight != 0)
+                        {
+                            Contracts.ContractSystem.WeightAssignment(cb.Key.name, cb.Value.ContractsWeight, true);
+                        }
+                    }
                 }
             }
         }
-    } */
+    }
 }

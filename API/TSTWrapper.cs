@@ -80,10 +80,7 @@ namespace ResearchBodies
             LogFormatted("Attempting to Grab TST Types...");
 
             //find the base type
-            TSTGalaxiesAPIType = AssemblyLoader.loadedAssemblies
-                .Select(a => a.assembly.GetExportedTypes())
-                .SelectMany(t => t)
-                .FirstOrDefault(t => t.FullName == "TarsierSpaceTech.TSTGalaxies");
+            TSTGalaxiesAPIType = getType("TarsierSpaceTech.TSTGalaxies");
 
             if (TSTGalaxiesAPIType == null)
             {
@@ -117,7 +114,24 @@ namespace ResearchBodies
             return true;
         }
 
-        
+        internal static Type getType(string name)
+        {
+            Type type = null;
+            AssemblyLoader.loadedAssemblies.TypeOperation(t =>
+
+            {
+                if (t.FullName == name)
+                    type = t;
+            }
+            );
+
+            if (type != null)
+            {
+                return type;
+            }
+            return null;
+        }
+
         /// <summary>
         /// The Type that is an analogue of the real TarsierSpaceTech Galaxies. This lets you access all the API-able properties and Methods of TarsierSpaceTech Galaxies class
         /// </summary>

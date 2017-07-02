@@ -1,14 +1,15 @@
 ﻿/*
  * Database.cs
  * (C) Copyright 2016, Jamie Leighton 
- * License Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
- * http://creativecommons.org/licenses/by-nc-sa/4.0/
+ * Original code by KSP forum User simon56modder.
+ * License : MIT 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Original code was developed by 
  * Kerbal Space Program is Copyright (C) 2013 Squad. See http://kerbalspaceprogram.com/. This
  * project is in no way associated with nor endorsed by Squad.
- *
- *  ResearchBodies is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
  *
  */
 using System;
@@ -32,44 +33,77 @@ namespace ResearchBodies
         public int[] StartResearchCosts, ProgressResearchCosts, ScienceRewards;
         public bool enableInSandbox, allowTSlevel1 = false;
         internal bool UseAppLauncher = true;
-        internal string[] difficultyStrings;
-        //This is a deprecated dictionary that stores Priority #'s against the CelestialBodies. Loaded from PRIORITIES node in database.cfg
-        public Dictionary<CelestialBody, int> Priority = new Dictionary<CelestialBody, int>();
+        public ResearchBodies_SettingsParms RB_SettingsParms;
+        public float Observatorylvl1Range;
+        public float Observatorylvl2Range;
+        public bool AllowOldResearchinCareer;
 
         /// <summary>
         /// Tarsier Space Tech Interface fields
         /// </summary>
         internal bool isTSTInstalled = false;
         public List<CelestialBody> BodyList = new List<CelestialBody>();
-        
-
-        //This is only called by the Startup Menu GUI to show ignored bodies based on the level passed in. 
-        public string GetIgnoredBodies(Level l) 
-        {
-            string _bodies = Locales.currentLocale.Values["start_availableBodies"] + " : ";
-            foreach (CelestialBody body in BodyList.Where(b => CelestialBodies[b].IgnoreData.GetLevel(l) && (b.Radius > 100 || b.name.Contains("TSTGalaxies"))))
-            {
-                _bodies += body.GetName() + ", ";
-            }
-            return _bodies;
-        }
 
         public void Awake()
         {
+            RSTLogWriter.Log("Awake");
             if (instance != null)
             {
-                RSTLogWriter.Log("Singleton instance of Databse already exists. Destroying this one");
+                RSTLogWriter.Log("Singleton instance of Database already exists. Destroying this one");
                 Destroy(this);
             }
             instance = this;
             DontDestroyOnLoad(this);
-            difficultyStrings = new string[] { Locales.currentLocale.Values["start_easy"], Locales.currentLocale.Values["start_normal"], Locales.currentLocale.Values["start_medium"], Locales.currentLocale.Values["start_hard"] };
+            GameEvents.onGameStatePostLoad.Add(onGameStatePostLoad);
+            GameEvents.OnGameSettingsApplied.Add(ApplySettings);
+            //GameEvents.onGameStateLoad.Add(ApplySettings);
+        }
 
-
-}
-
-void Start()
+        public void Start()
         {
+            LoadDatabase();
+        }
+
+        public void OnDestroy()
+        {
+            RSTLogWriter.Log("OnDestroy");
+            GameEvents.onGameStatePostLoad.Remove(onGameStatePostLoad);
+            GameEvents.OnGameSettingsApplied.Remove(ApplySettings);
+            //GameEvents.onGameStateLoad.Remove(ApplySettings);
+        }
+
+        //This is only called by the Startup Menu GUI to show ignored bodies based on the level passed in. 
+        public string GetIgnoredBodies(Level l) 
+        {
+            Locales.setLocale("");
+            string _bodies = Locales.FmtLocaleString("#autoLOC_RBodies_00030") + " : ";
+            //string _bodies = "";
+            List<CelestialBody> TempBodiesList = new List<CelestialBody>();
+            for (int i = 0; i < BodyList.Count; i++)
+            {
+                if (CelestialBodies[BodyList[i]].IgnoreData.GetLevel(l) &&  (BodyList[i].Radius > 100 || BodyList[i].name.Contains("TSTGalaxies")))
+                {
+
+                    TempBodiesList.Add(BodyList[i]);
+                }
+            }
+            for (int i = 0; i < TempBodiesList.Count; i++)
+            {
+                _bodies += BodyList[i].displayName.LocalizeRemoveGender();
+                if (i < TempBodiesList.Count - 1)
+                {
+                    _bodies += ", ";
+                }
+            }
+            return _bodies;
+        }
+        
+        public void LoadDatabase()
+        {
+            RSTLogWriter.Log("LoadDatabase");
+            //RB_SettingsParms = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>();
+            Locales.setLocale("");
+            
             isTSTInstalled = Utilities.IsTSTInstalled;
             if (isTSTInstalled)  //If TST assembly is present, initialise TST wrapper.
             {
@@ -127,6 +161,10 @@ void Start()
             ConfigNode cfg = ConfigNode.Load(Locales.PathDatabasePath);
             string[] sep = new string[] { " " };
 
+            Observatorylvl1Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl1range"));
+            Observatorylvl2Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl2range"));
+            AllowOldResearchinCareer = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowOldResearchinCareer"));
+
             //Get Costs
             string[] _startResearchCosts;
             _startResearchCosts = cfg.GetNode("RESEARCHBODIES").GetValue("StartResearchCosts").Split(sep, StringSplitOptions.RemoveEmptyEntries);
@@ -139,20 +177,10 @@ void Start()
             string[] _scienceRewards;
             _scienceRewards = cfg.GetNode("RESEARCHBODIES").GetValue("ScienceRewards").Split(sep, StringSplitOptions.RemoveEmptyEntries);
             ScienceRewards = new int[] { int.Parse(_scienceRewards[0]), int.Parse(_scienceRewards[1]), int.Parse(_scienceRewards[2]), int.Parse(_scienceRewards[3]) };
-            
-            RSTLogWriter.Log_Debug("Loading Priority database");
+
+            RSTLogWriter.Log("Loading Priority database");
             foreach (CelestialBody body in BodyList)
             {
-                //Load the priorities - DEPRECATED
-                string name = body.GetName();
-                foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("PRIORITIES").values)
-                {
-                    if (name == value.name)
-                    {
-                        Priority[body] = int.Parse(value.value);
-                        RSTLogWriter.Log_Debug("Priority for body {0} set to {1}.", name , value.value);
-                    }
-                }
                 //Load the ondiscovery values - English only, which then get over-written in Locale.cs
                 foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("ONDISCOVERY").values)
                 {
@@ -163,7 +191,7 @@ void Start()
             }
 
             //Load the IgnoreData dictionary.
-            RSTLogWriter.Log_Debug("Loading ignore body list from database");
+            RSTLogWriter.Log("Loading ignore body list from database");
             foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("IGNORELEVELS").values)
             {
                 foreach (CelestialBody body in BodyList)
@@ -174,39 +202,37 @@ void Start()
                         args = value.value.Split(sep, StringSplitOptions.RemoveEmptyEntries);
                         BodyIgnoreData ignoredata = new BodyIgnoreData(bool.Parse(args[0]), bool.Parse(args[1]), bool.Parse(args[2]), bool.Parse(args[3]));
                         CelestialBodies[body].IgnoreData = ignoredata;
-                        RSTLogWriter.Log_Debug("Body Ignore Data for {0} : {1}" , body.GetName() , CelestialBodies[body].IgnoreData);
+                        RSTLogWriter.Log("Body Ignore Data for {0} : {1}" , body.GetName() , CelestialBodies[body].IgnoreData);
                     }
                 }
             }
-
+            RSTLogWriter.Flush();
             LoadModDatabaseNodes();
             
             //Load the NothingHere dictionary from the database config file.
-            foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("NOTHING").values)
-            {
-                if (value.name == "text")
-                    NothingHere.Add(value.value);
-            }
+            //foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("NOTHING").values)
+            //{
+            //    if (value.name == "text")
+            //        NothingHere.Add(value.value);
+            //}
+            NothingHere.Add("#autoLOC_RBodies_00052");
+            NothingHere.Add("#autoLOC_RBodies_00053");
+            NothingHere.Add("#autoLOC_RBodies_00054");
+            NothingHere.Add("#autoLOC_RBodies_00055");
             
-            //So this is deprecated? Checks all CBs are in the Priority dictionary. Any that aren't are added with priority set to 3.
-            foreach (CelestialBody cb in BodyList)
-            {
-                if (!Priority.Keys.Contains(cb) && !CelestialBodies[cb].ignore)
-                {
-                    Priority[cb] = 3;
-                    RSTLogWriter.Log("Config not found for {0}, priority set to 3." , cb.GetName());
-                }
-            }
+            //chances = int.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("chances"));
+            RSTLogWriter.Log("Chances to get a body is set to {0}" , chances);
+            //enableInSandbox = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("enableInSandbox"));
+           // allowTSlevel1 = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowTrackingStationLvl1"));
+            //if (cfg.GetNode("RESEARCHBODIES").HasValue("useAppLauncher"))
+            //{
+            //    UseAppLauncher = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("useAppLauncher"));
+            //}
+            //UseAppLauncher = RB_SettingsParms.UseAppLToolbar;
+            //chances = RB_SettingsParms.DiscoverySeed;
+            //allowTSlevel1 = RB_SettingsParms.Enabledtslvl1;
 
-            chances = int.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("chances"));
-            RSTLogWriter.Log_Debug("Chances to get a body is set to {0}" , chances);
-            enableInSandbox = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("enableInSandbox"));
-            allowTSlevel1 = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowTrackingStationLvl1"));
-            if (cfg.GetNode("RESEARCHBODIES").HasValue("useAppLauncher"))
-            {
-                UseAppLauncher = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("useAppLauncher"));
-            }
-            RSTLogWriter.Log_Debug("Loaded gamemode-related information : enable mod in sandbox = {0}, allow tracking with Tracking station lvl 1 = {1}" , enableInSandbox , allowTSlevel1);
+            RSTLogWriter.Log("Loaded gamemode-related information : enable mod in sandbox = {0}, allow tracking with Tracking station lvl 1 = {1}" , enableInSandbox , allowTSlevel1);
 
 
             // Load locales for OnDiscovery - Locales are loaded Immediately gamescene. Before this is loaded in MainMenu.
@@ -214,14 +240,14 @@ void Start()
             {
                 foreach (CelestialBody body in BodyList)
                 {
-                    if (Locales.currentLocale.Values.ContainsKey("discovery_" + body.GetName()) && CelestialBodies.ContainsKey(body))
+                    if (Locales.currentLocale.Values.ContainsKey("#autoLOC_RBodies_discovery_" + body.bodyName) && CelestialBodies.ContainsKey(body))
                     {
-                        CelestialBodies[body].discoveryMessage = Locales.currentLocale.Values["discovery_" + body.GetName()];
+                        CelestialBodies[body].discoveryMessage = Locales.currentLocale.Values["#autoLOC_RBodies_discovery_" + body.bodyName];
                     }
                 }
             }
-            
-            
+            RSTLogWriter.Flush();
+
         }
         
         private void LoadModDatabaseNodes()
@@ -236,26 +262,6 @@ void Start()
                 {
                     if (node.HasValue("name"))
                         RSTLogWriter.Log_Debug("Loading {0} configuration", node.GetValue("name"));
-                    if (node.HasNode("PRIORITIES"))
-                    {
-                        foreach (CelestialBody body in BodyList)
-                        {
-                            string name = body.GetName();
-                            foreach (ConfigNode.Value value in node.GetNode("PRIORITIES").values)
-                            {
-                                if (name == value.name)
-                                {
-                                    Priority[body] = int.Parse(value.value);
-                                    RSTLogWriter.Log_Debug("Priority for body {0} set to {1}", name, value.value);
-                                }
-                                else if ("*" + name == value.name)
-                                {
-                                    Priority[body] = int.Parse(value.value);
-                                    RSTLogWriter.Log_Debug("Priority for body {0} set to {1}, overriding old value.", name, value.value);
-                                }
-                            }
-                        }
-                    }
                     if (node.HasNode("ONDISCOVERY"))
                     {
                         foreach (CelestialBody body in BodyList)
@@ -267,7 +273,7 @@ void Start()
                                     // Stop here
                                     RSTLogWriter.Log_Debug("Stop here");
                                 }
-                                if (value.name == body.GetName() || value.name == "*" + body.GetName())
+                                if (value.name == body.bodyName || value.name == "*" + body.bodyName)
                                     CelestialBodies[body].discoveryMessage = value.value;
                             }
                         }
@@ -318,6 +324,70 @@ void Start()
                         }
                     }
                 }
+            }
+        }
+
+        public void onGameStatePostLoad(ConfigNode node)
+        {
+            RSTLogWriter.Log("onGameStatePostLoad");
+            if (HighLogic.CurrentGame != null)
+            {
+                RB_SettingsParms = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>();
+                ApplySettings();
+                foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> CB in CelestialBodies)
+                {
+                    CB.Value.ignore = CB.Value.IgnoreData.GetLevel(HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().difficulty);
+                    if (CB.Value.ignore)
+                    {
+                        CB.Value.isResearched = true;
+                        CB.Value.researchState = 100;
+                    }
+                }
+            }
+            else
+            {
+                RSTLogWriter.Log("Highlogic.CurrentGame is NULL cannot set Settings!!");
+            }
+        }
+
+        public void ApplySettings()
+        {
+            RSTLogWriter.Log("Database ApplySettings");
+            if (HighLogic.CurrentGame != null)
+            {
+                //if (RB_SettingsParms == null)
+                RB_SettingsParms = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>();
+                if (ResearchBodies.Instance != null)
+                    ResearchBodies.Enabled = RB_SettingsParms.RBEnabled;
+                chances = RB_SettingsParms.DiscoverySeed;
+                allowTSlevel1 = RB_SettingsParms.Enabledtslvl1;
+                //if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar != UseAppLauncher)
+                //{
+                //    UseAppLauncher = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar;
+                //    if (ResearchBodiesController.instance != null)
+                //        ResearchBodiesController.instance.RBMenuAppLToolBar.chgAppIconStockToolBar(UseAppLauncher);
+                //}
+                if (RB_SettingsParms.french)
+                 //.language != Locales.currentLocale.LocaleFull)
+                {
+                    if (Locales.currentLocale.LocaleFull != "Français")
+                    {
+                        Locales.setLocale("Français"); //Locales.setLocale(HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().language);
+                        if (ResearchBodiesController.instance != null)
+                        {
+                            ResearchBodiesController.instance.French = true;
+                        }
+                    }
+                }
+                else
+                {
+                    Locales.setLocale("");
+                }
+                RSTLogWriter.debuggingOn = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().DebugLogging;
+            }
+            else
+            {
+                RSTLogWriter.Log("Database Failed to apply settings - Fatal Error");
             }
         }
     }
