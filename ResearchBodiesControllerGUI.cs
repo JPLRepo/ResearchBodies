@@ -291,7 +291,14 @@ namespace ResearchBodies
 
         public void OnGUI()
         {
-            if (!enable) return;
+            if (!enable)
+            {
+                instructor_Werner.Instructor.enabled = false;
+                instructor_Linus.Instructor.enabled = false;
+                return;
+            }
+            instructor_Werner.Instructor.enabled = true;
+            instructor_Linus.Instructor.enabled = true;
             try
             {
                 if (!Textures.StylesSet) Textures.SetupStyles();
@@ -444,8 +451,7 @@ namespace ResearchBodies
                         GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00004"), GUILayout.Width(150));
 
 
-                    GUILayout.Label(
-                        Locales.FmtLocaleString("#autoLOC_RBodies_00005", Database.instance.CelestialBodies[selectedBody].researchState.ToString()), GUILayout.Width(502));
+                    GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00005", Database.instance.CelestialBodies[selectedBody].researchState.ToString()), GUILayout.Width(502));
                     if (Database.instance.CelestialBodies[selectedBody].researchState == 0)
                     {
                         if (
@@ -482,12 +488,16 @@ namespace ResearchBodies
                         if (Database.instance.CelestialBodies[selectedBody].researchState < 40 &&
                             Database.instance.CelestialBodies[selectedBody].researchState >= 1)
                         {
-                            //if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00010"),
-                            //    GUILayout.Width(502)))
-                            //{
-                            //    instructor_Werner.PlayNiceEmote();
-                            //    Research(selectedBody, 10);
-                            //}
+                            if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX ||
+                                HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
+                            {
+                                if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00010"),
+                                    GUILayout.Width(502)))
+                                {
+                                    instructor_Werner.PlayNiceEmote();
+                                    Research(selectedBody, 10);
+                                }
+                            }
                         }
                         else if (Database.instance.CelestialBodies[selectedBody].researchState >= 40 &&
                                  Database.instance.CelestialBodies[selectedBody].researchState < 100)
@@ -495,12 +505,16 @@ namespace ResearchBodies
                             GUILayout.Label(
                                 "<i><color=#0ef907>" + Locales.FmtLocaleString("#autoLOC_RBodies_00010") +
                                 " ✓</color></i>", GUILayout.Width(502));
-                            //if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00011"),
-                            //    GUILayout.Width(502)))
-                            //{
-                            //    instructor_Werner.PlayNiceEmote();
-                            //    Research(selectedBody, 10);
-                            //}
+                            if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX ||
+                                HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
+                            {
+                                if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00011"),
+                                    GUILayout.Width(502)))
+                                {
+                                    instructor_Werner.PlayNiceEmote();
+                                    Research(selectedBody, 10);
+                                }
+                            }
                         }
                         else if (Database.instance.CelestialBodies[selectedBody].researchState >= 100)
                         {
@@ -513,8 +527,9 @@ namespace ResearchBodies
 
                             GUILayout.Label(
                                 "<b>" +
-                                Locales.FmtLocaleString("#autoLOC_RBodies_00013", selectedBody.GetName()) + "</b>", GUILayout.Width(502));
-                                //new Rect(188, 301, 502, 32), 
+                                Locales.FmtLocaleString("#autoLOC_RBodies_00013", selectedBody.GetName()) + "</b>",
+                                GUILayout.Width(502));
+                            //new Rect(188, 301, 502, 32), 
 
                             // GUI.Label(new Rect(188, 301, 502, 32), "Send a exploration probe to " + selectedBody.GetName() + " : Incomplete", HighLogic.Skin.button);
                             // GUI.Label(new Rect(188, 338, 502, 32), "Run science experiments on " + selectedBody.GetName() + " : Incomplete", HighLogic.Skin.button);

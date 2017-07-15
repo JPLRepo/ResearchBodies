@@ -1,4 +1,18 @@
-﻿V1.9.2 (07-02-2017) ==
+﻿V1.9.3 (07-15-2017) ==
+*Fix Instructors showing in other KSC Facilities - now only show in the Obervatory.
+*Fix a few issues with discovery of bodies using the TB-75. NOTE: TB-75 can only DISCOVER previously unknown bodies. 
+It cannot be used to further research a found body by scanning manually. It does have a role to play in the research contracts though that 
+allow you to further discover information about the bodies.
+*If you load a save file that was created before you installed ResearchBodies - ResearchBodies will now correctly update the save with the
+necessary ResearchBodies information and automatically turn ResearchBodies on. The default difficulty setting will be used as to which
+bodies you will be able to see. 
+*You should restart KSP any time you disable or enable ResearchBodies in a save game.
+*Added Part module info for the telescope parts to display in the extended tooltip in the parts picker in the SPH/VAB.
+*Fix issue with save file reloading not resetting the visible bodies in the Tracking Station/MapView.
+*Enabled old mode of clicking to research in the Observatory, etc if the current game is a sandbox or science sandbox game. But this is not
+much fun at all. The mod is intended to be used in Career game mode.
+*Fixed issue with the popup window not clearing in Flight when the telescope found a body.
+V1.9.2 (07-02-2017) ==
 *Fixed typo in locales for Characteristics and Orbit in UI.
 *Added Observatory SpaceCenter Facility. Yes - this Facility acts exactly like a stock one. It has TWO upgrade levels that provide different features, functions and contracts for Finding an Researching 
 celestial bodies.

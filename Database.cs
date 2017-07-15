@@ -209,29 +209,13 @@ namespace ResearchBodies
             RSTLogWriter.Flush();
             LoadModDatabaseNodes();
             
-            //Load the NothingHere dictionary from the database config file.
-            //foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("NOTHING").values)
-            //{
-            //    if (value.name == "text")
-            //        NothingHere.Add(value.value);
-            //}
             NothingHere.Add("#autoLOC_RBodies_00052");
             NothingHere.Add("#autoLOC_RBodies_00053");
             NothingHere.Add("#autoLOC_RBodies_00054");
             NothingHere.Add("#autoLOC_RBodies_00055");
             
-            //chances = int.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("chances"));
             RSTLogWriter.Log("Chances to get a body is set to {0}" , chances);
-            //enableInSandbox = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("enableInSandbox"));
-           // allowTSlevel1 = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowTrackingStationLvl1"));
-            //if (cfg.GetNode("RESEARCHBODIES").HasValue("useAppLauncher"))
-            //{
-            //    UseAppLauncher = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("useAppLauncher"));
-            //}
-            //UseAppLauncher = RB_SettingsParms.UseAppLToolbar;
-            //chances = RB_SettingsParms.DiscoverySeed;
-            //allowTSlevel1 = RB_SettingsParms.Enabledtslvl1;
-
+            
             RSTLogWriter.Log("Loaded gamemode-related information : enable mod in sandbox = {0}, allow tracking with Tracking station lvl 1 = {1}" , enableInSandbox , allowTSlevel1);
 
 
@@ -350,6 +334,14 @@ namespace ResearchBodies
             }
         }
 
+        public void ResetBodyVisibilities()
+        {
+            foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> CB in CelestialBodies)
+            {
+                CB.Value.ignore = true;
+            }
+        }
+
         public void ApplySettings()
         {
             RSTLogWriter.Log("Database ApplySettings");
@@ -361,18 +353,11 @@ namespace ResearchBodies
                     ResearchBodies.Enabled = RB_SettingsParms.RBEnabled;
                 chances = RB_SettingsParms.DiscoverySeed;
                 allowTSlevel1 = RB_SettingsParms.Enabledtslvl1;
-                //if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar != UseAppLauncher)
-                //{
-                //    UseAppLauncher = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().UseAppLToolbar;
-                //    if (ResearchBodiesController.instance != null)
-                //        ResearchBodiesController.instance.RBMenuAppLToolBar.chgAppIconStockToolBar(UseAppLauncher);
-                //}
                 if (RB_SettingsParms.french)
-                 //.language != Locales.currentLocale.LocaleFull)
                 {
                     if (Locales.currentLocale.LocaleFull != "Français")
                     {
-                        Locales.setLocale("Français"); //Locales.setLocale(HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().language);
+                        Locales.setLocale("Français"); 
                         if (ResearchBodiesController.instance != null)
                         {
                             ResearchBodiesController.instance.French = true;

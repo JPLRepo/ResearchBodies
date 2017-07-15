@@ -21,18 +21,29 @@ using KSP.Localization;
 
 namespace ResearchBodies
 {
-    [KSPAddon(KSPAddon.Startup.PSystemSpawn, true)]
+    [KSPAddon(KSPAddon.Startup.Instantly, true)]
     public class Locales : MonoBehaviour
     {
         public void Awake()
         {
             DontDestroyOnLoad(this);
+            GameEvents.onGameSceneLoadRequested.Add(onGameSceneLoadRequested);
         }
 
         public static List<Locale> locales = new List<Locale>();
         public static Locale currentLocale;
+
+        public static bool Available;
         //internal static String PathcacheLocalePath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder, "PluginData/cacheLocale").Replace("\\", "/");
         internal static String PathDatabasePath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder.Substring(0, RSTLogWriter.AssemblyFolder.IndexOf("/ResearchBodies/") + 16), "database.cfg").Replace("\\", "/");
+
+        public void onGameSceneLoadRequested(GameScenes scene)
+        {
+            if (!Available)
+            {
+                Start();
+            }
+        }
 
         public void Start()
         {
@@ -52,6 +63,7 @@ namespace ResearchBodies
             else
                 RSTLogWriter.Log("Added {0}  locales", locales.Count);
             RSTLogWriter.Flush();
+            Available = true;
         }
         
         /// <summary>
@@ -141,7 +153,11 @@ namespace ResearchBodies
         public static string FmtLocaleString(string tag, params string[] list)
         {
             string returnString = String.Empty;
-            if (currentLocale.LocaleId == "fr")
+            if (!Locales.Available)
+            {
+                ConfigNode[] cfgs = GameDatabase.Instance.GetConfigNodes("RESEARCHBODIES");
+            }
+            if (Locales.Available && currentLocale.LocaleId == "fr")
             {
                 if (list.Length == 0)
                 {

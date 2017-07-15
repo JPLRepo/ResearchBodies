@@ -14,6 +14,7 @@
  */
 
 using System.Collections.Generic;
+using System.Text;
 using KSP.Localization;
 using UnityEngine;
 using RSTUtils;
@@ -96,6 +97,7 @@ namespace ResearchBodies
             //Pop-up box if something was found.
             if (foundBody && !foundpopup)
             {
+                foundpopup = true;
                 Vector2 anchormin = new Vector2(0.5f, 0.5f);
                 Vector2 anchormax = new Vector2(0.5f, 0.5f);
                 string msg = "";
@@ -304,6 +306,19 @@ namespace ResearchBodies
             GUI.DragWindow();
         }
 
+        public override string GetInfo()
+        {
+            if (string.IsNullOrEmpty(cacheautoLOC_RBodies_00093))
+            {
+                cacheLocalStrings();
+            }
+            string sb = "";
+            sb += cacheautoLOC_RBodies_00093 + "\n";
+            sb += Localizer.Format("#autoLOC_RBodies_00094", maxTrackDistance.ToString("F0")) + "\n"; //#autoLOC_RBodies_00094 = Range: <<1>>m
+            sb += Localizer.Format("#autoLOC_RBodies_00095", electricChargeRequest.ToString("F0")); //#autoLOC_RBodies_00095 = EC per scan: <<1>>		
+            return sb;
+        }
+
         internal bool IsViewObstructed(Transform Origin, Transform Target)
         {
             float distance = Vector3.Distance(Target.position, Origin.position);
@@ -328,5 +343,17 @@ namespace ResearchBodies
             RSTLogWriter.Log_Debug("No View obstruction");
             return false;
         }
+
+        #region Localization Tag cache
+
+        private static string cacheautoLOC_RBodies_00093;
+
+        private void cacheLocalStrings()
+        {
+            cacheautoLOC_RBodies_00093 = Localizer.Format("#autoLOC_RBodies_00093"); // cacheautoLOC_RBodies_00093 = Infrared Telescope
+
+        }
+
+        #endregion
     }
 }

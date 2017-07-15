@@ -55,7 +55,8 @@ namespace ResearchBodies
             //Create Instructor
             instructor_Werner = new ResearchBodiesInstructor("Instructor_Wernher");
             instructor_Linus = new ResearchBodiesInstructor("Strategy_ScienceGuy");
-            
+            instructor_Werner.Instructor.enabled = false;
+            instructor_Linus.Instructor.enabled = false;
             //Register for Contract On offerred so we can remove ones that are for bodies not yet tracked.
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Add(CheckContracts);
@@ -73,6 +74,11 @@ namespace ResearchBodies
                 {
                     onMapEntered();
                 }
+            }
+            else
+            {
+                Database.instance.ResetBodyVisibilities();
+                SetBodyDiscoveryLevels();
             }
         }
 
@@ -177,6 +183,15 @@ namespace ResearchBodies
             get { return PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityLevel() < 0.5; }
         }
 
+        /// <summary>
+        /// Call this to signal that you have found a celestial body.
+        /// It will set the celestial body to discovered.
+        /// </summary>
+        /// <param name="scienceReward">The scienceReward additional amount that is added to the base scienceReward for finding a body</param>
+        /// <param name="bodyFound">The Celestial Body found</param>
+        /// <param name="withParent">Will return true if the Parent Body has also been found</param>
+        /// <param name="parentBody">The parent body that was discovered as well if withParent is true</param>
+        /// <returns></returns>
         public static bool FoundBody(int scienceReward, CelestialBody bodyFound, out bool withParent, out CelestialBody parentBody)
         {
             withParent = false;
@@ -191,7 +206,7 @@ namespace ResearchBodies
             //Check if the referencebody is also not known. If so, we discover both the body and it's referencebody (parent).
             if (bodyFound.referenceBody.DiscoveryInfo.Level == DiscoveryLevels.Presence)
             {
-                if (Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody.referenceBody))
+                if (Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody))
                     Database.instance.CelestialBodies[bodyFound.referenceBody].isResearched = true;
                 if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
                 {
@@ -417,6 +432,7 @@ namespace ResearchBodies
                 if (cb.Value.ignore)
                 {
                     setCBContractWeight(cb, true);
+                    SetBodyProgressiveCBMap(cb.Key, 6);
                     return;
                 }
 
