@@ -97,8 +97,8 @@ namespace ResearchBodies
                         Database.instance.CelestialBodies[body].researchState = bodyInfo.researchState;
                         Database.instance.CelestialBodies[body].ignore = bodyInfo.ignore;
                     }
+                    Database.instance.onGameStatePostLoad(node);
                 }
-                
             }
             else //OLD Save file found, convert to persistent.sfs confignode and delete file.
             {
@@ -160,7 +160,6 @@ namespace ResearchBodies
                     Database.instance.RB_SettingsParms.ResearchCost = ResearchCost;
                     Database.instance.RB_SettingsParms.ProgressResearchCost = ProgressResearchCost;
                     Database.instance.RB_SettingsParms.ScienceReward = ScienceReward;
-                    //Database.instance.RB_SettingsParms.UseAppLToolbar = UseAppLauncher;
                     Database.instance.RB_SettingsParms.DebugLogging = DebugLogging;
                     Database.instance.RB_SettingsParms.DiscoverySeed = chances;
                     Database.instance.RB_SettingsParms.Enabledtslvl1 = allowTSlevel1;
@@ -174,7 +173,6 @@ namespace ResearchBodies
             }
             else
             {
-                //Database.instance.ApplySettings();
                 Database.instance.onGameStatePostLoad(node);
             }
             RSTLogWriter.Log("RBGameSettings Loading Complete");
