@@ -52,6 +52,8 @@ namespace ResearchBodies
         private DestructibleBuilding newlvl0destructible;
         private DestructibleBuilding newlvl1destructible;
         private Vector3 groundBaseOffset = new Vector3(15f, -9f, -10f); //new Vector3(0f, 0f, 0f);//new Vector3(15f, -9f, -10f);
+        private float Observatorylvl1Range = 0f;
+        private float Observatorylvl2Range = 0f;
 
         /// <summary>
         /// Check and establish singleton.
@@ -146,6 +148,7 @@ namespace ResearchBodies
                     RSTLogWriter.Log("Failed to Inject Observatory SpaceCenter Facility cannot continue setup of this Facility");
                     return;
                 }
+                GetFacilityStrings();
                 GameObject tempGo = new GameObject();
                 pqscities = Resources.FindObjectsOfTypeAll<PQSCity>();
                 for (int i = 0; i < pqscities.Length; i++)
@@ -261,7 +264,9 @@ namespace ResearchBodies
                 newupgradelevels[0].levelCost = 30000f;
                 newupgradelevels[0].levelText = ScriptableObject.CreateInstance<KSCUpgradeableLevelText>();// new KSCUpgradeableLevelText();
                 newupgradelevels[0].levelText.facility = SpaceCenterFacility.TrackingStation; //We can't extend the enum
-                newupgradelevels[0].levelText.textBase = "View your Celestial body Observations";
+                newupgradelevels[0].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                string rngString1 = KSP.Localization.Localizer.Format("<<1>>", Observatorylvl1Range.ToString("F0"));
+                newupgradelevels[0].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString1);
                 newupgradelevels[0].levelText.linePrefix = "* ";
                 newupgradelevels[0].levelStats = new Upgradeables.KSCFacilityLevelText();
                 newupgradelevels[0].levelStats.linePrefix = newupgradelevels[0].levelText.linePrefix;
@@ -310,7 +315,9 @@ namespace ResearchBodies
                 newupgradelevels[1].levelCost = 300000f;
                 newupgradelevels[1].levelText = ScriptableObject.CreateInstance<KSCUpgradeableLevelText>();// new KSCUpgradeableLevelText();
                 newupgradelevels[1].levelText.facility = SpaceCenterFacility.TrackingStation; //We can't extend the enum
-                newupgradelevels[1].levelText.textBase = "View your Celestial body Observations";
+                newupgradelevels[1].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                string rngString2 = KSP.Localization.Localizer.Format("<<1>>", Observatorylvl2Range.ToString("F0"));
+                newupgradelevels[1].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString2);
                 newupgradelevels[1].levelText.linePrefix = "* ";
                 newupgradelevels[1].levelStats = new Upgradeables.KSCFacilityLevelText();
                 newupgradelevels[1].levelStats.linePrefix = newupgradelevels[1].levelText.linePrefix;
@@ -606,6 +613,15 @@ namespace ResearchBodies
                 RSTLogWriter.Flush();
             }
         }
+
+        private void GetFacilityStrings()
+        {
+            ConfigNode cfg = ConfigNode.Load(Locales.PathDatabasePath);
+            string[] sep = new string[] { " " };
+
+            Observatorylvl1Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl1range"));
+            Observatorylvl2Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl2range"));
+        }
         
         /// <summary>
         /// This will cleanup the Stock Observatory prefab after we have cloned it from the RnD center.
@@ -778,9 +794,8 @@ namespace ResearchBodies
                                 {
                                     f.name = "Observatory";
                                     f.facilityName = "Observatory";
-                                    f.buildingInfoName = "Observatory";
-                                    f.buildingDescription =
-                                        "This is the Observatory where you can view information about the Celestial Bodies in the sky and observe and conduct research on them.";
+                                    f.buildingInfoName = Locales.FmtLocaleString("#autoLOC_RBodies_00096"); //"Observatory"
+                                    f.buildingDescription = Locales.FmtLocaleString("#autoLOC_RBodies_00099"); // "This is the Observatory where you can view information about the Celestial Bodies in the sky and observe and conduct research on them.";
                                 });
                             //Copy the TrackingStationTransform position to our new building position and rotation.
                             SpaceCenterObservatory.gameObject.transform.position =
@@ -988,11 +1003,11 @@ namespace ResearchBodies
                 {
                     Vector2 anchormin = new Vector2(0.5f, 0.5f);
                     Vector2 anchormax = new Vector2(0.5f, 0.5f);
-                    string msg = "This Facility is closed.\nResearchBodies is Disabled in this save.";
-                    string title = "Observatory";
+                    string msg = Locales.FmtLocaleString("#autoLOC_RBodies_00100"); //"This Facility is closed.\nResearchBodies is Disabled in this save.";
+                    string title = Locales.FmtLocaleString("#autoLOC_RBodies_00096"); // "Observatory";
                     UISkinDef skin = HighLogic.UISkin;
                     DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
-                    dialogGUIBase[0] = new DialogGUIButton("Ok", delegate
+                    dialogGUIBase[0] = new DialogGUIButton(KSP.Localization.Localizer.Format("#autoLOC_417274"), delegate //"Ok"
                     {
                         InputLockManager.RemoveControlLock("ResearchBodies_SC_Observatory");
                     });
@@ -1003,15 +1018,15 @@ namespace ResearchBodies
 
             //If the Tracking Station is Level 1 and game settings do not allow Observatory at Level 1 
             //We display a pop-up and not the Observatory Window.
-            if (ResearchBodiesController.instance.IsTSlevel1 && !Database.instance.allowTSlevel1) 
+            if (ResearchBodiesController.instance.IsTSlevel1 && !Database.instance.allowTSlevel1)
             {
                 Vector2 anchormin = new Vector2(0.5f, 0.5f);
                 Vector2 anchormax = new Vector2(0.5f, 0.5f);
-                string msg = "This Facility is closed.\nTrackingStation must be Level 2 or 3.";
-                string title = "Observatory";
+                string msg = Locales.FmtLocaleString("#autoLOC_RBodies_00101"); // "This Facility is closed.\nTrackingStation must be Level 2 or 3.";
+                string title = Locales.FmtLocaleString("#autoLOC_RBodies_00096"); //"Observatory";
                 UISkinDef skin = HighLogic.UISkin;
                 DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
-                dialogGUIBase[0] = new DialogGUIButton("Ok", delegate
+                dialogGUIBase[0] = new DialogGUIButton(KSP.Localization.Localizer.Format("#autoLOC_417274"), delegate //"Ok"
                 {
                     InputLockManager.RemoveControlLock("ResearchBodies_SC_Observatory");
                 });

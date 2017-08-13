@@ -1,4 +1,10 @@
-﻿V1.9.3 (07-15-2017) ==
+﻿V1.9.4 (08-05-2017) ==
+*Fix Tracking Station and Observatory Upgrade Level checks for contracts.
+*Fix Range checks for Observatory and Vessels with Telescopes for contracts.
+*Fix MapNodes appearing in MapView when there are orbits available for any contracts.
+*Localized strings for the Observatory Facility UI Menus and added Range Information to it's UI.
+*Fix Bodies discovery levels when you switch saves in the same KSP session, including modded bodies.
+V1.9.3 (07-15-2017) ==
 *Fix Instructors showing in other KSC Facilities - now only show in the Obervatory.
 *Fix a few issues with discovery of bodies using the TB-75. NOTE: TB-75 can only DISCOVER previously unknown bodies. 
 It cannot be used to further research a found body by scanning manually. It does have a role to play in the research contracts though that 

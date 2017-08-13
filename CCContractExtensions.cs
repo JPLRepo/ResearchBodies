@@ -72,8 +72,7 @@ namespace ResearchBodies
             {
                 if (PSystemSetup.Instance.SpaceCenterFacilities[i].name == facility)
                 {
-                    int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) *
-                    ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility)) + 1;
+                    int level = Mathf.RoundToInt(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) + 1);
                     return level >= minLevel;
                 }            
             }
@@ -116,8 +115,7 @@ namespace ResearchBodies
             {
                 if (PSystemSetup.Instance.SpaceCenterFacilities[i].name == facility)
                 {
-                    int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) *
-                    ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility)) + 1;
+                    int level = Mathf.RoundToInt(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) + 1);
                     if (level == 1)
                     {
                         durationValue = 1;
@@ -170,8 +168,7 @@ namespace ResearchBodies
             {
                 if (PSystemSetup.Instance.SpaceCenterFacilities[i].name == facility)
                 {
-                    int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) *
-                    ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility)) + 1;
+                    int level = Mathf.RoundToInt(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) + 1);
                     if (level == 1)
                     {
                         durationValue = 0.5;
@@ -247,7 +244,8 @@ namespace ResearchBodies
                         {
                             for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
                             {
-                                if (RBRange.VesselHasModuleTrackBodies(FlightGlobals.Vessels[i]))
+                                double range = 0;
+                                if (RBRange.VesselHasModuleTrackBodies(FlightGlobals.Vessels[i], out range))
                                 {
                                     if (RBRange.WithinVslRange(FlightGlobals.Vessels[i], body.transform))
                                     {
@@ -320,7 +318,8 @@ namespace ResearchBodies
                         {
                             for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
                             {
-                                if (RBRange.VesselHasModuleTrackBodies(FlightGlobals.Vessels[i]))
+                                double range = 0;
+                                if (RBRange.VesselHasModuleTrackBodies(FlightGlobals.Vessels[i], out range))
                                 {
                                     if (RBRange.WithinVslRange(FlightGlobals.Vessels[i], body.transform))
                                     {
@@ -504,9 +503,8 @@ namespace ResearchBodies
             {
                 if (PSystemSetup.Instance.SpaceCenterFacilities[i].name == "Observatory")
                 {
-                    obslevel = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel("Observatory") *
-                    ScenarioUpgradeableFacilities.GetFacilityLevelCount("Observatory")) + 1;
-                    
+                    obslevel = Mathf.RoundToInt(ScenarioUpgradeableFacilities.GetFacilityLevel("Observatory") + 1);
+                    break;
                 }
             }
             double obsrange = 0;
@@ -531,11 +529,11 @@ namespace ResearchBodies
         {
             //Find the range of the partmodule, if we can't fail.
             double obsrange = 0.0f;
-            bool found = VesselHasModuleTrackBodies(vessel);
+            bool found = VesselHasModuleTrackBodies(vessel, out obsrange);
             
             if (!found)
             {
-                //RSTUtils.RSTLogWriter.Log("Cannot determine range from Observatory as KSC transform is null");
+                RSTUtils.RSTLogWriter.Log("Cannot determine range for vessel");
                 return false;
             }
             //Calculate distance from Vessel to CB target body.
@@ -553,9 +551,10 @@ namespace ResearchBodies
             return false;
         }
 
-        public static bool VesselHasModuleTrackBodies(Vessel vessel)
+        public static bool VesselHasModuleTrackBodies(Vessel vessel, out double range)
         {
             bool found = false;
+            range = 0;
             if (vessel.loaded)
             {
                 for (int i = 0; i < vessel.parts.Count; i++)
@@ -568,6 +567,7 @@ namespace ResearchBodies
                             if (module != null)
                             {
                                 found = true;
+                                range = module.maxTrackDistance;
                                 break;
                             }
                         }
@@ -583,9 +583,14 @@ namespace ResearchBodies
                     {
                         if (vessel.protoVessel.protoPartSnapshots[i].modules[j].moduleName == "ModuleTrackBodies")
                         {
+                            ConfigNode moduleValues = vessel.protoVessel.protoPartSnapshots[i].modules[j].moduleValues;
+                            moduleValues.TryGetValue("maxTrackDistance", ref range);
+                            if (range == 0)
+                            {
+                                range = 40000000000; //Default if not found.
+                            }
                             found = true;
-                            break;
-                            
+                            break;                            
                         }
                     }
                     if (found) break;

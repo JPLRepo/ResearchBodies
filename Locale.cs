@@ -63,6 +63,7 @@ namespace ResearchBodies
             else
                 RSTLogWriter.Log("Added {0}  locales", locales.Count);
             RSTLogWriter.Flush();
+            Locales.setLocale("");
             Available = true;
         }
         

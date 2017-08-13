@@ -83,6 +83,10 @@
     <Compile Include="SettingsParms.cs" />
     <Compile Include="Textures.cs" />
     <Compile Include="API\TSTWrapper.cs" />
+    <None Include="Distribution\GameData\REPOSoftTech\ResearchBodies\database.cfg" />
+    <None Include="Distribution\GameData\REPOSoftTech\ResearchBodies\Locales.cfg" />
+    <None Include="Distribution\GameData\REPOSoftTech\ResearchBodies\Localization.cfg" />
+    <None Include="Distribution\GameData\REPOSoftTech\ResearchBodies\ResearchBodies.version" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Distribution\GameData\REPOSoftTech\ResearchBodies\Changelog.txt" />

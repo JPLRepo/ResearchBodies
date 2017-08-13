@@ -17,37 +17,24 @@ using RSTUtils;
 namespace ResearchBodies
 {
     internal static class Textures
-    {
-        //Icons
-        internal static Texture2D ApplauncherIcon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
-
-        //Toolbar Icons
-        internal static Texture2D ToolbarIcon = new Texture2D(24, 24, TextureFormat.ARGB32, false);
-
-        //Button Icons
-
-        internal static Texture2D ObsWinBgnd = new Texture2D(10, 10, TextureFormat.ARGB32, false);
+    {              
+        internal static Texture2D ObsWinBgnd = new Texture2D(640, 425, TextureFormat.ARGB32, false);
         internal static Texture2D TooltipBox = new Texture2D(10, 10, TextureFormat.ARGB32, false);
         internal static Texture2D BtnRedCross = new Texture2D(16, 16, TextureFormat.ARGB32, false);
         internal static Texture2D BtnResize = new Texture2D(16, 16, TextureFormat.ARGB32, false);
         internal static Texture2D BtnResizeHeight = new Texture2D(16, 16, TextureFormat.ARGB32, false);
         internal static Texture2D BtnResizeWidth = new Texture2D(16, 16, TextureFormat.ARGB32, false);
         internal static Texture2D SpriteObservatory = new Texture2D(256, 256, TextureFormat.ARGB32, false);
-
-       
-
+              
         internal static String PathIconsPath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder.Substring(0, RSTLogWriter.AssemblyFolder.IndexOf("/ResearchBodies/") + 16), "Icons").Replace("\\", "/");
         internal static String PathToolbarIconsPath = PathIconsPath.Substring(PathIconsPath.ToLower().IndexOf("/gamedata/") + 10);
         
-
         internal static void LoadIconAssets()
         {
             try
-            {
-                LoadImageFromFile(ref ApplauncherIcon, "RBAppLaunchericon.png", PathIconsPath); 
-                LoadImageFromFile(ref ToolbarIcon, "RBToolBaricon.png", PathIconsPath);
+            {                
                 LoadImageFromFile(ref TooltipBox, "RBToolTipBox.png", PathIconsPath);
-                LoadImageFromFile(ref ObsWinBgnd, "RBObsWinBgnd.png", PathIconsPath);
+                LoadImageFromFile(ref ObsWinBgnd, "RBObservBackGround.png", PathIconsPath);
                 LoadImageFromFile(ref BtnRedCross, "RBbtnRedCross.png", PathIconsPath);
                 LoadImageFromFile(ref BtnResize, "RBbtnResize.png", PathIconsPath);
                 LoadImageFromFile(ref BtnResizeHeight, "RBbtnResizeHeight.png", PathIconsPath);

@@ -48,6 +48,7 @@ namespace ResearchBodies
         private Dictionary<GUIContent, CharacterAnimationState> _responses;
         private const int PortraitWidth = 128;
         private System.Random random = new System.Random();
+        public string InstructorName = "";
         #endregion
 
         #region Instructor Functions
@@ -57,6 +58,14 @@ namespace ResearchBodies
             if (prefab == null)
                 throw new ArgumentException("Could not find instructor named '" + instructorName + "'");
 
+            if (instructorName == "Instructor_Wernher")
+            {
+                InstructorName = KSP.Localization.Localizer.Format("#autoLOC_RBodies_00102");
+            }
+            else if(instructorName == "Strategy_ScienceGuy")
+            {
+                InstructorName = KSP.Localization.Localizer.Format("#autoLOC_501659");   
+            }
             GameObject prefabInstance = UnityEngine.Object.Instantiate(prefab);
             _instructor = prefabInstance.GetComponent<KerbalInstructor>();
 

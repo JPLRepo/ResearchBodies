@@ -184,9 +184,8 @@ namespace ResearchBodies
                 //Load the ondiscovery values - English only, which then get over-written in Locale.cs
                 foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("ONDISCOVERY").values)
                 {
-                    if (value.name == name)
-                        CelestialBodies[body].discoveryMessage = value.value;
-                        //DiscoveryMessage[value.name] = value.value;
+                    if (value.name.Contains(body.bodyName))
+                        CelestialBodies[body].discoveryMessage = value.value;                        
                 }
             }
 
@@ -251,13 +250,8 @@ namespace ResearchBodies
                         foreach (CelestialBody body in BodyList)
                         {
                             foreach (ConfigNode.Value value in node.GetNode("ONDISCOVERY").values)
-                            {
-                                if (body.GetName() == "Eeloo")
-                                {
-                                    // Stop here
-                                    RSTLogWriter.Log_Debug("Stop here");
-                                }
-                                if (value.name == body.bodyName || value.name == "*" + body.bodyName)
+                            {                                
+                                if (value.name.Contains(body.bodyName))
                                     CelestialBodies[body].discoveryMessage = value.value;
                             }
                         }
@@ -296,13 +290,13 @@ namespace ResearchBodies
                         {
                             foreach (CelestialBody body in BodyList)
                             {
-                                if (body.GetName() == value.name)
+                                if (body.bodyName == value.name)
                                 {
                                     string[] args;
                                     args = value.value.Split(sep, StringSplitOptions.RemoveEmptyEntries);
                                     CelestialBodies[body].IgnoreData.setBodyIgnoreData(bool.Parse(args[0]), bool.Parse(args[1]), bool.Parse(args[2]), bool.Parse(args[3]));
 
-                                    RSTLogWriter.Log_Debug("Body Ignore Data for {0} : {1}", body.GetName(), CelestialBodies[body].IgnoreData.ToString());
+                                    RSTLogWriter.Log_Debug("Body Ignore Data for {0} : {1}", body.bodyName, CelestialBodies[body].IgnoreData.ToString());
                                 }
                             }
                         }
@@ -325,6 +319,11 @@ namespace ResearchBodies
                     {
                         CB.Value.isResearched = true;
                         CB.Value.researchState = 100;
+                    }
+                    else
+                    {
+                        CB.Value.isResearched = false;
+                        CB.Value.researchState = 0;
                     }
                 }
             }
