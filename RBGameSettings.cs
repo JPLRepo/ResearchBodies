@@ -196,8 +196,7 @@ namespace ResearchBodies
             foreach (var entry in Database.instance.CelestialBodies)
             {
                 ConfigNode CBNode = entry.Value.Save(settingsNode);
-                Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.GetName());
-                //CBNode.AddValue("body", entry.Key.GetName());
+                Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.bodyName);                
             }
             RSTLogWriter.Log("RBGameSettings Saving Complete");
             RSTLogWriter.Flush();

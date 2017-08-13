@@ -342,7 +342,26 @@ namespace ResearchBodies
             }
             else
             {
-                processMapNodes();
+                bool containsCBs = false;
+                for(int mnI = 0; mnI < MapNode.AllMapNodes.Count; mnI++)
+                {
+                    if (MapNode.AllMapNodes[mnI].mapObject != null)
+                    {
+                        if (MapNode.AllMapNodes[mnI].mapObject.celestialBody != null)
+                        {
+                            containsCBs = true;
+                            break;
+                        }
+                    }
+                }
+                if (containsCBs)
+                {
+                    processMapNodes();
+                }
+                else
+                {
+                    base.StartCoroutine(CallbackUtil.DelayedCallback(10, new Callback(this.processMapNodes)));
+                }
             }
         }
 
