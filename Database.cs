@@ -320,11 +320,11 @@ namespace ResearchBodies
                         CB.Value.isResearched = true;
                         CB.Value.researchState = 100;
                     }
-                    else
-                    {
-                        CB.Value.isResearched = false;
-                        CB.Value.researchState = 0;
-                    }
+                    //else
+                    //{
+                    //    CB.Value.isResearched = false;
+                    //    CB.Value.researchState = 0;
+                    //}
                 }
             }
             else
@@ -338,6 +338,15 @@ namespace ResearchBodies
             foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> CB in CelestialBodies)
             {
                 CB.Value.ignore = true;
+            }
+        }
+
+        public void ResetBodiesforLoad()
+        {
+            foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> CB in CelestialBodies)
+            {
+                CB.Value.isResearched = false;
+                CB.Value.researchState = 0;
             }
         }
 

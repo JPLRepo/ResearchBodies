@@ -1,4 +1,8 @@
-﻿V1.9.4 (08-05-2017) ==
+﻿V1.9.5 (08-14-2017) ==
+*Fix fix loading different saves in the one KSP session to show body visibility correctly.
+*Fix fix discovery of bodies via telescopes and contracts actually appearing in the Observatory (related to the previous).
+*Fix the OBservatory background texture not showing in any other UI window that uses the default KSP UI skin.
+V1.9.4 (08-05-2017) ==
 *Fix Tracking Station and Observatory Upgrade Level checks for contracts.
 *Fix Range checks for Observatory and Vessels with Telescopes for contracts.
 *Fix MapNodes appearing in MapView when there are orbits available for any contracts.

@@ -76,7 +76,7 @@ namespace ResearchBodies
                         if (bodyNode.HasValue("body"))
                         {
                             CelestialBodyInfo bodyInfo = CelestialBodyInfo.Load(bodyNode);
-                            CelestialBody CB = FlightGlobals.Bodies.FirstOrDefault(a => a.GetName() == bodyInfo.body);
+                            CelestialBody CB = FlightGlobals.Bodies.FirstOrDefault(a => a.bodyName == bodyInfo.body);
                             if (CB != null)
                             {
                                 Database.instance.CelestialBodies[CB].isResearched = bodyInfo.isResearched;

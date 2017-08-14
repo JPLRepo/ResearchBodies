@@ -81,6 +81,7 @@ namespace ResearchBodies
 
         public override void OnLoad(ConfigNode gameNode)
         {
+            Database.instance.ResetBodiesforLoad();
             base.OnLoad(gameNode);
             RBgameSettings.Load(gameNode);
             if (Database.instance.RB_SettingsParms != null)

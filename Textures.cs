@@ -95,7 +95,7 @@ namespace ResearchBodies
             if (HighLogic.Skin != null)
             {
                 GUI.skin = HighLogic.Skin;
-                ObsSkin = HighLogic.Skin;
+                ObsSkin = GameObject.Instantiate(HighLogic.Skin);
                 ObsSkin.window.normal.background = ObsWinBgnd;
                 ObsSkin.window.active.background = ObsWinBgnd;
                 ObsSkin.window.onActive.background = ObsWinBgnd;
