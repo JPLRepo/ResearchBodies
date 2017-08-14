@@ -61,6 +61,11 @@ namespace ResearchBodies
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Add(CheckContracts);
 
+            if (Utilities.IsKopInstalled)
+            {
+                Database.instance.ReApplyRanges();
+            }
+
             //If RB is enabled set initial Discovery Levels of CBs and call ProgressiveCBMaps to set their graphics levels.
             if (enable)
             {

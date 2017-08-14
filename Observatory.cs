@@ -54,6 +54,7 @@ namespace ResearchBodies
         private Vector3 groundBaseOffset = new Vector3(15f, -9f, -10f); //new Vector3(0f, 0f, 0f);//new Vector3(15f, -9f, -10f);
         private float Observatorylvl1Range = 0f;
         private float Observatorylvl2Range = 0f;
+        private bool lvlStatsNotSet = true;
 
         /// <summary>
         /// Check and establish singleton.
@@ -763,6 +764,29 @@ namespace ResearchBodies
                     RSTLogWriter.Log("Failed to Inject Observatory SpaceCenter Facility cannot continue setup of this Facility");
                     return;
                 }
+
+                if (lvlStatsNotSet)
+                {
+                    upgradeablefacility.UpgradeLevels[0].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                    string rngString1 = KSP.Localization.Localizer.Format("<<1>>", Database.instance.Observatorylvl1Range.ToString("F0"));
+                    upgradeablefacility.UpgradeLevels[0].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString1);
+                    upgradeablefacility.UpgradeLevels[0].levelText.linePrefix = "* ";
+                    upgradeablefacility.UpgradeLevels[0].levelStats = new Upgradeables.KSCFacilityLevelText();
+                    upgradeablefacility.UpgradeLevels[0].levelStats.linePrefix = upgradeablefacility.UpgradeLevels[0].levelText.linePrefix;
+                    upgradeablefacility.UpgradeLevels[0].levelStats.facility = SpaceCenterFacility.TrackingStation;
+                    upgradeablefacility.UpgradeLevels[0].levelStats.textBase = upgradeablefacility.UpgradeLevels[0].levelText.textBase;
+
+                    upgradeablefacility.UpgradeLevels[1].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                    string rngString2 = KSP.Localization.Localizer.Format("<<1>>", Database.instance.Observatorylvl2Range.ToString("F0"));
+                    upgradeablefacility.UpgradeLevels[1].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString2);
+                    upgradeablefacility.UpgradeLevels[1].levelText.linePrefix = "* ";
+                    upgradeablefacility.UpgradeLevels[1].levelStats = new Upgradeables.KSCFacilityLevelText();
+                    upgradeablefacility.UpgradeLevels[1].levelStats.linePrefix = upgradeablefacility.UpgradeLevels[1].levelText.linePrefix;
+                    upgradeablefacility.UpgradeLevels[1].levelStats.facility = SpaceCenterFacility.TrackingStation;
+                    upgradeablefacility.UpgradeLevels[1].levelStats.textBase = upgradeablefacility.UpgradeLevels[1].levelText.textBase;
+                    lvlStatsNotSet = false;
+                }
+
                 RSTLogWriter.Log_Debug("Scene SpaceCenter");
                 //Scan the PQS for our home planet.
                 pqscities = Resources.FindObjectsOfTypeAll<PQSCity>();

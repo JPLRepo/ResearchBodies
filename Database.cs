@@ -350,6 +350,19 @@ namespace ResearchBodies
             }
         }
 
+        public void ReApplyRanges()
+        {
+            ConfigNode[] modNodes = GameDatabase.Instance.GetConfigNodes("RESEARCHBODIES");
+            foreach (ConfigNode node in modNodes)
+            {
+                if (!node.HasValue("loadAs"))
+                {
+                    node.TryGetValue("observatorylvl1range", ref Observatorylvl1Range);
+                    node.TryGetValue("observatorylvl2range", ref Observatorylvl2Range);                    
+                }
+            }
+        }
+
         public void ApplySettings()
         {
             RSTLogWriter.Log("Database ApplySettings");
