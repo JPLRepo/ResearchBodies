@@ -56,9 +56,19 @@ namespace RSTUtils
 
         public void Start()
         {
-            if (File.Exists(AssemblyFolder + "/PluginData/" + AssemblyName + ".log"))
-                File.Delete(AssemblyFolder + "/PluginData/" + AssemblyName + ".log");
-            Tw = new StreamWriter(AssemblyFolder + "/PluginData/" + AssemblyName + ".log");
+            string logFileName = AssemblyFolder + "/PluginData/" + AssemblyName + ".log";
+            if (File.Exists(logFileName))
+            {
+                DateTime dateTime = File.GetCreationTime(logFileName);
+                string dateTimeFileName = AssemblyFolder + "/PluginData/" + AssemblyName + dateTime.ToString("MMddyyyyHHmmssfff") + ".log";
+                if (File.Exists(dateTimeFileName))
+                {
+                    File.Delete(dateTimeFileName);
+                }
+                File.Copy(logFileName, dateTimeFileName);
+                File.Delete(logFileName);
+            }
+            Tw = new StreamWriter(logFileName);
             Tw.WriteLine(AssemblyName + Assembly.GetExecutingAssembly().GetName().Version);
             Tw.WriteLine("Loaded up on " + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss tt") + ".");
             Tw.WriteLine();
