@@ -97,7 +97,30 @@ namespace ResearchBodies
             }
             return _bodies;
         }
-        
+
+        //Get a dictionary entry based on the name.
+        public CelestialBody ContainsBodiesKey(string name)
+        {
+            CelestialBody returnBody = null;
+            var dictenum = CelestialBodies.GetEnumerator();
+            try
+            {
+                while (dictenum.MoveNext())
+                {
+                    if (dictenum.Current.Key.bodyName == name)
+                    {
+                        returnBody = dictenum.Current.Key;
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                dictenum.Dispose();
+            }
+            return returnBody;
+        }
+
         public void LoadDatabase()
         {
             RSTLogWriter.Log("LoadDatabase");
@@ -223,9 +246,10 @@ namespace ResearchBodies
             {
                 foreach (CelestialBody body in BodyList)
                 {
-                    if (Locales.currentLocale.Values.ContainsKey("#autoLOC_RBodies_discovery_" + body.bodyName) && CelestialBodies.ContainsKey(body))
+                    CelestialBody bodiesKey = ContainsBodiesKey(body.bodyName);
+                    if (Locales.currentLocale.Values.ContainsKey("#autoLOC_RBodies_discovery_" + body.bodyName) && bodiesKey != null)
                     {
-                        CelestialBodies[body].discoveryMessage = Locales.currentLocale.Values["#autoLOC_RBodies_discovery_" + body.bodyName];
+                        CelestialBodies[bodiesKey].discoveryMessage = Locales.currentLocale.Values["#autoLOC_RBodies_discovery_" + body.bodyName];
                     }
                 }
             }

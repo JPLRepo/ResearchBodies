@@ -163,8 +163,9 @@ namespace ProgressiveCBMaps
                     removeFromPlanetariumCamera();
                     //visualHeight = 64;
                     visualHeight = 32;
-					shiny = 0;
-					setVisualOn(true);
+				    //shiny = 0;
+				    shiny = originalshiny;
+                    setVisualOn(true);
 					setBumpOff();
 					currentDetailLevel = 1;
 					processEVEClouds();
@@ -180,8 +181,9 @@ namespace ProgressiveCBMaps
                     addToPlanetariumCamera();
                     //visualHeight = 128;
                     visualHeight = 64;
-					shiny = 0;
-					setVisualOn(true);
+				    //shiny = 0;
+				    shiny = originalshiny;
+                    setVisualOn(true);
 					setBumpOff();
 					currentDetailLevel = 2;
 					processEVEClouds();
@@ -197,8 +199,9 @@ namespace ProgressiveCBMaps
                     addToPlanetariumCamera();
                     //visualHeight = originalvisualHeight / 4;
                     visualHeight = 128;
-					shiny = originalshiny/2;
-					setVisualOn(true);
+                    //shiny = originalshiny/2;
+				    shiny = originalshiny;
+                    setVisualOn(true);
 					setBumpOff();
 					currentDetailLevel = 3;
 					processEVEClouds();

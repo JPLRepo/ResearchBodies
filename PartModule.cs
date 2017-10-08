@@ -61,6 +61,7 @@ namespace ResearchBodies
         private double searchButtonDisplayTimer;
         private bool searchButtonDisplay = false;
         private bool French;
+        private bool sceneChangeRequested;
 
 
         public override void OnAwake()
@@ -78,6 +79,18 @@ namespace ResearchBodies
                     French = true;
                 }
             }
+            sceneChangeRequested = false;
+            GameEvents.onGameSceneLoadRequested.Add(onGameSceneLoadRequested);
+        }
+
+        public void OnDestroy()
+        {
+            GameEvents.onGameSceneLoadRequested.Remove(onGameSceneLoadRequested);
+        }
+
+        public void onGameSceneLoadRequested(GameScenes scene)
+        {
+            sceneChangeRequested = true;
         }
 
         /// <summary>
@@ -85,6 +98,7 @@ namespace ResearchBodies
         /// </summary>
         protected virtual void Update()
         {
+            if (sceneChangeRequested) return;
             if (!checkedEnabledFlag && Time.timeSinceLevelLoad > 3.0f && HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
                 checkedEnabledFlag = true;
@@ -122,11 +136,14 @@ namespace ResearchBodies
 
         public void OnGUI()
         {
-            if (showGUI && ResearchBodies.Enabled)
+            if (HighLogic.LoadedSceneIsFlight && !sceneChangeRequested)
             {
-                GUI.skin = HighLogic.Skin;
-                windowRect.ClampToScreen();
-                windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Locales.FmtLocaleString("#autoLOC_RBodies_00026"));
+                if (showGUI && ResearchBodies.Enabled)
+                {
+                    GUI.skin = HighLogic.Skin;
+                    windowRect.ClampToScreen();
+                    windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Locales.FmtLocaleString("#autoLOC_RBodies_00026"));
+                }
             }
         }
 
@@ -158,7 +175,7 @@ namespace ResearchBodies
             {
                 if (body.Value.isResearched)
                 {
-                    GUILayout.Label(body.Key.GetName() + " - " + body.Value.researchState.ToString("N0") + "%", Textures.PartListPartStyle);
+                    GUILayout.Label(body.Key.GetDisplayName().LocalizeRemoveGender() + " - " + body.Value.researchState.ToString("N0") + "%", Textures.PartListPartStyle);
                 }
             }
             GUILayout.EndVertical();

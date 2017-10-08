@@ -1,4 +1,14 @@
-﻿V1.9.5 (08-14-2017) ==
+﻿V1.9.6 (10-07-2017) ==
+*Re-Compile for KSP 1.3.1
+*Fixed orbiting text in Observatory. The sun no longer orbits the sun.
+*Fixed the research complete message always saying you can now send a vessel to the the bodies parent body. Now shows the correct one.
+*Fixes to Tarsier Space Technology (TST) integration for researching Galaxies not showing up in the OBservatory or being persisted correctly.
+*When finding TST galaxies they don't show the Found message twice any more and they show the actual localized Galaxy name instead of their internal name.
+*Fix harmless NRE when leaving flight scene with the ResearchBodies UI window open.
+*ResearchBodies Log files are now kept and timestamped in the \GameData\REPOSoftTech\ResearchBodies\Plugins\PluginData folder.
+*You need Contract Configurator v1.23.3 with this version of Research Bodies.
+*Removed shinyness changes from the celestial bodies - for the color and detail changing.
+V1.9.5 (08-14-2017) ==
 *Fix fix loading different saves in the one KSP session to show body visibility correctly.
 *Fix fix discovery of bodies via telescopes and contracts actually appearing in the Observatory (related to the previous).
 *Fix the OBservatory background texture not showing in any other UI window that uses the default KSP UI skin.

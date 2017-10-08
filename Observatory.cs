@@ -150,7 +150,7 @@ namespace ResearchBodies
                     return;
                 }
                 GetFacilityStrings();
-                GameObject tempGo = new GameObject();
+                GameObject tempGo = new GameObject("ObservatoryPrefab");
                 pqscities = Resources.FindObjectsOfTypeAll<PQSCity>();
                 for (int i = 0; i < pqscities.Length; i++)
                 {
@@ -685,6 +685,7 @@ namespace ResearchBodies
                 destBuilding = targetBuildingTransform.GetComponent<DestructibleBuilding>();
                 if (destBuilding != null)
                 {
+                    destBuilding.preCompiledId = false;
                     destBuilding.DemolitionFXPrefab = Instantiate(sourceBuilding.DemolitionFXPrefab);
                     destBuilding.RepairFXPrefab = Instantiate(sourceBuilding.RepairFXPrefab);
                     destBuilding.DemolitionFXPrefab.gameObject.SetActive(true);
@@ -822,10 +823,8 @@ namespace ResearchBodies
                                     f.buildingDescription = Locales.FmtLocaleString("#autoLOC_RBodies_00099"); // "This is the Observatory where you can view information about the Celestial Bodies in the sky and observe and conduct research on them.";
                                 });
                             //Copy the TrackingStationTransform position to our new building position and rotation.
-                            SpaceCenterObservatory.gameObject.transform.position =
-                                upgradeablefacility.transform.position; // trackingstationtransform.position;
-                            SpaceCenterObservatory.gameObject.transform.rotation =
-                                upgradeablefacility.transform.rotation; //trackingstationtransform.rotation;
+                            SpaceCenterObservatory.gameObject.transform.position = upgradeablefacility.transform.position; // trackingstationtransform.position;
+                            SpaceCenterObservatory.gameObject.transform.rotation = upgradeablefacility.transform.rotation; //trackingstationtransform.rotation;
                                 
                             //We need a tooltipPrefab, so we just get one and copy it to our new Building object.
                             buildings = Resources.FindObjectsOfTypeAll<SpaceCenterBuilding>();

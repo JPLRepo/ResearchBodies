@@ -209,13 +209,15 @@ namespace ResearchBodies
                 ScreenMessages.PostScreenMessage("Added " + sciencePtsReward + " science points !", 5f);
             }
             //Check if the referencebody is also not known. If so, we discover both the body and it's referencebody (parent).
-            if (bodyFound.referenceBody.DiscoveryInfo.Level == DiscoveryLevels.Presence)
+            if (bodyFound.referenceBody != null && bodyFound != bodyFound.referenceBody && bodyFound.referenceBody.DiscoveryInfo.Level == DiscoveryLevels.Presence)
             {
-                if (Database.instance.CelestialBodies.ContainsKey(bodyFound.referenceBody))
-                    Database.instance.CelestialBodies[bodyFound.referenceBody].isResearched = true;
-                if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                CelestialBody cbKey = Database.instance.ContainsBodiesKey(bodyFound.referenceBody.bodyName);
+                if (cbKey != null)
+                    Database.instance.CelestialBodies[cbKey].isResearched = true;
+                cbKey = Database.instance.ContainsBodiesKey(bodyFound.bodyName);
+                if (cbKey != null)
                 {
-                    Database.instance.CelestialBodies[bodyFound].isResearched = true;
+                    Database.instance.CelestialBodies[cbKey].isResearched = true;
                     var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound, Database.instance.CelestialBodies[bodyFound]);
                     setCBContractWeight(tempEntry, false);
                 }
@@ -237,10 +239,11 @@ namespace ResearchBodies
             }
             else //No parent or parent is already discovered. So we just found this body.
             {
-                if (Database.instance.CelestialBodies.ContainsKey(bodyFound))
+                CelestialBody cbKey = Database.instance.ContainsBodiesKey(bodyFound.bodyName);
+                if (cbKey != null)
                 {
-                    Database.instance.CelestialBodies[bodyFound].isResearched = true;
-                    var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(bodyFound, Database.instance.CelestialBodies[bodyFound]);
+                    Database.instance.CelestialBodies[cbKey].isResearched = true;
+                    var tempEntry = new KeyValuePair<CelestialBody, CelestialBodyInfo>(cbKey, Database.instance.CelestialBodies[cbKey]);
                     setCBContractWeight(tempEntry, false);
                 }
                 withParent = false;
@@ -251,7 +254,8 @@ namespace ResearchBodies
         }
         public static bool Research(CelestialBody body, int researchToAdd)
         {
-            if (Database.instance.CelestialBodies[body].researchState < 100)
+            CelestialBody cbKey = Database.instance.ContainsBodiesKey(body.bodyName);
+            if (cbKey != null && Database.instance.CelestialBodies[cbKey].researchState < 100)
             {
                 if (Funding.Instance != null)
                 {
@@ -259,9 +263,9 @@ namespace ResearchBodies
 
                     if (Funding.Instance.Funds >= Database.instance.RB_SettingsParms.ProgressResearchCost)
                     {
-                        Database.instance.CelestialBodies[body].researchState += researchToAdd;
-                        if (Database.instance.CelestialBodies[body].researchState > 100)
-                            Database.instance.CelestialBodies[body].researchState = 100;
+                        Database.instance.CelestialBodies[cbKey].researchState += researchToAdd;
+                        if (Database.instance.CelestialBodies[cbKey].researchState > 100)
+                            Database.instance.CelestialBodies[cbKey].researchState = 100;
                         //Funding.Instance.AddFunds(-ResearchBodies.Instance.RBgameSettings.ProgressResearchCost, TransactionReasons.None);
                         Funding.Instance.AddFunds(-Database.instance.RB_SettingsParms.ProgressResearchCost, TransactionReasons.Progression);
                     }
@@ -274,16 +278,15 @@ namespace ResearchBodies
                 {
                     if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                     {
-                        Database.instance.CelestialBodies[body].researchState += researchToAdd;
+                        Database.instance.CelestialBodies[cbKey].researchState += researchToAdd;
                     }
                 }
                 KeyValuePair<CelestialBody, CelestialBodyInfo> cb =
-                                    new KeyValuePair<CelestialBody, CelestialBodyInfo>(body,
-                                        Database.instance.CelestialBodies[body]);
+                                    new KeyValuePair<CelestialBody, CelestialBodyInfo>(cbKey,Database.instance.CelestialBodies[cbKey]);
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cb);
-                if (Database.instance.CelestialBodies[body].researchState == 100 && ResearchAndDevelopment.Instance != null)
+                if (Database.instance.CelestialBodies[cbKey].researchState == 100 && ResearchAndDevelopment.Instance != null)
                 {
-                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", body.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
+                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", cbKey.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
                     //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                     ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                 }
@@ -296,7 +299,8 @@ namespace ResearchBodies
         }
         public static void LaunchResearchPlan(CelestialBody cb)
         {
-            if (Database.instance.CelestialBodies[cb].researchState == 0)
+            CelestialBody cbKey = Database.instance.ContainsBodiesKey(cb.bodyName);
+            if (cbKey != null && Database.instance.CelestialBodies[cbKey].researchState == 0)
             {
                 if (Funding.Instance != null)
                 {
@@ -305,16 +309,16 @@ namespace ResearchBodies
                     {
                         //Funding.Instance.AddFunds(-Database.Instance.RB_SettingsParms.ResearchCost, TransactionReasons.None);
                         Funding.Instance.AddFunds(-Database.instance.RB_SettingsParms.ResearchCost, TransactionReasons.Progression);
-                        Research(cb, 10);
+                        Research(cbKey, 10);
                     }
                     else
-                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00014", cb.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00014", cbKey.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
                 }
                 else
                 {
                     if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                     {
-                        Research(cb, 10);
+                        Research(cbKey, 10);
                     }
                 }
             }
@@ -323,16 +327,16 @@ namespace ResearchBodies
         }
         public static void StopResearchPlan(CelestialBody cb)
         {
-            if (Database.instance.CelestialBodies[cb].researchState >= 10)
+            CelestialBody cbKey = Database.instance.ContainsBodiesKey(cb.bodyName);
+            if (cbKey != null && Database.instance.CelestialBodies[cbKey].researchState >= 10)
             {
                 if (Funding.Instance != null)
                 {
                     Funding.Instance.AddFunds(Database.instance.RB_SettingsParms.ResearchCost, TransactionReasons.Progression);
                 }
-                Database.instance.CelestialBodies[cb].researchState = 0;
+                Database.instance.CelestialBodies[cbKey].researchState = 0;
                 KeyValuePair<CelestialBody, CelestialBodyInfo> cbd =
-                                    new KeyValuePair<CelestialBody, CelestialBodyInfo>(cb,
-                                        Database.instance.CelestialBodies[cb]);
+                                    new KeyValuePair<CelestialBody, CelestialBodyInfo>(cbKey,Database.instance.CelestialBodies[cbKey]);
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cbd);
             }
             else

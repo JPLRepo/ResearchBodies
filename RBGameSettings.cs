@@ -83,6 +83,23 @@ namespace ResearchBodies
                                 Database.instance.CelestialBodies[CB].researchState = bodyInfo.researchState;
                                 Database.instance.CelestialBodies[CB].ignore = bodyInfo.ignore;
                             }
+                            else
+                            {
+                                if (Database.instance.isTSTInstalled)
+                                {
+                                    CelestialBody GalCB = TSTWrapper.actualTSTAPI.CBGalaxies.FirstOrDefault(a => a.bodyName == bodyInfo.body);
+                                    if (GalCB != null)
+                                    {
+                                        CelestialBody cbKey = Database.instance.ContainsBodiesKey(GalCB.bodyName);
+                                        if (cbKey != null)
+                                        {
+                                            Database.instance.CelestialBodies[cbKey].isResearched = bodyInfo.isResearched;
+                                            Database.instance.CelestialBodies[cbKey].researchState = bodyInfo.researchState;
+                                            Database.instance.CelestialBodies[cbKey].ignore = bodyInfo.ignore;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     //if (Difficulty == 0) //If difficult == 0 user somehow hasn't selected new game difficulty. So show the startup UI.
