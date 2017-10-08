@@ -439,10 +439,17 @@ namespace ResearchBodies
                     GUILayout.Label("<i>" + (French ? Database.instance.CelestialBodies[selectedBody].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + selectedBody.bodyName)) + "</i>", GUILayout.Width(300));
                     GUILayout.EndHorizontal();
 
-                    if (selectedBody.referenceBody != Planetarium.fetch.Sun)
-                        GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00003", selectedBody.referenceBody.displayName.LocalizeRemoveGender()), GUILayout.Width(150));
-                    else
-                        GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00004"), GUILayout.Width(150));
+                    if (selectedBody != Planetarium.fetch.Sun && selectedBody.referenceBody != null && selectedBody.bodyName != selectedBody.referenceBody.bodyName)
+                    {
+                        if (selectedBody.referenceBody != Planetarium.fetch.Sun)
+                        {
+                            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00003", selectedBody.referenceBody.displayName.LocalizeRemoveGender()), GUILayout.Width(150));
+                        }
+                        else
+                        {
+                            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00004"), GUILayout.Width(150));
+                        }
+                    }
 
 
                     GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00005", Database.instance.CelestialBodies[selectedBody].researchState.ToString()), GUILayout.Width(480));
@@ -495,7 +502,7 @@ namespace ResearchBodies
                         {
                             GUILayout.Label("<i><color=#0ef907>" + Locales.FmtLocaleString("#autoLOC_RBodies_00010") + " ✓</color></i>", GUILayout.Width(480)); //new Rect(188, 227, 502, 32), 
                             GUILayout.Label("<i><color=#0ef907>" + Locales.FmtLocaleString("#autoLOC_RBodies_00011") + " ✓</color></i>", GUILayout.Width(480)); //new Rect(188, 264, 502, 32), 
-                            GUILayout.Label("<b>" + Locales.FmtLocaleString("#autoLOC_RBodies_00013", selectedBody.referenceBody.displayName.LocalizeRemoveGender()) + "</b>", GUILayout.Width(480));                            
+                            GUILayout.Label("<b>" + Locales.FmtLocaleString("#autoLOC_RBodies_00013", selectedBody.displayName.LocalizeRemoveGender()) + "</b>", GUILayout.Width(480));                            
                         }
                     }
                 }
