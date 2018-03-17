@@ -30,9 +30,6 @@ namespace ResearchBodies
         public override string DisplaySection { get { return Localizer.Format("#autoLOC_RBodies_00026"); } }
         public override int SectionOrder { get { return 1; } }
         
-        [GameParameters.CustomParameterUI("Français", toolTip = "Turn this on for French Language\nfor English or Spanish set KSP to English or Spanish")]
-        public bool french = false;
-        
         [GameParameters.CustomParameterUI("#autoLOC_RBodies_00027")] //#autoLOC_RBodies_00027 = ResearchBodies Enabled in this save
         public bool RBEnabled = true;
 

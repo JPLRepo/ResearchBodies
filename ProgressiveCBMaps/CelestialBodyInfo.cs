@@ -13,6 +13,7 @@
  *
  */
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace ProgressiveCBMaps
@@ -92,11 +93,13 @@ namespace ProgressiveCBMaps
 		{
 			if (mesh == null)
 				return;
-			getMeshTexture(_greyscale);
-			OverlayGenerator.Instance.ClearDisplay();
-			//rescaleType = 0;
-			rescaleMap();
-			mesh.material.SetTexture("_MainTex", smallScaledMap);
+            if (!File.Exists("saves/" + HighLogic.SaveFolder + "/ResearchBodies/" + currentDetailLevel + "_" + Body.bodyName + ".cache")) {
+                getMeshTexture(_greyscale);
+                OverlayGenerator.Instance.ClearDisplay();
+            }
+            //rescaleType = 0;
+            rescaleMap();
+            mesh.material.SetTexture("_MainTex", smallScaledMap);
             if (hasShininess)
 			    mesh.material.SetFloat("_Shininess", shiny);
 		}
@@ -132,8 +135,10 @@ namespace ProgressiveCBMaps
 		/// <param name="level">integer 0 through 6</param>
 		public void setVisualLevel(int level)
 		{
-			if (mesh == null)
+			if (mesh == null || currentDetailLevel == level) // disable doing all this job if level is already set, not sure if its correctly working
 				return;
+
+            EVEWrapper.LogFormatted_DebugOnly("setVisualLevel "+level+" for "+Body.bodyName);
 
 			switch (level)
 			{
@@ -165,9 +170,9 @@ namespace ProgressiveCBMaps
                     visualHeight = 32;
 				    //shiny = 0;
 				    shiny = originalshiny;
+                    currentDetailLevel = 1;
                     setVisualOn(true);
 					setBumpOff();
-					currentDetailLevel = 1;
 					processEVEClouds();
 					break;
 
@@ -183,9 +188,9 @@ namespace ProgressiveCBMaps
                     visualHeight = 64;
 				    //shiny = 0;
 				    shiny = originalshiny;
+                    currentDetailLevel = 2;
                     setVisualOn(true);
 					setBumpOff();
-					currentDetailLevel = 2;
 					processEVEClouds();
 					break;
 
@@ -201,9 +206,9 @@ namespace ProgressiveCBMaps
                     visualHeight = 128;
                     //shiny = originalshiny/2;
 				    shiny = originalshiny;
+                    currentDetailLevel = 3;
                     setVisualOn(true);
 					setBumpOff();
-					currentDetailLevel = 3;
 					processEVEClouds();
 					break;
 
@@ -217,9 +222,9 @@ namespace ProgressiveCBMaps
                     addToPlanetariumCamera();
                     visualHeight = Mathf.Max(128, originalvisualHeight / 4);
 					shiny = originalshiny;
-					setVisualOn(false);
+                    currentDetailLevel = 4;
+                    setVisualOn(false);
 					setBumpOff();
-					currentDetailLevel = 4;
 					processEVEClouds();
 					break;
 
@@ -233,9 +238,9 @@ namespace ProgressiveCBMaps
                     addToPlanetariumCamera();
                     visualHeight = originalvisualHeight / 2;
 					shiny = originalshiny;
-					setVisualOn(false);
+                    currentDetailLevel = 5;
+                    setVisualOn(false);
 					setBumpOff();
-					currentDetailLevel = 5;
 					processEVEClouds();
 					break;
 
@@ -247,15 +252,37 @@ namespace ProgressiveCBMaps
 						mesh.enabled = true;
 					}
                     addToPlanetariumCamera();
-                    visualHeight = originalvisualHeight;
+                    /*visualHeight = originalvisualHeight;
 					shiny = originalshiny;
-					setVisualOn(false);
-					setBumpOn();
-					currentDetailLevel = 6;
-					processEVEClouds();
-					break;
+                    currentDetailLevel = 6;
+                    setVisualOn(false);
+                    setBumpOn();
+					processEVEClouds();*/
+                    setVisualOff();
+                    break;
 			}
+
+            SaveCache();
 		}
+
+        private void SaveCache()
+        {
+            if (File.Exists("saves/" + HighLogic.SaveFolder + "/ResearchBodies/" + currentDetailLevel + "_" + Body.bodyName + ".cache")) return;
+			if (currentDetailLevel<6) { // create it only for lower detail levels
+				try {
+					if (!Directory.Exists("saves/" + HighLogic.SaveFolder + "/ResearchBodies/")) Directory.CreateDirectory("saves/" + HighLogic.SaveFolder + "/ResearchBodies/");
+					File.WriteAllBytes("saves/" + HighLogic.SaveFolder + "/ResearchBodies/" + currentDetailLevel + "_" + Body.bodyName + ".cache", smallScaledMap.EncodeToPNG());
+				} catch { }
+			}
+
+            if (currentDetailLevel > 0) {
+                for (var i = 0; i < currentDetailLevel; i++) {
+                    try {
+                        File.Delete("saves/" + HighLogic.SaveFolder + "/ResearchBodies/" + i + "_" + Body.bodyName + ".cache");
+                    } catch { }
+                }
+            }
+        }
 
         /// <summary>
         /// Removes body from the PlanetariumCamera targets list so you can't tab alt-tab to it.
@@ -300,7 +327,7 @@ namespace ProgressiveCBMaps
 			    mesh.material.SetTexture("_BumpMap", originalBumpMap);
 			visualHeight = originalvisualHeight;
 			alpha = 1;
-			rescaleType = 1;
+			//rescaleType = 1;
 			currentDetailLevel = 6;
 			processEVEClouds();
 		}
@@ -444,7 +471,16 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		private void rescaleMap()
 		{
-			smallScaledMap = newScaledMap;
+
+            if (File.Exists("saves/" + HighLogic.SaveFolder + "/ResearchBodies/" + currentDetailLevel + "_" + Body.bodyName + ".cache")) {
+                byte[] bytes = File.ReadAllBytes("saves/" + HighLogic.SaveFolder + "/ResearchBodies/" + currentDetailLevel + "_" + Body.bodyName + ".cache");
+                Texture2D tex = new Texture2D(visualHeight * 2, visualHeight);
+                tex.LoadImage(bytes);
+                smallScaledMap = tex;
+                return;
+            }
+
+            smallScaledMap = newScaledMap;
 
 			if (alpha < 0.95f)
 			{

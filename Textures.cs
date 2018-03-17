@@ -41,9 +41,10 @@ namespace ResearchBodies
                 LoadImageFromFile(ref BtnResizeWidth, "RBbtnResizeWidth.png", PathIconsPath);
                 LoadImageFromFile(ref SpriteObservatory, "SpriteObservPicker.png", PathIconsPath);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 RSTLogWriter.Log("ResearchBodies Failed to Load Textures - are you missing a file?");
+                RSTLogWriter.Log(ex.Message);
             }
         }
 

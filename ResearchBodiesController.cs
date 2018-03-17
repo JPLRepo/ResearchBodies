@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Contracts;
+using KSP.Localization;
 using KSP.UI.Screens.Mapview;
 using RSTUtils;
 
@@ -39,7 +40,6 @@ namespace ResearchBodies
 
         public void Start()
         {
-            French = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().french;
             isTSTInstalled = Database.instance.isTSTInstalled;
             isPCBMInstalled = Utilities.IsPCBMInstalled;
             if (isPCBMInstalled)  //If Progressive CB Maps assembly is present, initialise PCBM wrapper.
@@ -169,7 +169,7 @@ namespace ResearchBodies
                     Database.instance.CelestialBodies[HostedfromtoAction.to].researchState = 100;
                     //ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["#autoLOC_RBodies_00012"],HostedfromtoAction.to.GetName(), Database.Instance.RB_SettingsParms.ScienceReward), 5f);
                     //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward,TransactionReasons.None);
-                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", HostedfromtoAction.to.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
+                    ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00012", HostedfromtoAction.to.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
                     ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                     var keyvalue = Database.instance.CelestialBodies.FirstOrDefault(a => a.Key.bodyName == HostedfromtoAction.to.bodyName);
                     if (keyvalue.Key != null)
@@ -271,7 +271,7 @@ namespace ResearchBodies
                     }
                     else
                     {
-                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00047"), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00047"), 3.0f, ScreenMessageStyle.UPPER_CENTER);
                     }
                 }
                 else
@@ -286,7 +286,7 @@ namespace ResearchBodies
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cb);
                 if (Database.instance.CelestialBodies[cbKey].researchState == 100 && ResearchAndDevelopment.Instance != null)
                 {
-                    ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00012", cbKey.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
+                    ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00012", cbKey.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
                     //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                     ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
                 }
@@ -312,7 +312,7 @@ namespace ResearchBodies
                         Research(cbKey, 10);
                     }
                     else
-                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00014", cbKey.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
+                        ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00014", cbKey.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
                 }
                 else
                 {
@@ -323,7 +323,7 @@ namespace ResearchBodies
                 }
             }
             else
-                RSTLogWriter.Log(Locales.FmtLocaleString("#autoLOC_RBodies_00015", cb.displayName));
+                RSTLogWriter.Log(Localizer.Format("#autoLOC_RBodies_00015", cb.displayName));
         }
         public static void StopResearchPlan(CelestialBody cb)
         {
@@ -340,7 +340,7 @@ namespace ResearchBodies
                 ResearchBodiesController.instance.SetIndividualBodyDiscoveryLevel(cbd);
             }
             else
-                RSTLogWriter.Log(Locales.FmtLocaleString("#autoLOC_RBodies_00016", cb.displayName));
+                RSTLogWriter.Log(Localizer.Format("#autoLOC_RBodies_00016", cb.displayName));
         }
 
         public void onMapEntered()

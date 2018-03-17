@@ -324,7 +324,7 @@ namespace ResearchBodies
 
             if (PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityDamage() > 0)
             {
-                ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00018"), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00018"), 3.0f, ScreenMessageStyle.UPPER_CENTER);
                 return;
             }
 
@@ -377,7 +377,7 @@ namespace ResearchBodies
             }
             else
             {
-                GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00017"), GUILayout.Width(198), GUILayout.Height(128));
+                GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00017"), GUILayout.Width(198), GUILayout.Height(128));
             }
 
             GUILayout.EndVertical();
@@ -428,9 +428,9 @@ namespace ResearchBodies
                 if (selectedBody == null)
                 {
                     if (!haveTrackedBodies)
-                        GUILayout.Label("<color=orange>" + Locales.FmtLocaleString("#autoLOC_RBodies_00001") + "</color>", GUILayout.Width(500));
+                        GUILayout.Label("<color=orange>" + Localizer.Format("#autoLOC_RBodies_00001") + "</color>", GUILayout.Width(500));
                     else
-                        GUILayout.Label("<color=orange>" + Locales.FmtLocaleString("#autoLOC_RBodies_00001") + "</color>", GUILayout.Width(500)); //GUILayout
+                        GUILayout.Label("<color=orange>" + Localizer.Format("#autoLOC_RBodies_00001") + "</color>", GUILayout.Width(500)); //GUILayout
                 }
                 else
                 {
@@ -443,21 +443,21 @@ namespace ResearchBodies
                     {
                         if (selectedBody.referenceBody != Planetarium.fetch.Sun)
                         {
-                            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00003", selectedBody.referenceBody.displayName.LocalizeRemoveGender()), GUILayout.Width(150));
+                            GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00003", selectedBody.referenceBody.displayName.LocalizeRemoveGender()), GUILayout.Width(150));
                         }
                         else
                         {
-                            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00004"), GUILayout.Width(150));
+                            GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00004"), GUILayout.Width(150));
                         }
                     }
 
 
-                    GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00005", Database.instance.CelestialBodies[selectedBody].researchState.ToString()), GUILayout.Width(480));
+                    GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00005", Database.instance.CelestialBodies[selectedBody].researchState.ToString()), GUILayout.Width(480));
                     if (Database.instance.CelestialBodies[selectedBody].researchState == 0)
                     {
                         if (
-                            GUILayout.Button("<color=#0ef907>" + Locales.FmtLocaleString("#autoLOC_RBodies_00006", selectedBody.displayName.LocalizeRemoveGender()) + "\n</color><size=10><i>(" +
-                                Locales.FmtLocaleString("#autoLOC_RBodies_00007", (Database.instance.RB_SettingsParms.ResearchCost + Database.instance.RB_SettingsParms.ProgressResearchCost).ToString() /* 10 */) + ")</i></size>", GUILayout.Width(480)))
+                            GUILayout.Button("<color=#0ef907>" + Localizer.Format("#autoLOC_RBodies_00006", selectedBody.displayName.LocalizeRemoveGender()) + "\n</color><size=10><i>(" +
+                                             Localizer.Format("#autoLOC_RBodies_00007", (Database.instance.RB_SettingsParms.ResearchCost + Database.instance.RB_SettingsParms.ProgressResearchCost).ToString() /* 10 */) + ")</i></size>", GUILayout.Width(480)))
                         {
                             LaunchResearchPlan(selectedBody);
                             instructor_Werner.PlayNiceEmote();
@@ -468,8 +468,8 @@ namespace ResearchBodies
                         if (!Database.instance.CelestialBodies[selectedBody].ignore)
                         {
                             if (
-                                GUILayout.Button("<color=red>" + Locales.FmtLocaleString("#autoLOC_RBodies_00008", selectedBody.displayName.LocalizeRemoveGender()) + "\n</color><size=10><i>(" +
-                                    Locales.FmtLocaleString("#autoLOC_RBodies_00009", Database.instance.RB_SettingsParms.ResearchCost.ToString() /* 5 */) + ")</i></size>", GUILayout.Width(480)))
+                                GUILayout.Button("<color=red>" + Localizer.Format("#autoLOC_RBodies_00008", selectedBody.displayName.LocalizeRemoveGender()) + "\n</color><size=10><i>(" +
+                                                 Localizer.Format("#autoLOC_RBodies_00009", Database.instance.RB_SettingsParms.ResearchCost.ToString() /* 5 */) + ")</i></size>", GUILayout.Width(480)))
                             {
                                 StopResearchPlan(selectedBody);
                                 instructor_Werner.PlayBadEmote();
@@ -479,7 +479,7 @@ namespace ResearchBodies
                         {
                             if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
                             {
-                                if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00010"), GUILayout.Width(480)))
+                                if (GUILayout.Button(Localizer.Format("#autoLOC_RBodies_00010"), GUILayout.Width(480)))
                                 {
                                     instructor_Werner.PlayNiceEmote();
                                     Research(selectedBody, 10);
@@ -488,10 +488,10 @@ namespace ResearchBodies
                         }
                         else if (Database.instance.CelestialBodies[selectedBody].researchState >= 40 && Database.instance.CelestialBodies[selectedBody].researchState < 100)
                         {
-                            GUILayout.Label("<i><color=#0ef907>" + Locales.FmtLocaleString("#autoLOC_RBodies_00010") + " ✓</color></i>", GUILayout.Width(480));
+                            GUILayout.Label("<i><color=#0ef907>" + Localizer.Format("#autoLOC_RBodies_00010") + " ✓</color></i>", GUILayout.Width(480));
                             if (HighLogic.CurrentGame.Mode == Game.Modes.SANDBOX || HighLogic.CurrentGame.Mode == Game.Modes.SCIENCE_SANDBOX)
                             {
-                                if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00011"), GUILayout.Width(480)))
+                                if (GUILayout.Button(Localizer.Format("#autoLOC_RBodies_00011"), GUILayout.Width(480)))
                                 {
                                     instructor_Werner.PlayNiceEmote();
                                     Research(selectedBody, 10);
@@ -500,9 +500,9 @@ namespace ResearchBodies
                         }
                         else if (Database.instance.CelestialBodies[selectedBody].researchState >= 100)
                         {
-                            GUILayout.Label("<i><color=#0ef907>" + Locales.FmtLocaleString("#autoLOC_RBodies_00010") + " ✓</color></i>", GUILayout.Width(480)); //new Rect(188, 227, 502, 32), 
-                            GUILayout.Label("<i><color=#0ef907>" + Locales.FmtLocaleString("#autoLOC_RBodies_00011") + " ✓</color></i>", GUILayout.Width(480)); //new Rect(188, 264, 502, 32), 
-                            GUILayout.Label("<b>" + Locales.FmtLocaleString("#autoLOC_RBodies_00013", selectedBody.displayName.LocalizeRemoveGender()) + "</b>", GUILayout.Width(480));                            
+                            GUILayout.Label("<i><color=#0ef907>" + Localizer.Format("#autoLOC_RBodies_00010") + " ✓</color></i>", GUILayout.Width(480)); //new Rect(188, 227, 502, 32), 
+                            GUILayout.Label("<i><color=#0ef907>" + Localizer.Format("#autoLOC_RBodies_00011") + " ✓</color></i>", GUILayout.Width(480)); //new Rect(188, 264, 502, 32), 
+                            GUILayout.Label("<b>" + Localizer.Format("#autoLOC_RBodies_00013", selectedBody.displayName.LocalizeRemoveGender()) + "</b>", GUILayout.Width(480));                            
                         }
                     }
                 }
@@ -544,7 +544,7 @@ namespace ResearchBodies
                 }
                 else
                 {
-                    GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00017"), GUILayout.Width(188), GUILayout.Height(128));
+                    GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00017"), GUILayout.Width(188), GUILayout.Height(128));
                 }
 
                 GUILayout.EndVertical();
@@ -559,8 +559,8 @@ namespace ResearchBodies
                 ContractsscrollViewVector = GUILayout.BeginScrollView(ResearchscrollViewVector, GUILayout.Width(500), GUILayout.Height(186));
                 GUILayout.BeginVertical();
 
-                GUILayout.Label("<b><size=24><color=orange>" + Locales.FmtLocaleString("#autoLOC_RBodies_00103") + "</color></size></b>", GUILayout.Width(350));
-                GUILayout.Label("<b>" + Locales.FmtLocaleString("#autoLOC_RBodies_00104") + "</b>", GUILayout.Width(350));
+                GUILayout.Label("<b><size=24><color=orange>" + Localizer.Format("#autoLOC_RBodies_00103") + "</color></size></b>", GUILayout.Width(350));
+                GUILayout.Label("<b>" + Localizer.Format("#autoLOC_RBodies_00104") + "</b>", GUILayout.Width(350));
                 for (int i = 0; i < Contracts.ContractSystem.Instance.Contracts.Count; ++i)
                 {
                     Contract contract = Contracts.ContractSystem.Instance.Contracts[i];

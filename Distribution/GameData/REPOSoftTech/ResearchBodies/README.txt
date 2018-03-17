@@ -1,6 +1,6 @@
 ResearchBodies mod by JPLRepo, simon56modder, Well
 ==============================================
-	  Made for KSP v1.3.0
+	  Made for KSP v1.4.1
 ==============================================
 	   	ABOUT
 ==============================================
@@ -13,12 +13,10 @@ the telescopes included in the TarsierSpaceTechnologies mod to find and research
 
 ==============================================
 
- WARNING FOR PEOPLE WHO HAVE ALREADY STARTED A GAME SAVE WITH OLDER VERSIONS tan V1.9.2!!
+ WARNING FOR PEOPLE WHO HAVE ALREADY STARTED A GAME SAVE WITH OLDER VERSIONS than V1.9.2!!
   Due to huge changes for KSP 1.3.0 Localization and feature inclusions. Old saves will not
   work with this version.
-
-==============================================
-ResearchBodies v1.9.2, released on July 2nd, 2017                   
+               
 ==============================================
 	      INSTALLATION
 ==============================================
