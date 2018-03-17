@@ -60,7 +60,6 @@ namespace ResearchBodies
         private int startingdifficulty;
         private double searchButtonDisplayTimer;
         private bool searchButtonDisplay = false;
-        private bool French;
         private bool sceneChangeRequested;
 
 
@@ -71,13 +70,6 @@ namespace ResearchBodies
             {
                 _partwindowID = Utilities.getnextrandomInt();
                 startingdifficulty = difficulty;
-            }
-            if (HighLogic.CurrentGame != null)
-            {
-                if (HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().french)
-                {
-                    French = true;
-                }
             }
             sceneChangeRequested = false;
             GameEvents.onGameSceneLoadRequested.Add(onGameSceneLoadRequested);
@@ -117,12 +109,12 @@ namespace ResearchBodies
                 string msg = "";
                 if (withParent) //And was a parent body also discovered?
                 {
-                    msg = French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName) ;
-                    msg += "\n" + (French ? Database.instance.CelestialBodies[parentBody].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + parentBody.bodyName));
+                    msg = Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName) ;
+                    msg += "\n" + Localizer.Format("#autoLOC_RBodies_discovery_" + parentBody.bodyName);
                 }
                 else
                 {
-                    msg = French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName);
+                    msg = Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName);
                 }
                 string title = Localizer.Format("#autoLOC_RBodies_00049");
                 UISkinDef skin = HighLogic.UISkin;
@@ -142,7 +134,7 @@ namespace ResearchBodies
                 {
                     GUI.skin = HighLogic.Skin;
                     windowRect.ClampToScreen();
-                    windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Locales.FmtLocaleString("#autoLOC_RBodies_00026"));
+                    windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Localizer.Format("#autoLOC_RBodies_00026"));
                 }
             }
         }
@@ -155,12 +147,12 @@ namespace ResearchBodies
                 showGUI = !showGUI;
             }
             else
-                ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00019", minAltitude.ToString()), 3.0f, ScreenMessageStyle.UPPER_CENTER);
+                ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00019", minAltitude.ToString()), 3.0f, ScreenMessageStyle.UPPER_CENTER);
         }
 
         void DrawWindow(int windowID)
         {
-            GUIContent closeContent = new GUIContent(Textures.BtnRedCross, Locales.FmtLocaleString("#autoLOC_RBodies_00050"));
+            GUIContent closeContent = new GUIContent(Textures.BtnRedCross, Localizer.Format("#autoLOC_RBodies_00050"));
             Rect closeRect = new Rect(windowRect.width - 21, 4, 16, 16);
             if (GUI.Button(closeRect, closeContent, Textures.ClosebtnStyle))
             {
@@ -170,7 +162,7 @@ namespace ResearchBodies
             GUILayout.BeginVertical();
             scrollViewBodiesVector = GUILayout.BeginScrollView(scrollViewBodiesVector, GUILayout.MaxHeight(200f));
             GUILayout.BeginVertical();
-            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00024"), Textures.sectionTitleStyle); //#autoLOC_RBodies_00024 = Available Bodies
+            GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00024"), Textures.sectionTitleStyle); //#autoLOC_RBodies_00024 = Available Bodies
             foreach (var body in Database.instance.CelestialBodies)
             {
                 if (body.Value.isResearched)
@@ -183,8 +175,8 @@ namespace ResearchBodies
 
             scrollViewVector = GUILayout.BeginScrollView(scrollViewVector);
             GUILayout.BeginVertical();
-            GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00021", electricChargeRequest.ToString()));  //#autoLOC_RBodies_00021 = Each use of the Telescope will use <<1>> Electric Charge
-            if (GUILayout.Button(Locales.FmtLocaleString("#autoLOC_RBodies_00022"))) //#autoLOC_RBodies_00022 = Track Bodies
+            GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00021", electricChargeRequest.ToString()));  //#autoLOC_RBodies_00021 = Each use of the Telescope will use <<1>> Electric Charge
+            if (GUILayout.Button(Localizer.Format("#autoLOC_RBodies_00022"))) //#autoLOC_RBodies_00022 = Track Bodies
             {
                 foundBody = false;
                 withParent = false;
@@ -205,7 +197,7 @@ namespace ResearchBodies
                     if (!local)
                     {
                         canResearch = false;
-                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00020", requiredPart), 5.0f, ScreenMessageStyle.UPPER_CENTER); //#autoLOC_RBodies_00020 = The vessel must have a <<1>> part attached to it!
+                        ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00020", requiredPart), 5.0f, ScreenMessageStyle.UPPER_CENTER); //#autoLOC_RBodies_00020 = The vessel must have a <<1>> part attached to it!
                     }
                 }
                 
@@ -277,7 +269,7 @@ namespace ResearchBodies
                     }
                     else  // There wasn't enough EC!
                     {
-                        ScreenMessages.PostScreenMessage(Locales.FmtLocaleString("#autoLOC_RBodies_00048"), 5.0f, ScreenMessageStyle.UPPER_CENTER); //#autoLOC_RBodies_00048 = Not enough Electric Charge to operate the telescope.
+                        ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00048"), 5.0f, ScreenMessageStyle.UPPER_CENTER); //#autoLOC_RBodies_00048 = Not enough Electric Charge to operate the telescope.
                     }
                 }
                 
@@ -296,19 +288,19 @@ namespace ResearchBodies
                 {
                     if (withParent) //And was a parent body also discovered?
                     {
-                        GUILayout.Label(French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName));
-                        GUILayout.Label(French ? Database.instance.CelestialBodies[parentBody].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + parentBody.bodyName));
+                        GUILayout.Label(Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName));
+                        GUILayout.Label(Localizer.Format("#autoLOC_RBodies_discovery_" + parentBody.bodyName));
                     }
                     else
                     {
-                        GUILayout.Label(French ? Database.instance.CelestialBodies[bodyFound].discoveryMessage : Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName));
+                        GUILayout.Label(Localizer.Format("#autoLOC_RBodies_discovery_" + bodyFound.bodyName));
                     }
                 }
                 else  //Nope, didn't find anything.
                 {
                     if (foundBodyTooWeak) //Was there something just out of telescope range?
                     {
-                        GUILayout.Label(Locales.FmtLocaleString("#autoLOC_RBodies_00023"), HighLogic.Skin.label); //#autoLOC_RBodies_00023 = A faint signal has been detected but we need a more powerful Telescope.
+                        GUILayout.Label(Localizer.Format("#autoLOC_RBodies_00023"), HighLogic.Skin.label); //#autoLOC_RBodies_00023 = A faint signal has been detected but we need a more powerful Telescope.
                     }
                     else  //Nope there was absolutely nothing to see here.
                     {

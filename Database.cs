@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using KSP.Localization;
 using RSTUtils;
 using UnityEngine;
 
@@ -28,6 +29,8 @@ namespace ResearchBodies
         public Dictionary<CelestialBody, CelestialBodyInfo> CelestialBodies = new Dictionary<CelestialBody, CelestialBodyInfo>();
         //This is a list of Nothing to See here strings loaded from NOTHING node in database.cfg
         public List<string> NothingHere = new List<string>();
+
+        internal static String PathDatabasePath = System.IO.Path.Combine(RSTLogWriter.AssemblyFolder.Substring(0, RSTLogWriter.AssemblyFolder.IndexOf("/ResearchBodies/") + 16), "database.cfg").Replace("\\", "/");
 
         public int chances;
         public int[] StartResearchCosts, ProgressResearchCosts, ScienceRewards;
@@ -75,8 +78,7 @@ namespace ResearchBodies
         //This is only called by the Startup Menu GUI to show ignored bodies based on the level passed in. 
         public string GetIgnoredBodies(Level l) 
         {
-            Locales.setLocale("");
-            string _bodies = Locales.FmtLocaleString("#autoLOC_RBodies_00030") + " : ";
+            string _bodies = Localizer.Format("#autoLOC_RBodies_00030") + " : ";
             //string _bodies = "";
             List<CelestialBody> TempBodiesList = new List<CelestialBody>();
             for (int i = 0; i < BodyList.Count; i++)
@@ -125,7 +127,6 @@ namespace ResearchBodies
         {
             RSTLogWriter.Log("LoadDatabase");
             //RB_SettingsParms = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>();
-            Locales.setLocale("");
             
             isTSTInstalled = Utilities.IsTSTInstalled;
             if (isTSTInstalled)  //If TST assembly is present, initialise TST wrapper.
@@ -181,7 +182,7 @@ namespace ResearchBodies
 
             //Load the database.cfg file.
             //===========================
-            ConfigNode cfg = ConfigNode.Load(Locales.PathDatabasePath);
+            ConfigNode cfg = ConfigNode.Load(PathDatabasePath);
             string[] sep = new string[] { " " };
 
             Observatorylvl1Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl1range"));
@@ -239,20 +240,7 @@ namespace ResearchBodies
             RSTLogWriter.Log("Chances to get a body is set to {0}" , chances);
             
             RSTLogWriter.Log("Loaded gamemode-related information : enable mod in sandbox = {0}, allow tracking with Tracking station lvl 1 = {1}" , enableInSandbox , allowTSlevel1);
-
-
-            // Load locales for OnDiscovery - Locales are loaded Immediately gamescene. Before this is loaded in MainMenu.
-            if (Locales.currentLocale.LocaleId != "en")
-            {
-                foreach (CelestialBody body in BodyList)
-                {
-                    CelestialBody bodiesKey = ContainsBodiesKey(body.bodyName);
-                    if (Locales.currentLocale.Values.ContainsKey("#autoLOC_RBodies_discovery_" + body.bodyName) && bodiesKey != null)
-                    {
-                        CelestialBodies[bodiesKey].discoveryMessage = Locales.currentLocale.Values["#autoLOC_RBodies_discovery_" + body.bodyName];
-                    }
-                }
-            }
+            
             RSTLogWriter.Flush();
 
         }
@@ -398,21 +386,6 @@ namespace ResearchBodies
                     ResearchBodies.Enabled = RB_SettingsParms.RBEnabled;
                 chances = RB_SettingsParms.DiscoverySeed;
                 allowTSlevel1 = RB_SettingsParms.Enabledtslvl1;
-                if (RB_SettingsParms.french)
-                {
-                    if (Locales.currentLocale.LocaleFull != "Français")
-                    {
-                        Locales.setLocale("Français"); 
-                        if (ResearchBodiesController.instance != null)
-                        {
-                            ResearchBodiesController.instance.French = true;
-                        }
-                    }
-                }
-                else
-                {
-                    Locales.setLocale("");
-                }
                 RSTLogWriter.debuggingOn = HighLogic.CurrentGame.Parameters.CustomParams<ResearchBodies_SettingsParms>().DebugLogging;
             }
             else

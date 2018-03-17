@@ -9,6 +9,7 @@
 */
 using System;
 using System.Collections.Generic;
+using KSP.Localization;
 using UnityEngine;
 using RSTUtils;
 using KSP.UI;
@@ -265,9 +266,9 @@ namespace ResearchBodies
                 newupgradelevels[0].levelCost = 30000f;
                 newupgradelevels[0].levelText = ScriptableObject.CreateInstance<KSCUpgradeableLevelText>();// new KSCUpgradeableLevelText();
                 newupgradelevels[0].levelText.facility = SpaceCenterFacility.TrackingStation; //We can't extend the enum
-                newupgradelevels[0].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                newupgradelevels[0].levelText.textBase = Localizer.Format("#autoLOC_RBodies_00097") + "\n";
                 string rngString1 = KSP.Localization.Localizer.Format("<<1>>", Observatorylvl1Range.ToString("F0"));
-                newupgradelevels[0].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString1);
+                newupgradelevels[0].levelText.textBase += Localizer.Format("#autoLOC_RBodies_00098", rngString1);
                 newupgradelevels[0].levelText.linePrefix = "* ";
                 newupgradelevels[0].levelStats = new Upgradeables.KSCFacilityLevelText();
                 newupgradelevels[0].levelStats.linePrefix = newupgradelevels[0].levelText.linePrefix;
@@ -316,9 +317,9 @@ namespace ResearchBodies
                 newupgradelevels[1].levelCost = 300000f;
                 newupgradelevels[1].levelText = ScriptableObject.CreateInstance<KSCUpgradeableLevelText>();// new KSCUpgradeableLevelText();
                 newupgradelevels[1].levelText.facility = SpaceCenterFacility.TrackingStation; //We can't extend the enum
-                newupgradelevels[1].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                newupgradelevels[1].levelText.textBase = Localizer.Format("#autoLOC_RBodies_00097") + "\n";
                 string rngString2 = KSP.Localization.Localizer.Format("<<1>>", Observatorylvl2Range.ToString("F0"));
-                newupgradelevels[1].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString2);
+                newupgradelevels[1].levelText.textBase += Localizer.Format("#autoLOC_RBodies_00098", rngString2);
                 newupgradelevels[1].levelText.linePrefix = "* ";
                 newupgradelevels[1].levelStats = new Upgradeables.KSCFacilityLevelText();
                 newupgradelevels[1].levelStats.linePrefix = newupgradelevels[1].levelText.linePrefix;
@@ -617,7 +618,7 @@ namespace ResearchBodies
 
         private void GetFacilityStrings()
         {
-            ConfigNode cfg = ConfigNode.Load(Locales.PathDatabasePath);
+            ConfigNode cfg = ConfigNode.Load(Database.PathDatabasePath);
             string[] sep = new string[] { " " };
 
             Observatorylvl1Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl1range"));
@@ -768,18 +769,18 @@ namespace ResearchBodies
 
                 if (lvlStatsNotSet)
                 {
-                    upgradeablefacility.UpgradeLevels[0].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                    upgradeablefacility.UpgradeLevels[0].levelText.textBase = Localizer.Format("#autoLOC_RBodies_00097") + "\n";
                     string rngString1 = KSP.Localization.Localizer.Format("<<1>>", Database.instance.Observatorylvl1Range.ToString("F0"));
-                    upgradeablefacility.UpgradeLevels[0].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString1);
+                    upgradeablefacility.UpgradeLevels[0].levelText.textBase += Localizer.Format("#autoLOC_RBodies_00098", rngString1);
                     upgradeablefacility.UpgradeLevels[0].levelText.linePrefix = "* ";
                     upgradeablefacility.UpgradeLevels[0].levelStats = new Upgradeables.KSCFacilityLevelText();
                     upgradeablefacility.UpgradeLevels[0].levelStats.linePrefix = upgradeablefacility.UpgradeLevels[0].levelText.linePrefix;
                     upgradeablefacility.UpgradeLevels[0].levelStats.facility = SpaceCenterFacility.TrackingStation;
                     upgradeablefacility.UpgradeLevels[0].levelStats.textBase = upgradeablefacility.UpgradeLevels[0].levelText.textBase;
 
-                    upgradeablefacility.UpgradeLevels[1].levelText.textBase = Locales.FmtLocaleString("#autoLOC_RBodies_00097") + "\n";
+                    upgradeablefacility.UpgradeLevels[1].levelText.textBase = Localizer.Format("#autoLOC_RBodies_00097") + "\n";
                     string rngString2 = KSP.Localization.Localizer.Format("<<1>>", Database.instance.Observatorylvl2Range.ToString("F0"));
-                    upgradeablefacility.UpgradeLevels[1].levelText.textBase += Locales.FmtLocaleString("#autoLOC_RBodies_00098", rngString2);
+                    upgradeablefacility.UpgradeLevels[1].levelText.textBase += Localizer.Format("#autoLOC_RBodies_00098", rngString2);
                     upgradeablefacility.UpgradeLevels[1].levelText.linePrefix = "* ";
                     upgradeablefacility.UpgradeLevels[1].levelStats = new Upgradeables.KSCFacilityLevelText();
                     upgradeablefacility.UpgradeLevels[1].levelStats.linePrefix = upgradeablefacility.UpgradeLevels[1].levelText.linePrefix;
@@ -819,8 +820,8 @@ namespace ResearchBodies
                                 {
                                     f.name = "Observatory";
                                     f.facilityName = "Observatory";
-                                    f.buildingInfoName = Locales.FmtLocaleString("#autoLOC_RBodies_00096"); //"Observatory"
-                                    f.buildingDescription = Locales.FmtLocaleString("#autoLOC_RBodies_00099"); // "This is the Observatory where you can view information about the Celestial Bodies in the sky and observe and conduct research on them.";
+                                    f.buildingInfoName = Localizer.Format("#autoLOC_RBodies_00096"); //"Observatory"
+                                    f.buildingDescription = Localizer.Format("#autoLOC_RBodies_00099"); // "This is the Observatory where you can view information about the Celestial Bodies in the sky and observe and conduct research on them.";
                                 });
                             //Copy the TrackingStationTransform position to our new building position and rotation.
                             SpaceCenterObservatory.gameObject.transform.position = upgradeablefacility.transform.position; // trackingstationtransform.position;
@@ -1026,8 +1027,8 @@ namespace ResearchBodies
                 {
                     Vector2 anchormin = new Vector2(0.5f, 0.5f);
                     Vector2 anchormax = new Vector2(0.5f, 0.5f);
-                    string msg = Locales.FmtLocaleString("#autoLOC_RBodies_00100"); //"This Facility is closed.\nResearchBodies is Disabled in this save.";
-                    string title = Locales.FmtLocaleString("#autoLOC_RBodies_00096"); // "Observatory";
+                    string msg = Localizer.Format("#autoLOC_RBodies_00100"); //"This Facility is closed.\nResearchBodies is Disabled in this save.";
+                    string title = Localizer.Format("#autoLOC_RBodies_00096"); // "Observatory";
                     UISkinDef skin = HighLogic.UISkin;
                     DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
                     dialogGUIBase[0] = new DialogGUIButton(KSP.Localization.Localizer.Format("#autoLOC_417274"), delegate //"Ok"
@@ -1045,8 +1046,8 @@ namespace ResearchBodies
             {
                 Vector2 anchormin = new Vector2(0.5f, 0.5f);
                 Vector2 anchormax = new Vector2(0.5f, 0.5f);
-                string msg = Locales.FmtLocaleString("#autoLOC_RBodies_00101"); // "This Facility is closed.\nTrackingStation must be Level 2 or 3.";
-                string title = Locales.FmtLocaleString("#autoLOC_RBodies_00096"); //"Observatory";
+                string msg = Localizer.Format("#autoLOC_RBodies_00101"); // "This Facility is closed.\nTrackingStation must be Level 2 or 3.";
+                string title = Localizer.Format("#autoLOC_RBodies_00096"); //"Observatory";
                 UISkinDef skin = HighLogic.UISkin;
                 DialogGUIBase[] dialogGUIBase = new DialogGUIBase[1];
                 dialogGUIBase[0] = new DialogGUIButton(KSP.Localization.Localizer.Format("#autoLOC_417274"), delegate //"Ok"

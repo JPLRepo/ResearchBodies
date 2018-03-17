@@ -1,4 +1,10 @@
-﻿V1.9.6 (10-07-2017) ==
+﻿V1.9.7 (03-16-2018) ==
+*Re-Compile for KSP 1.4.1
+*Implement caching of textures (thanks to AlexALX for their contribution)
+*Russian Localization (thanks to AlexALX for their contribution)
+*Removed custom French localization, now uses the KSP Stock Localization for French.
+*Contract Configurator dependency updated. You must have Contract Configurator v 1.24.0 installed for this mod to work.
+V1.9.6 (10-07-2017) ==
 *Re-Compile for KSP 1.3.1
 *Fixed orbiting text in Observatory. The sun no longer orbits the sun.
 *Fixed the research complete message always saying you can now send a vessel to the the bodies parent body. Now shows the correct one.
