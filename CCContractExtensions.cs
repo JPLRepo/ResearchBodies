@@ -17,6 +17,7 @@ using UnityEngine;
 using ContractConfigurator;
 using Contracts;
 using RSTUtils;
+using Random = UnityEngine.Random;
 
 namespace ResearchBodies
 {
@@ -367,15 +368,21 @@ namespace ResearchBodies
 
         protected override void OnCompleted()
         {
+            List<CelestialBody> PotentialDiscovery = new List<CelestialBody>();
             foreach (CelestialBody body in Database.instance.BodyList)
             {
                 if (!Database.instance.CelestialBodies[body].isResearched && RBRange.WithinObsRange(body.transform))
                 {
-                    bool withParent;
-                    CelestialBody parentBody;
-                    ResearchBodiesController.FoundBody(Database.instance.RB_SettingsParms.ScienceReward, body, out withParent, out parentBody);
-                    return;
+                    PotentialDiscovery.Add(body);
                 }
+            }
+            if (PotentialDiscovery.Count > 0)
+            {
+                int discovered = Random.Range(0, PotentialDiscovery.Count - 1);
+                bool withParent;
+                CelestialBody parentBody;
+                ResearchBodiesController.FoundBody(Database.instance.RB_SettingsParms.ScienceReward, PotentialDiscovery[discovered], out withParent, out parentBody);
+                return;
             }
             Vector2 anchormin = new Vector2(0.5f, 0.5f);
             Vector2 anchormax = new Vector2(0.5f, 0.5f);

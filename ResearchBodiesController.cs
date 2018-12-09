@@ -52,11 +52,6 @@ namespace ResearchBodies
             }
             enable = ResearchBodies.Enabled;
             
-            //Create Instructor
-            instructor_Werner = new ResearchBodiesInstructor("Instructor_Wernher");
-            instructor_Linus = new ResearchBodiesInstructor("Strategy_ScienceGuy");
-            instructor_Werner.Instructor.enabled = false;
-            instructor_Linus.Instructor.enabled = false;
             //Register for Contract On offerred so we can remove ones that are for bodies not yet tracked.
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Add(CheckContracts);
@@ -89,10 +84,16 @@ namespace ResearchBodies
 
         public void OnDestroy()
         {
-            instructor_Werner.Destroy();
+            if (instructor_Werner != null)
+            {
+                instructor_Werner.Destroy();
+            }
             if (instructor_Werner.Instructor != null)
                 Destroy(instructor_Werner.Instructor.gameObject);
-            instructor_Linus.Destroy();
+            if (instructor_Linus != null)
+            {
+                instructor_Linus.Destroy();
+            }
             if (instructor_Linus.Instructor != null)
                 Destroy(instructor_Linus.Instructor.gameObject);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);

@@ -294,14 +294,45 @@ namespace ResearchBodies
 
         public void OnGUI()
         {
-            if (!enable)
+            if (!enable || !showGUI)
             {
-                instructor_Werner.Instructor.enabled = false;
-                instructor_Linus.Instructor.enabled = false;
+                if (instructor_Werner != null && instructor_Werner.Instructor != null)
+                {
+                    Destroy(instructor_Werner.Instructor.gameObject);
+                }
+                if (instructor_Werner != null)
+                {
+                    instructor_Werner.Destroy();
+                    instructor_Werner = null;
+                }
+                if (instructor_Linus != null && instructor_Linus.Instructor != null)
+                {
+                    Destroy(instructor_Linus.Instructor.gameObject);
+                }
+                if (instructor_Linus != null)
+                {
+                    instructor_Linus.Destroy();
+                    instructor_Linus = null;
+                }
                 return;
             }
-            instructor_Werner.Instructor.enabled = true;
-            instructor_Linus.Instructor.enabled = true;
+            //Create Instructor
+            if (instructor_Werner == null || instructor_Werner != null && instructor_Werner.Instructor == null)
+            {
+                instructor_Werner = new ResearchBodiesInstructor("Instructor_Wernher");
+            }
+            if (instructor_Werner != null && instructor_Werner.Instructor != null)
+            {
+                instructor_Werner.Instructor.enabled = true;
+            }
+            if (instructor_Linus == null || instructor_Linus != null && instructor_Linus.Instructor == null)
+            {
+                instructor_Linus = new ResearchBodiesInstructor("Strategy_ScienceGuy");
+            }
+            if (instructor_Linus != null && instructor_Linus.Instructor != null)
+            {
+                instructor_Linus.Instructor.enabled = true;
+            }
             try
             {
                 if (!Textures.StylesSet) Textures.SetupStyles();
@@ -319,9 +350,7 @@ namespace ResearchBodies
                 observRect = GUILayout.Window(_RBwindowId + 1, observRect, DrawObservDebug, "Research Bodies");
             }
             #endif
-                        
-            if (!showGUI) return;
-
+            
             if (PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityDamage() > 0)
             {
                 ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00018"), 3.0f, ScreenMessageStyle.UPPER_CENTER);
