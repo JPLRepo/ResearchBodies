@@ -132,6 +132,8 @@ namespace ResearchBodies
             {
                 if (showGUI && ResearchBodies.Enabled)
                 {
+                    Textures.SetupStyles(); //Load textures if not loaded already
+
                     GUI.skin = HighLogic.Skin;
                     windowRect.ClampToScreen();
                     windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Localizer.Format("#autoLOC_RBodies_00026"));

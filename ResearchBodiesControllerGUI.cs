@@ -333,15 +333,8 @@ namespace ResearchBodies
             {
                 instructor_Linus.Instructor.enabled = true;
             }
-            try
-            {
-                if (!Textures.StylesSet) Textures.SetupStyles();
-            }
-            catch (Exception ex)
-            {
-                RSTLogWriter.Log("Unable to set GUI Styles to draw the GUI");
-                RSTLogWriter.Log("Exception: {0}", ex);
-            }
+
+            Textures.SetupStyles(); //Load textures if not loaded already
 
             GUI.skin = Textures.ObsSkin;
             #if DEBUGFACILITY

@@ -93,103 +93,113 @@ namespace ResearchBodies
 
         internal static void SetupStyles()
         {
-            if (HighLogic.Skin != null)
+            if (Textures.StylesSet)
+                return; //skip if already loaded
+
+            try
             {
-                GUI.skin = HighLogic.Skin;
-                ObsSkin = GameObject.Instantiate(HighLogic.Skin);
-                ObsSkin.window.normal.background = ObsWinBgnd;
-                ObsSkin.window.active.background = ObsWinBgnd;
-                ObsSkin.window.onActive.background = ObsWinBgnd;
-                ObsSkin.window.onNormal.background = ObsWinBgnd;
-                ObsSkin.window.onFocused.background = ObsWinBgnd;
-                Debug.Log("Highlogic.Skin Applied");
+                if (HighLogic.Skin != null)
+                {
+                    GUI.skin = HighLogic.Skin;
+                    ObsSkin = GameObject.Instantiate(HighLogic.Skin);
+                    ObsSkin.window.normal.background = ObsWinBgnd;
+                    ObsSkin.window.active.background = ObsWinBgnd;
+                    ObsSkin.window.onActive.background = ObsWinBgnd;
+                    ObsSkin.window.onNormal.background = ObsWinBgnd;
+                    ObsSkin.window.onFocused.background = ObsWinBgnd;
+                    Debug.Log("Highlogic.Skin Applied");
+                }
+                else
+                {
+
+                }
+
+
+                //Init styles
+
+                Utilities._TooltipStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 12,
+                    fontStyle = FontStyle.Normal,
+                    stretchHeight = true,
+                    wordWrap = true,
+                    border = new RectOffset(3, 3, 3, 3),
+                    padding = new RectOffset(4, 4, 6, 4),
+                    alignment = TextAnchor.MiddleCenter
+                };
+                Utilities._TooltipStyle.normal.background = TooltipBox;
+                Utilities._TooltipStyle.normal.textColor = new Color32(207, 207, 207, 255);
+                Utilities._TooltipStyle.hover.textColor = Color.blue;
+
+                ClosebtnStyle = new GUIStyle(GUI.skin.button)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fixedWidth = 20,
+                    fixedHeight = 20,
+                    fontSize = 14,
+                    fontStyle = FontStyle.Normal
+                };
+                ClosebtnStyle.active.background = GUI.skin.toggle.onNormal.background;
+                ClosebtnStyle.onActive.background = ClosebtnStyle.active.background;
+                ClosebtnStyle.padding = Utilities.SetRectOffset(ClosebtnStyle.padding, 3);
+
+                ResizeStyle = new GUIStyle(GUI.skin.button)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fixedWidth = 20,
+                    fixedHeight = 20,
+                    fontSize = 14,
+                    fontStyle = FontStyle.Normal
+                };
+                ResizeStyle.onActive.background = ClosebtnStyle.active.background;
+                ResizeStyle.padding = Utilities.SetRectOffset(ClosebtnStyle.padding, 3);
+
+                //Init styles
+                sectionTitleStyle = new GUIStyle(GUI.skin.label);
+                sectionTitleStyle.alignment = TextAnchor.MiddleCenter;
+                sectionTitleStyle.stretchWidth = true;
+                sectionTitleStyle.fontStyle = FontStyle.Bold;
+
+                statusStyle = new GUIStyle(GUI.skin.label);
+                statusStyle.alignment = TextAnchor.MiddleLeft;
+                statusStyle.stretchWidth = true;
+                statusStyle.normal.textColor = Color.white;
+
+                warningStyle = new GUIStyle(GUI.skin.label);
+                warningStyle.alignment = TextAnchor.MiddleLeft;
+                warningStyle.stretchWidth = true;
+                warningStyle.fontStyle = FontStyle.Bold;
+                warningStyle.normal.textColor = Color.red;
+
+                subsystemButtonStyle = new GUIStyle(GUI.skin.toggle);
+                subsystemButtonStyle.margin.top = 0;
+                subsystemButtonStyle.margin.bottom = 0;
+                subsystemButtonStyle.padding.top = 0;
+                subsystemButtonStyle.padding.bottom = 0;
+
+                scrollStyle = new GUIStyle(GUI.skin.scrollView);
+
+                PartListStyle = new GUIStyle(GUI.skin.label);
+                PartListStyle.alignment = TextAnchor.MiddleLeft;
+                PartListStyle.stretchWidth = false;
+                PartListStyle.normal.textColor = Color.yellow;
+
+                PartListPartStyle = new GUIStyle(GUI.skin.label);
+                PartListPartStyle.alignment = TextAnchor.LowerLeft;
+                PartListPartStyle.stretchWidth = false;
+                PartListPartStyle.normal.textColor = Color.white;
+
+                resizeStyle = new GUIStyle(GUI.skin.button);
+                resizeStyle.alignment = TextAnchor.MiddleCenter;
+                resizeStyle.padding = new RectOffset(1, 1, 1, 1);
+
+                StylesSet = true;
             }
-            else
+            catch (Exception ex)
             {
-                
+                RSTLogWriter.Log("Unable to set GUI Styles to draw the GUI");
+                RSTLogWriter.Log("Exception: {0}", ex);
             }
-
-
-            //Init styles
-
-            Utilities._TooltipStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 12,
-                fontStyle = FontStyle.Normal,
-                stretchHeight = true,
-                wordWrap = true,
-                border = new RectOffset(3, 3, 3, 3),
-                padding = new RectOffset(4, 4, 6, 4),
-                alignment = TextAnchor.MiddleCenter
-            };
-            Utilities._TooltipStyle.normal.background = TooltipBox;
-            Utilities._TooltipStyle.normal.textColor = new Color32(207, 207, 207, 255);
-            Utilities._TooltipStyle.hover.textColor = Color.blue;
-
-            ClosebtnStyle = new GUIStyle(GUI.skin.button)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fixedWidth = 20,
-                fixedHeight = 20,
-                fontSize = 14,
-                fontStyle = FontStyle.Normal
-            };
-            ClosebtnStyle.active.background = GUI.skin.toggle.onNormal.background;
-            ClosebtnStyle.onActive.background = ClosebtnStyle.active.background;
-            ClosebtnStyle.padding = Utilities.SetRectOffset(ClosebtnStyle.padding, 3);
-
-            ResizeStyle = new GUIStyle(GUI.skin.button)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fixedWidth = 20,
-                fixedHeight = 20,
-                fontSize = 14,
-                fontStyle = FontStyle.Normal
-            };
-            ResizeStyle.onActive.background = ClosebtnStyle.active.background;
-            ResizeStyle.padding = Utilities.SetRectOffset(ClosebtnStyle.padding, 3);
-
-            //Init styles
-            sectionTitleStyle = new GUIStyle(GUI.skin.label);
-            sectionTitleStyle.alignment = TextAnchor.MiddleCenter;
-            sectionTitleStyle.stretchWidth = true;
-            sectionTitleStyle.fontStyle = FontStyle.Bold;
-
-            statusStyle = new GUIStyle(GUI.skin.label);
-            statusStyle.alignment = TextAnchor.MiddleLeft;
-            statusStyle.stretchWidth = true;
-            statusStyle.normal.textColor = Color.white;
-
-            warningStyle = new GUIStyle(GUI.skin.label);
-            warningStyle.alignment = TextAnchor.MiddleLeft;
-            warningStyle.stretchWidth = true;
-            warningStyle.fontStyle = FontStyle.Bold;
-            warningStyle.normal.textColor = Color.red;
-
-            subsystemButtonStyle = new GUIStyle(GUI.skin.toggle);
-            subsystemButtonStyle.margin.top = 0;
-            subsystemButtonStyle.margin.bottom = 0;
-            subsystemButtonStyle.padding.top = 0;
-            subsystemButtonStyle.padding.bottom = 0;
-
-            scrollStyle = new GUIStyle(GUI.skin.scrollView);
-
-            PartListStyle = new GUIStyle(GUI.skin.label);
-            PartListStyle.alignment = TextAnchor.MiddleLeft;
-            PartListStyle.stretchWidth = false;
-            PartListStyle.normal.textColor = Color.yellow;
-
-            PartListPartStyle = new GUIStyle(GUI.skin.label);
-            PartListPartStyle.alignment = TextAnchor.LowerLeft;
-            PartListPartStyle.stretchWidth = false;
-            PartListPartStyle.normal.textColor = Color.white;
-
-            resizeStyle = new GUIStyle(GUI.skin.button);
-            resizeStyle.alignment = TextAnchor.MiddleCenter;
-            resizeStyle.padding = new RectOffset(1, 1, 1, 1);
-
-            StylesSet = true;
-
         }
     }
 }
