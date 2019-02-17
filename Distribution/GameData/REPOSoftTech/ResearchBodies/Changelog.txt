@@ -1,4 +1,6 @@
-﻿V1.9.8 (12-09-2018) ==
+﻿V1.9.8 (02-17-2019) ==
+*Re-compile for KSP 1.6.1
+V1.9.8 (12-09-2018) ==
 *Re-compile for KSP 1.5.1
 *The Search for the skies contract will now randomly discover a body within observable range. https://github.com/JPLRepo/ResearchBodies/issues/34
 *Fixed issue with Wernher instructor portrait appearing double. https://github.com/JPLRepo/ResearchBodies/issues/36
