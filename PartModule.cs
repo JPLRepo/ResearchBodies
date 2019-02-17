@@ -13,6 +13,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using KSP.Localization;
@@ -132,6 +133,15 @@ namespace ResearchBodies
             {
                 if (showGUI && ResearchBodies.Enabled)
                 {
+                    try
+                    {
+                        if (!Textures.StylesSet) Textures.SetupStyles();
+                    }
+                    catch (Exception ex)
+                    {
+                        RSTLogWriter.Log("Unable to set GUI Styles to draw the GUI");
+                        RSTLogWriter.Log("Exception: {0}", ex);
+                    }
                     GUI.skin = HighLogic.Skin;
                     windowRect.ClampToScreen();
                     windowRect = GUILayout.Window(_partwindowID, windowRect, DrawWindow, Localizer.Format("#autoLOC_RBodies_00026"));
