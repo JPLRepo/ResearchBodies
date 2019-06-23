@@ -865,7 +865,7 @@ namespace ResearchBodies
                     ObservatoryGo.transform.SetParent(facilityParent.gameObject.transform, true);
                     ObservatoryGo.transform.position = trackingstationtransform.position;
                     ObservatoryGo.transform.rotation = trackingstationtransform.rotation;
-                    DontDestroyOnLoad(ObservatoryGo);
+                    //DontDestroyOnLoad(ObservatoryGo);
                     return ObservatoryGo;
                 }
                 else
