@@ -86,16 +86,17 @@ namespace ResearchBodies
         {
             if (instructor_Werner != null)
             {
+                if (instructor_Werner.Instructor != null)
+                    Destroy(instructor_Werner.Instructor.gameObject);
                 instructor_Werner.Destroy();
             }
-            if (instructor_Werner.Instructor != null)
-                Destroy(instructor_Werner.Instructor.gameObject);
+            
             if (instructor_Linus != null)
             {
+                if (instructor_Linus.Instructor != null)
+                    Destroy(instructor_Linus.Instructor.gameObject);
                 instructor_Linus.Destroy();
             }
-            if (instructor_Linus.Instructor != null)
-                Destroy(instructor_Linus.Instructor.gameObject);
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
             GameEvents.onScreenResolutionModified.Remove(onScreenResolutionModified);
             GameEvents.OnMapEntered.Remove(onMapEntered);
