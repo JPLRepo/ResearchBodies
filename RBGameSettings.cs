@@ -11,8 +11,10 @@
  *
  *
  */
+
+//using System.CodeDom;
 using System.IO;
-using System.Linq;
+//using System.Linq;
 using RSTUtils;
 
 namespace ResearchBodies
@@ -33,6 +35,7 @@ namespace ResearchBodies
         private bool enableInSandbox;
         private bool allowTSlevel1;
         private bool foundOldSettings;
+        public double lastTimeCheckedSOIs;
         
 
         public RBGameSettings()
@@ -48,6 +51,7 @@ namespace ResearchBodies
             enableInSandbox = false;
             allowTSlevel1 = false;
             foundOldSettings = false;
+            lastTimeCheckedSOIs = 0;
         }
 
         public void Load(ConfigNode node)
@@ -69,6 +73,7 @@ namespace ResearchBodies
                     foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("chances", ref chances);
                     foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("enableInSandbox", ref enableInSandbox);
                     foundOldSettings = foundOldSettings || RBsettingsNode.TryGetValue("allowTSlevel1", ref allowTSlevel1);
+                    RBsettingsNode.TryGetValue("lastTimeCheckedSOIs", ref lastTimeCheckedSOIs);
 
                     var bodyNodes = RBsettingsNode.GetNodes(CelestialBodyInfo.ConfigNodeName);
                     foreach (ConfigNode bodyNode in bodyNodes)
@@ -76,7 +81,15 @@ namespace ResearchBodies
                         if (bodyNode.HasValue("body"))
                         {
                             CelestialBodyInfo bodyInfo = CelestialBodyInfo.Load(bodyNode);
-                            CelestialBody CB = FlightGlobals.Bodies.FirstOrDefault(a => a.bodyName == bodyInfo.body);
+                            CelestialBody CB = null;
+                            for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
+                            {
+                                if (FlightGlobals.Bodies[i].bodyName == bodyInfo.body)
+                                {
+                                    CB = FlightGlobals.Bodies[i];
+                                    break;
+                                }
+                            }
                             if (CB != null)
                             {
                                 Database.instance.CelestialBodies[CB].isResearched = bodyInfo.isResearched;
@@ -87,7 +100,15 @@ namespace ResearchBodies
                             {
                                 if (Database.instance.isTSTInstalled)
                                 {
-                                    CelestialBody GalCB = TSTWrapper.actualTSTAPI.CBGalaxies.FirstOrDefault(a => a.bodyName == bodyInfo.body);
+                                    CelestialBody GalCB = null;
+                                    for (int i = 0; i < TSTWrapper.actualTSTAPI.CBGalaxies.Count; i++)
+                                    {
+                                        if (TSTWrapper.actualTSTAPI.CBGalaxies[i].bodyName == bodyInfo.body)
+                                        {
+                                            GalCB = TSTWrapper.actualTSTAPI.CBGalaxies[i];
+                                            break;
+                                        }
+                                    }
                                     if (GalCB != null)
                                     {
                                         CelestialBody cbKey = Database.instance.ContainsBodiesKey(GalCB.bodyName);
@@ -104,6 +125,19 @@ namespace ResearchBodies
                     }
                     //if (Difficulty == 0) //If difficult == 0 user somehow hasn't selected new game difficulty. So show the startup UI.
                     //    ResearchBodiesController.instance.showStartUI = true;
+                    ConfigNode vslsSOINode = new ConfigNode();
+                    if (RBsettingsNode.TryGetNode("VESSELSINSOI", ref vslsSOINode))
+                    {
+                        ConfigNode[] cbSOINodes = vslsSOINode.GetNodes(CBVesselSOIInfo.ConfigNodeName);
+                        foreach (ConfigNode cbNode in cbSOINodes)
+                        {
+                            CBVesselSOIInfo cbSoiInfo = CBVesselSOIInfo.Load(cbNode);
+                            if (cbSoiInfo != null)
+                            {
+                                Database.instance.VesselsInSOI.Add(cbSoiInfo.body, cbSoiInfo);
+                            }
+                        }
+                    }
                 }
                 else  //No config node, so Must be NEW Game!
                 {
@@ -210,11 +244,28 @@ namespace ResearchBodies
                 settingsNode = node.AddNode(configNodeName);
             }
 
+            node.AddValue("lastTimeCheckedSOIs", lastTimeCheckedSOIs);
+
             foreach (var entry in Database.instance.CelestialBodies)
             {
                 ConfigNode CBNode = entry.Value.Save(settingsNode);
                 Utilities.Log_Debug("RBGameSettings Saving Entry = {0}", entry.Key.bodyName);                
             }
+
+            if (Database.instance.VesselsInSOI.Count > 0)
+            {
+                ConfigNode cbSOINode = settingsNode.AddNode("VESSELSINSOI");
+                var dictEnum = Database.instance.VesselsInSOI.GetEnumerator();
+                while (dictEnum.MoveNext())
+                {
+                    var entry = dictEnum.Current;
+                    ConfigNode vesselSOINode = entry.Value.Save(cbSOINode);
+                    Utilities.Log_Debug("RBGameSettings Saving Vessel in SOI Entry = {0}", entry.Key);
+                }
+
+                dictEnum.Dispose();
+            }
+
             RSTLogWriter.Log("RBGameSettings Saving Complete");
             RSTLogWriter.Flush();
         }

@@ -14,7 +14,7 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using KSP.Localization;
 using RSTUtils;
 using UnityEngine;
@@ -40,12 +40,14 @@ namespace ResearchBodies
         public float Observatorylvl1Range;
         public float Observatorylvl2Range;
         public bool AllowOldResearchinCareer;
+        public int DiscoveryByFlyby;
 
         /// <summary>
         /// Tarsier Space Tech Interface fields
         /// </summary>
         internal bool isTSTInstalled = false;
-        public List<CelestialBody> BodyList = new List<CelestialBody>();
+        public List<CelestialBody> BodyList;
+        public Dictionary<string, CBVesselSOIInfo> VesselsInSOI;
 
         public void Awake()
         {
@@ -60,6 +62,8 @@ namespace ResearchBodies
             GameEvents.onGameStatePostLoad.Add(onGameStatePostLoad);
             GameEvents.OnGameSettingsApplied.Add(ApplySettings);
             //GameEvents.onGameStateLoad.Add(ApplySettings);
+            BodyList = new List<CelestialBody>();
+            VesselsInSOI = new Dictionary<string, CBVesselSOIInfo>();
         }
 
         public void Start()
@@ -140,10 +144,16 @@ namespace ResearchBodies
             Textures.LoadIconAssets();
 
             //Get a list of CBs
-            BodyList = FlightGlobals.Bodies.ToList(); 
+            for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
+            {
+                BodyList.Add(FlightGlobals.Bodies[i]);
+            }
             if (isTSTInstalled && TSTWrapper.APITSTReady) //If TST is installed add the TST Galaxies to the list.
             {
-                BodyList = BodyList.Concat(TSTWrapper.actualTSTAPI.CBGalaxies).ToList();
+                for (int i = 0; i < TSTWrapper.actualTSTAPI.CBGalaxies.Count; i++)
+                {
+                    BodyList.Add(TSTWrapper.actualTSTAPI.CBGalaxies[i]);
+                }
             }
 
             //Process Kopernicus Barycenter's.
@@ -164,42 +174,63 @@ namespace ResearchBodies
                 CelestialBodies.Add(body, bodyinfo);
             }
             //Now we look back through any CBs that were related to a barycenter body.
-            foreach (var CB in CelestialBodies.Where(a => a.Value.KOPrelbarycenterBody != null))
+            var dictEnum = CelestialBodies.GetEnumerator();
+            while (dictEnum.MoveNext())
             {
-                //So does this body have any orbitingBodies?
-                //If it does we need to somehow find and link any related Orbit Body.
-                foreach (CelestialBody orbitingBody in CB.Key.orbitingBodies)
+                var entry = dictEnum.Current;
+                if (entry.Value.KOPrelbarycenterBody != null)
                 {
-                    CelestialBody findOrbitBody =
-                        FlightGlobals.Bodies.FirstOrDefault(a => a.name.Contains(CB.Key.name) && a.name.Contains(orbitingBody.name) && a.name.Contains("Orbit"));
-                    //so if we found the related Orbit body we store it into the CelestialBodies dictionary.
-                    if (findOrbitBody != null)
+                    //So does this body have any orbitingBodies?
+                    //If it does we need to somehow find and link any related Orbit Body.
+                    foreach (CelestialBody orbitingBody in entry.Key.orbitingBodies)
                     {
-                        CelestialBodies[orbitingBody].KOPrelbarycenterBody = findOrbitBody;
+                        CelestialBody findOrbitBody = null;
+                        for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
+                        {
+                            if (FlightGlobals.Bodies[i].name.Contains(entry.Key.name) && FlightGlobals.Bodies[i].name.Contains(orbitingBody.name) && FlightGlobals.Bodies[i].name.Contains("Orbit"))
+                            {
+                                findOrbitBody = FlightGlobals.Bodies[i];
+                                break;
+                            }
+                        }
+                        //so if we found the related Orbit body we store it into the CelestialBodies dictionary.
+                        if (findOrbitBody != null)
+                        {
+                            CelestialBodies[orbitingBody].KOPrelbarycenterBody = findOrbitBody;
+                        }
                     }
                 }
             }
 
+            dictEnum.Dispose();
+            
             //Load the database.cfg file.
             //===========================
             ConfigNode cfg = ConfigNode.Load(PathDatabasePath);
             string[] sep = new string[] { " " };
+            ConfigNode researchBodies = cfg.GetNode("RESEARCHBODIES");
+            if (researchBodies == null)
+            {
+                RSTLogWriter.Log("Failed to find Database.cfg RESEARCHBODIES node.");
+                return;
+            }
 
-            Observatorylvl1Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl1range"));
-            Observatorylvl2Range = float.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("observatorylvl2range"));
-            AllowOldResearchinCareer = bool.Parse(cfg.GetNode("RESEARCHBODIES").GetValue("allowOldResearchinCareer"));
+            Observatorylvl1Range = float.Parse(researchBodies.GetValue("observatorylvl1range"));
+            Observatorylvl2Range = float.Parse(researchBodies.GetValue("observatorylvl2range"));
+            AllowOldResearchinCareer = bool.Parse(researchBodies.GetValue("allowOldResearchinCareer"));
+            DiscoveryByFlyby = int.Parse(researchBodies.GetValue("discoveryByFlyby"));
 
             //Get Costs
             string[] _startResearchCosts;
-            _startResearchCosts = cfg.GetNode("RESEARCHBODIES").GetValue("StartResearchCosts").Split(sep, StringSplitOptions.RemoveEmptyEntries);
+            _startResearchCosts = researchBodies.GetValue("StartResearchCosts").Split(sep, StringSplitOptions.RemoveEmptyEntries);
             StartResearchCosts = new int[] { int.Parse(_startResearchCosts[0]), int.Parse(_startResearchCosts[1]), int.Parse(_startResearchCosts[2]), int.Parse(_startResearchCosts[3]) };
 
             string[] _progressResearchCosts;
-            _progressResearchCosts = cfg.GetNode("RESEARCHBODIES").GetValue("ProgressResearchCosts").Split(sep, StringSplitOptions.RemoveEmptyEntries);
+            _progressResearchCosts = researchBodies.GetValue("ProgressResearchCosts").Split(sep, StringSplitOptions.RemoveEmptyEntries);
             ProgressResearchCosts = new int[] { int.Parse(_progressResearchCosts[0]), int.Parse(_progressResearchCosts[1]), int.Parse(_progressResearchCosts[2]), int.Parse(_progressResearchCosts[3]) };
 
             string[] _scienceRewards;
-            _scienceRewards = cfg.GetNode("RESEARCHBODIES").GetValue("ScienceRewards").Split(sep, StringSplitOptions.RemoveEmptyEntries);
+            _scienceRewards = researchBodies.GetValue("ScienceRewards").Split(sep, StringSplitOptions.RemoveEmptyEntries);
             ScienceRewards = new int[] { int.Parse(_scienceRewards[0]), int.Parse(_scienceRewards[1]), int.Parse(_scienceRewards[2]), int.Parse(_scienceRewards[3]) };
 
             RSTLogWriter.Log("Loading Priority database");
@@ -215,7 +246,7 @@ namespace ResearchBodies
 
             //Load the IgnoreData dictionary.
             RSTLogWriter.Log("Loading ignore body list from database");
-            foreach (ConfigNode.Value value in cfg.GetNode("RESEARCHBODIES").GetNode("IGNORELEVELS").values)
+            foreach (ConfigNode.Value value in researchBodies.GetNode("IGNORELEVELS").values)
             {
                 foreach (CelestialBody body in BodyList)
                 {

@@ -15,7 +15,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
+using UniLinq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -32,8 +33,8 @@ namespace RSTUtils
 		SPACECENTER = 3,
 		OTHER = 4
 	}
-
-	internal static class Utilities
+    
+    internal static class Utilities
 	{
 		public static int randomSeed = new Random().Next();
 		private static int _nextrandomInt = randomSeed;        
@@ -140,8 +141,16 @@ namespace RSTUtils
 		}
 
 		public static double DistanceFromHomeWorld(string bodyname)
-		{
-			CelestialBody body = FlightGlobals.Bodies.FirstOrDefault(a => a.name == bodyname);
+        {
+            CelestialBody body = null;
+            for (int i = 0; i < FlightGlobals.Bodies.Count; i++)
+            {
+                if (FlightGlobals.Bodies[i].name == bodyname)
+                {
+                    body = FlightGlobals.Bodies[i];
+                    break;
+                }
+            }
 			if (body == null) body = Planetarium.fetch.Home;
 			Vector3d bodyPos = body.getPositionAtUT(0);
 			CelestialBody HmePlanet = Planetarium.fetch.Home;

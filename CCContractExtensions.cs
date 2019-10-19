@@ -14,11 +14,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if (CC)
 using ContractConfigurator;
+#endif
 using Contracts;
 using RSTUtils;
 using Random = UnityEngine.Random;
 
+#if (CC)
 namespace ResearchBodies
 {
     /*
@@ -607,3 +610,4 @@ namespace ResearchBodies
         }
     }   
 }
+#endif

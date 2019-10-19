@@ -13,7 +13,7 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using UnityEngine;
 using Contracts;
 using KSP.Localization;
@@ -31,6 +31,10 @@ namespace ResearchBodies
 
         private ResearchBodiesInstructor instructor_Werner;
         private ResearchBodiesInstructor instructor_Linus;
+        private double oneWeek;
+        private double oneMonth;
+        private int lvl1InSoiPercentage = 10;
+        private int lvl2InSoiPercentage = 15;
         
         public void Awake()
         {
@@ -66,6 +70,7 @@ namespace ResearchBodies
             {
                 SetBodyDiscoveryLevels();
                 GameEvents.onVesselSOIChanged.Add(onVesselSOIChanged);
+                GameEvents.onVesselPersistentIdChanged.Add(onVesselPersistentIdChanged);
                 Utilities.setScaledScreen();
                 windowRect = new Rect(1, 1, Utilities.scaledScreenWidth-2, Utilities.scaledScreenHeight-2);
                 GameEvents.onScreenResolutionModified.Add(onScreenResolutionModified);
@@ -74,12 +79,21 @@ namespace ResearchBodies
                 {
                     onMapEntered();
                 }
+
+                CheckVesselsSOI();
             }
             else
             {
                 Database.instance.ResetBodyVisibilities();
                 SetBodyDiscoveryLevels();
             }
+
+            if (ResearchBodies.Instance.RBgameSettings.lastTimeCheckedSOIs <= 0)
+            {
+                ResearchBodies.Instance.RBgameSettings.lastTimeCheckedSOIs = Planetarium.GetUniversalTime();
+            }
+            oneWeek = KSPUtil.dateTimeFormatter.Day * 7;
+            oneMonth = KSPUtil.dateTimeFormatter.Day * 7 * 4;
         }
 
         public void OnDestroy()
@@ -98,12 +112,66 @@ namespace ResearchBodies
                 instructor_Linus.Destroy();
             }
             GameEvents.onVesselSOIChanged.Remove(onVesselSOIChanged);
+            GameEvents.onVesselPersistentIdChanged.Remove(onVesselPersistentIdChanged);
             GameEvents.onScreenResolutionModified.Remove(onScreenResolutionModified);
             GameEvents.OnMapEntered.Remove(onMapEntered);
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 GameEvents.Contract.onOffered.Remove(CheckContracts);
         }
-        
+
+        public void FixedUpdate()
+        {
+            if (!enable)
+            {
+                return;
+            }
+            //We only do this every one week of elapsed game time.
+            double currentTime = Planetarium.GetUniversalTime();
+            if (currentTime - ResearchBodies.Instance.RBgameSettings.lastTimeCheckedSOIs > oneWeek)
+            {
+                List<string> itemsToRemove = new List<string>();
+                var dictEnum = Database.instance.VesselsInSOI.GetEnumerator();
+                while (dictEnum.MoveNext())
+                {
+                    var entry = dictEnum.Current;
+                    CelestialBody body = FlightGlobals.GetBodyByName(entry.Key);
+                    if (body == null)
+                    {
+                        itemsToRemove.Add(entry.Key);
+                        continue;
+                    }
+                    if (Database.instance.CelestialBodies[body].researchState >= 100)
+                    {
+                        itemsToRemove.Add(entry.Key);
+                        continue;
+                    }
+                    
+                    for (int i = 0; i < entry.Value.vesselSOIInfo.Count; i++)
+                    {
+                        if (currentTime - entry.Value.vesselSOIInfo[i].timeEnteredSoi > oneMonth)
+                        {
+                            int level = Mathf.RoundToInt(ScenarioUpgradeableFacilities.GetFacilityLevel("Observatory") + 1);
+                            int percentage = lvl1InSoiPercentage;
+                            if (level == 2)
+                            {
+                                percentage = lvl2InSoiPercentage;
+                            }
+
+                            Research(body, percentage);
+                            entry.Value.SetVesselTimes(currentTime);
+                        }
+                    }
+                }
+                dictEnum.Dispose();
+
+                for (int i = 0; i < itemsToRemove.Count; i++)
+                {
+                    Database.instance.VesselsInSOI.Remove(itemsToRemove[i]);
+                }
+                ResearchBodies.Instance.RBgameSettings.lastTimeCheckedSOIs = currentTime;
+            }
+        }
+
         /// <summary>
         /// Called by GameEvent onOffered. 
         /// If Contract name == "ConfiguredContract" it's a Contract Configurator mod contract, which is RB aware, so ignore it.
@@ -118,21 +186,22 @@ namespace ResearchBodies
             {
                 return;
             }
-            
-            foreach (ContractParameter cp in contract.AllParameters.ToList())
-            {
 
-                foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> body in Database.instance.CelestialBodies) 
+            var enumerator = contract.AllParameters.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                var entry = enumerator.Current;
+                foreach (KeyValuePair<CelestialBody, CelestialBodyInfo> body in Database.instance.CelestialBodies)
                 {
-                        if (!Database.instance.CelestialBodies[body.Key].isResearched && cp.Title.Contains(body.Key.GetName()))
-                        {
-                            TryWithDrawContract(contract);
-                            break;
-                        }
-                    
+                    if (!Database.instance.CelestialBodies[body.Key].isResearched && entry.Title.Contains(body.Key.GetName()))
+                    {
+                        TryWithDrawContract(contract);
+                        break;
+                    }
+
                 }
             }
-            
+            enumerator.Dispose();
         }
         private void TryWithDrawContract(Contract c)
         {
@@ -149,37 +218,111 @@ namespace ResearchBodies
         }
 
         /// <summary>
+        /// This is called on startup. Checks all Vessels SOIs and sets discovery and SOI tracking if any aren't.
+        /// </summary>
+        private void CheckVesselsSOI()
+        {
+            for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
+            {
+                if (FlightGlobals.Vessels[i].mainBody != null)
+                {
+                    ProcessVesselToSOI(FlightGlobals.Vessels[i].mainBody, FlightGlobals.Vessels[i]);
+                }
+            }
+        }
+
+        /// <summary>
         /// When a SOI change is triggered by GameEvents we check if the TO body Is Discovered or NOT.
         /// If it is not discovered we make it discovered.
         /// If it's researchState is less than 100 we set it to 100.
         /// Finally we set the discovery Level and ProgressiveCBMap.
-        /// todo: change this dynamic to discover on SOI entry but gradually build up researchState over time as it remains in SOI.
         /// </summary>
         /// <param name="HostedfromtoAction"></param>
         private void onVesselSOIChanged(GameEvents.HostedFromToAction<Vessel, CelestialBody> HostedfromtoAction)
         {
-            if (Database.instance.CelestialBodies.ContainsKey(HostedfromtoAction.to))
+            //Remove tracking of vessel in SOI FROM CB.
+            if (Database.instance.VesselsInSOI.ContainsKey(HostedfromtoAction.from.bodyName))
             {
-                if (!Database.instance.CelestialBodies[HostedfromtoAction.to].isResearched)
+                CBVesselSOIInfo cbSOIInfo = Database.instance.VesselsInSOI[HostedfromtoAction.from.bodyName];
+                cbSOIInfo.RemoveVessel(HostedfromtoAction.host.persistentId);
+                //If the cb entry has no more vessels being tracked. remove the dictionary entry.
+                if (cbSOIInfo.vesselSOIInfo.Count <= 0)
+                {
+                    Database.instance.VesselsInSOI.Remove(HostedfromtoAction.from.bodyName);
+                }
+            }
+
+            ProcessVesselToSOI(HostedfromtoAction.to, HostedfromtoAction.host);
+        }
+
+        private void ProcessVesselToSOI(CelestialBody toBody, Vessel vsl)
+        {
+            if (Database.instance.CelestialBodies.ContainsKey(toBody))
+            {
+                //If it's not researched (found already) set it to found. and start tracking it's in SOI time.
+                if (!Database.instance.CelestialBodies[toBody].isResearched)
                 {
                     bool withparent;
                     CelestialBody parentCB;
-                    FoundBody(0, HostedfromtoAction.to, out withparent, out parentCB);
+                    FoundBody(0, toBody, out withparent, out parentCB);
                 }
-                if (Database.instance.CelestialBodies[HostedfromtoAction.to].researchState < 100)
-                { 
-                    Database.instance.CelestialBodies[HostedfromtoAction.to].researchState = 100;
-                    //ScreenMessages.PostScreenMessage(string.Format(Locales.currentLocale.Values["#autoLOC_RBodies_00012"],HostedfromtoAction.to.GetName(), Database.Instance.RB_SettingsParms.ScienceReward), 5f);
-                    //ResearchAndDevelopment.Instance.AddScience(Database.Instance.RB_SettingsParms.ScienceReward,TransactionReasons.None);
-                    ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00012", HostedfromtoAction.to.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
-                    ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
-                    var keyvalue = Database.instance.CelestialBodies.FirstOrDefault(a => a.Key.bodyName == HostedfromtoAction.to.bodyName);
-                    if (keyvalue.Key != null)
+                //Start tracking this vessel in this CB SOI if it's researchstate is less than 100%
+                if (Database.instance.CelestialBodies[toBody].researchState < 100)
+                {
+                    if (!Database.instance.VesselsInSOI.ContainsKey(toBody.bodyName))
                     {
-                        SetIndividualBodyDiscoveryLevel(keyvalue);
+                        CBVesselSOIInfo cbSOIInfo = new CBVesselSOIInfo(toBody.bodyName, vsl.persistentId, Planetarium.GetUniversalTime());
+                        Database.instance.VesselsInSOI.Add(toBody.bodyName, cbSOIInfo);
+                    }
+                    else
+                    {
+                        CBVesselSOIInfo cbSOIInfo = Database.instance.VesselsInSOI[toBody.bodyName];
+                        cbSOIInfo.AddVessel(vsl.persistentId, Planetarium.GetUniversalTime());
+                    }
+                }
+                //If it's researchstate < minimum amount for a discovery by flyby we reward the player for the discovery and set the CB discovery level.
+                if (Database.instance.CelestialBodies[toBody].researchState < Database.instance.DiscoveryByFlyby)
+                {
+                    Database.instance.CelestialBodies[toBody].researchState = Database.instance.DiscoveryByFlyby;
+                    ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00051", toBody.displayName, Database.instance.RB_SettingsParms.ScienceReward.ToString()), 5f);
+                    ResearchAndDevelopment.Instance.AddScience(Database.instance.RB_SettingsParms.ScienceReward, TransactionReasons.None);
+                    KeyValuePair<CelestialBody, CelestialBodyInfo> keyValue = new KeyValuePair<CelestialBody, CelestialBodyInfo>();
+                    var dictEnum = Database.instance.CelestialBodies.GetEnumerator();
+                    while (dictEnum.MoveNext())
+                    {
+                        var entry = dictEnum.Current;
+                        if (entry.Key.bodyName == toBody.bodyName)
+                        {
+                            keyValue = entry;
+                            break;
+                        }
+                    }
+                    dictEnum.Dispose();
+                    if (keyValue.Key != null)
+                    {
+                        SetIndividualBodyDiscoveryLevel(keyValue);
                     }
                 }
             }
+        }
+
+        private void onVesselPersistentIdChanged(uint oldId, uint newId)
+        {
+            //Go through the Database.instance.VesselsInSOI and change Id if found.
+            var dictEnum = Database.instance.VesselsInSOI.GetEnumerator();
+            while (dictEnum.MoveNext())
+            {
+                var entry = dictEnum.Current;
+                for (int i = 0; i < entry.Value.vesselSOIInfo.Count; i++)
+                {
+                    if (entry.Value.vesselSOIInfo[i].persistentId == oldId)
+                    {
+                        entry.Value.vesselSOIInfo[i].persistentId = newId;
+                    }
+                }
+            }
+
+            dictEnum.Dispose();
         }
 
         /// <summary>
@@ -422,11 +565,16 @@ namespace ResearchBodies
 
         public void SetIndividualBodyDiscoveryLevel(KeyValuePair<CelestialBody, CelestialBodyInfo> cb)
         {
-            if (!cb.Value.ignore)
+            if (!cb.Value.ignore) //If not already discovered at start of game.
             {
                 if (!cb.Value.isResearched)
                 {
                     SetBodyDiscoveryLevel(cb, DiscoveryLevels.Presence);
+                    //If research points are set already, call again to set the discovery level correctly.
+                    if (cb.Value.researchState > 10)
+                    {
+                        SetIndividualBodyDiscoveryLevel(cb);
+                    }
                 }
                 else if (cb.Value.isResearched && cb.Value.researchState < 50)
                 {
@@ -552,6 +700,24 @@ namespace ResearchBodies
                     }
                 }
             }
+        }
+
+        //Returns a duration value in seconds based on the Observatory upgrade level.
+        private double CBResearchDuration()
+        {
+            double durationValue = 1;
+            int level = Mathf.RoundToInt(ScenarioUpgradeableFacilities.GetFacilityLevel("Observatory") + 1);
+            if (level == 1)
+            {
+                durationValue = 0.5;
+            }
+            if (level == 2)
+            {
+                durationValue = 0.25;
+            }
+                
+            durationValue *= KSPUtil.dateTimeFormatter.Year;
+            return durationValue;
         }
     }
 }

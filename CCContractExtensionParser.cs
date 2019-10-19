@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using UniLinq;
 using System.Text;
 using UnityEngine;
 using KSP;
 using Strategies;
+#if (CC)
 using ContractConfigurator;
 using ContractConfigurator.ExpressionParser;
+#endif
 
 namespace ResearchBodies
 {

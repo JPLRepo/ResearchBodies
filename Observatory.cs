@@ -248,7 +248,7 @@ namespace ResearchBodies
                     newupgradelevels[0].facilityPrefab.transform.rotation = upgradeablefacility.transform.rotation;
                     newupgradelevels[0].facilityPrefab.transform.localPosition = upgradeablefacility.transform.position;
                     newupgradelevels[0].facilityPrefab.transform.localRotation = upgradeablefacility.transform.rotation;
-                    var targetBuildingTransform = newupgradelevels[0].facilityPrefab.transform.FindChild("RB_observatory");
+                    var targetBuildingTransform = newupgradelevels[0].facilityPrefab.transform.Find("RB_observatory");
                     targetBuildingTransform.localPosition = new Vector3(21.03f, 0.37f, 4.35f);
                     Quaternion rotation = Quaternion.Euler(0f, 248.023f, 0f);
                     targetBuildingTransform.localRotation = rotation;
@@ -299,7 +299,7 @@ namespace ResearchBodies
                     newupgradelevels[1].facilityPrefab.transform.rotation = upgradeablefacility.transform.rotation;
                     newupgradelevels[1].facilityPrefab.transform.localPosition = upgradeablefacility.transform.localPosition;
                     newupgradelevels[1].facilityPrefab.transform.localRotation = upgradeablefacility.transform.rotation;
-                    var targetBuildingTransform = newupgradelevels[1].facilityPrefab.transform.FindChild("RB_observatory");
+                    var targetBuildingTransform = newupgradelevels[1].facilityPrefab.transform.Find("RB_observatory");
                     targetBuildingTransform.localPosition = new Vector3(26.25f, 0.39f, 7.93f);
                     Quaternion rotation = Quaternion.Euler(0f, -111.97f, 0f);
                     targetBuildingTransform.localRotation = rotation;
@@ -373,9 +373,9 @@ namespace ResearchBodies
                         //Utilities.DumpGameObjectHierarchy(upgradeablefacility.UpgradeLevels[0].facilityPrefab);
                         //Utilities.DumpGameObjectHierarchy(destructibles[0].gameObject);
 
-                        var targetBuildingTransform = upgradeablefacility.UpgradeLevels[0].facilityPrefab.transform.FindChild("RB_observatory");
-                        var collapseObjectReference = upgradeablefacility.UpgradeLevels[0].facilityPrefab.transform.FindChild("RB_observatory/RB_Observatorylvl0");
-                        var fxTargetReference = upgradeablefacility.UpgradeLevels[0].facilityPrefab.transform.FindChild("RB_observatory/FxTarget");
+                        var targetBuildingTransform = upgradeablefacility.UpgradeLevels[0].facilityPrefab.transform.Find("RB_observatory");
+                        var collapseObjectReference = upgradeablefacility.UpgradeLevels[0].facilityPrefab.transform.Find("RB_observatory/RB_Observatorylvl0");
+                        var fxTargetReference = upgradeablefacility.UpgradeLevels[0].facilityPrefab.transform.Find("RB_observatory/FxTarget");
                         if (targetBuildingTransform != null && collapseObjectReference != null && fxTargetReference != null)
                         {
                             addDestructibleComponent(destructibles[0], newlvl0destructible, targetBuildingTransform, collapseObjectReference.gameObject, fxTargetReference, tempGo, 20000f);
@@ -399,7 +399,7 @@ namespace ResearchBodies
                     {
                         if (prefabspawner[x].Prefabs[0].prefab.name == ("Wreck_RubblePileSmall"))
                         {
-                            WreckTransform = newupgradelevels[0].facilityPrefab.transform.FindChild("RB_observatory/wreck/wreckSpawner");
+                            WreckTransform = newupgradelevels[0].facilityPrefab.transform.Find("RB_observatory/wreck/wreckSpawner");
                             if (WreckTransform != null)
                             {
                                 // WreckTransform.gameObject.AddComponent<NestedPrefabSpawner>(prefabspawner[x]);
@@ -442,9 +442,9 @@ namespace ResearchBodies
                         //print("Observatory prefab level 0 destructible dump");
                         //Utilities.DumpGameObjectHierarchy(upgradeablefacility.UpgradeLevels[1].facilityPrefab);
 
-                        var targetBuildingTransform = upgradeablefacility.UpgradeLevels[1].facilityPrefab.transform.FindChild("RB_observatory");
-                        var collapseObjectReference = upgradeablefacility.UpgradeLevels[1].facilityPrefab.transform.FindChild("RB_observatory/RB_Observatorylvl1");
-                        var fxTargetReference = upgradeablefacility.UpgradeLevels[1].facilityPrefab.transform.FindChild("RB_observatory/FxTarget");
+                        var targetBuildingTransform = upgradeablefacility.UpgradeLevels[1].facilityPrefab.transform.Find("RB_observatory");
+                        var collapseObjectReference = upgradeablefacility.UpgradeLevels[1].facilityPrefab.transform.Find("RB_observatory/RB_Observatorylvl1");
+                        var fxTargetReference = upgradeablefacility.UpgradeLevels[1].facilityPrefab.transform.Find("RB_observatory/FxTarget");
                         if (targetBuildingTransform != null && collapseObjectReference != null && fxTargetReference != null)
                         {
                             addDestructibleComponent(destructibles[0], newlvl1destructible, targetBuildingTransform, collapseObjectReference.gameObject, fxTargetReference, tempGo, 200000f);
@@ -468,7 +468,7 @@ namespace ResearchBodies
                     {
                         if (prefabspawner[x].Prefabs[0].prefab.name == ("Wreck_RubblePile"))
                         {
-                            WreckTransform = newupgradelevels[1].facilityPrefab.transform.FindChild("RB_observatory/wreck/wreckSpawner");
+                            WreckTransform = newupgradelevels[1].facilityPrefab.transform.Find("RB_observatory/wreck/wreckSpawner");
                             if (WreckTransform != null)
                             {
                                 // WreckTransform.gameObject.AddComponent<NestedPrefabSpawner>(prefabspawner[x]);
@@ -557,7 +557,7 @@ namespace ResearchBodies
                     level0prefabspawner.Prefabs[0].Despawn();
                     if (newlvl0destructible != null)
                         newlvl0destructible.CollapsibleObjects[0].replacementObject.SetActive(false);
-                    WreckTransform = newupgradelevels[0].facilityPrefab.transform.FindChild("RB_observatory/wreck/wreckSpawner");
+                    WreckTransform = newupgradelevels[0].facilityPrefab.transform.Find("RB_observatory/wreck/wreckSpawner");
                     if (WreckTransform != null)
                         WreckTransform.gameObject.SetActive(true);
                 }
@@ -566,7 +566,7 @@ namespace ResearchBodies
                     level1prefabspawner.Prefabs[0].Despawn();
                     if (newlvl1destructible != null)
                         newlvl1destructible.CollapsibleObjects[0].replacementObject.SetActive(false);
-                    WreckTransform = newupgradelevels[1].facilityPrefab.transform.FindChild("RB_observatory/wreck/wreckSpawner");
+                    WreckTransform = newupgradelevels[1].facilityPrefab.transform.Find("RB_observatory/wreck/wreckSpawner");
                     if (WreckTransform != null)
                         WreckTransform.gameObject.SetActive(true);
                 }
@@ -708,7 +708,7 @@ namespace ResearchBodies
                     destBuilding.RepairFXPrefab.gameObject.transform.NestToParent(tempGo.transform);
 
                     
-                    WreckTransform = targetBuildingTransform.FindChild("wreck");
+                    WreckTransform = targetBuildingTransform.Find("wreck");
                     destBuilding.CollapsibleObjects[0].replacementObject = WreckTransform.gameObject;
                 }
             }
@@ -1095,7 +1095,7 @@ namespace ResearchBodies
 
         private void setuptelescopeAnim()
         {
-            var targetTransform = base.Facility.UpgradeLevels[0].facilityPrefab.transform.FindChild("RB_observatory");
+            var targetTransform = base.Facility.UpgradeLevels[0].facilityPrefab.transform.Find("RB_observatory");
             if (targetTransform != null)
             {
                 telescope_anim = targetTransform.GetComponent<Animation>();
