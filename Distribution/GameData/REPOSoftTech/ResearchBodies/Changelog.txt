@@ -1,4 +1,7 @@
-﻿V1.10.0 (06-24-2019) ==
+-= V1.11.0 (2020) =-
+*Fix for ResearchBodiesMMRemoteTech.cfg breaks other mods #48
+
+V1.10.0 (06-24-2019) ==
 *Re-compile for KSP 1.7.x
 *Fix NREs when entering tracking station.
 V1.9.9 (02-17-2019) ==
