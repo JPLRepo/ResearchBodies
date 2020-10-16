@@ -1,4 +1,13 @@
-﻿V1.10.0 (06-24-2019) ==
+﻿V1.12.0 (09-17-2020)
+*Re-compile for KSP 1.10.x.
+*Fix RemoteTech MM patch file.
+V1.11.0 (10-19-2019) ==
+*Re-compile for KSP 1.8.x
+*Code Garbage generation improvements.
+*Add Remote Tech antenna to TB-75.
+*If you encounter a planet without having discovered or fully researched it it will now no longer set it to fully discovered.
+Instead it will initially set the discovery to 40% and then over time whilst the vessel stays in the SOI of the planet it will slowly increase the discovery percentage.
+V1.10.0 (06-24-2019) ==
 *Re-compile for KSP 1.7.x
 *Fix NREs when entering tracking station.
 V1.9.9 (02-17-2019) ==

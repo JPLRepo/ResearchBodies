@@ -13,8 +13,9 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using System.Reflection;
+using UniLinq;
 using UnityEngine;
 
 namespace ResearchBodies
@@ -72,10 +73,15 @@ namespace ResearchBodies
             _portrait = new RenderTexture(PortraitWidth, PortraitWidth, 8);
             _instructor.instructorCamera.targetTexture = _portrait;
 
-            _responses = _instructor.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance)
-                .Where(fi => fi.FieldType == typeof(CharacterAnimationState))
-                .Where(fi => fi.GetValue(_instructor) != null)
-                .ToDictionary(fi => new GUIContent(fi.Name), fi => fi.GetValue(_instructor) as CharacterAnimationState);
+            _responses = new Dictionary<GUIContent, CharacterAnimationState>();
+            FieldInfo[] fields = _instructor.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (fields[i].FieldType == typeof(CharacterAnimationState) && fields[i].GetValue(_instructor) != null)
+                {
+                    _responses.Add(new GUIContent(fields[i].Name), fields[i].GetValue(_instructor) as CharacterAnimationState);
+                }
+            }
         }
 
         public void Destroy()

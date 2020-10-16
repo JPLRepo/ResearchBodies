@@ -53,7 +53,9 @@ namespace ResearchBodies
         private bool ObsLvl3 = false;
         private Transform tmpTransform;
         internal bool French;
+#if (CC)
         private ContractConfigurator.ConfiguredContract configuredContract;
+#endif
 
         //private static string LOCK_ID = "ResearchBodies_KeyBinder";
 
@@ -63,8 +65,8 @@ namespace ResearchBodies
             windowRect = new Rect(1, 1, Utilities.scaledScreenWidth  - 2, Utilities.scaledScreenHeight - 2);
         }
 
-        #region Debug Facility
-        #if DEBUGFACILITY
+#region Debug Facility
+#if DEBUGFACILITY
         private void Update()
         {
 
@@ -289,8 +291,8 @@ namespace ResearchBodies
             }
 
         }
-        #endif
-        #endregion
+#endif
+#endregion
 
         public void OnGUI()
         {
@@ -344,12 +346,12 @@ namespace ResearchBodies
             }
 
             GUI.skin = Textures.ObsSkin;
-            #if DEBUGFACILITY
+#if DEBUGFACILITY
             if (showObsdebugUI)
             {
                 observRect = GUILayout.Window(_RBwindowId + 1, observRect, DrawObservDebug, "Research Bodies");
             }
-            #endif
+#endif
             
             if (PSystemSetup.Instance.GetSpaceCenterFacility("TrackingStation").GetFacilityDamage() > 0)
             {
@@ -382,7 +384,7 @@ namespace ResearchBodies
             }
             GUILayout.BeginVertical();
 
-            #region Top Half Screen
+#region Top Half Screen
             //Screen Top Half Starts
             GUILayout.BeginHorizontal();
             GUILayout.BeginArea(new Rect((Utilities.scaledScreenWidth / 2) - 380, 50, 760, 500));
@@ -390,7 +392,7 @@ namespace ResearchBodies
             GUILayout.BeginVertical();
             GUILayout.BeginVertical();
 
-            #region Wernher_Portrait Panel 1
+#region Wernher_Portrait Panel 1
 
             InstructorscrollViewVector = GUILayout.BeginScrollView(InstructorscrollViewVector, GUILayout.Width(248), GUILayout.Height(186));
             GUILayout.BeginVertical();
@@ -412,12 +414,12 @@ namespace ResearchBodies
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
 
-            #endregion
+#endregion
             
             GUILayout.EndVertical();
             GUILayout.BeginVertical();
 
-            #region BodyList Panel 2
+#region BodyList Panel 2
 
             scrollViewVector = GUILayout.BeginScrollView(scrollViewVector, GUILayout.Width(248), GUILayout.Height(300));
             GUILayout.BeginVertical();
@@ -448,7 +450,7 @@ namespace ResearchBodies
             GUILayout.EndVertical();
             GUILayout.BeginVertical();
 
-            #region Research Panel 3
+#region Research Panel 3
 
             ResearchscrollViewVector = GUILayout.BeginScrollView(ResearchscrollViewVector, GUILayout.Width(500), GUILayout.Height(485));
             GUILayout.BeginVertical();
@@ -539,16 +541,16 @@ namespace ResearchBodies
 
             GUILayout.EndVertical();
             GUILayout.EndScrollView();
-            #endregion
+#endregion
 
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
             GUILayout.EndHorizontal();
             //Screen Top Half Ends.
-            #endregion
+#endregion
 
-            #region Bottom Half Screen
+#region Bottom Half Screen
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
             {
                 GUILayout.BeginHorizontal();
@@ -557,7 +559,7 @@ namespace ResearchBodies
 
                 GUILayout.BeginVertical();
 
-                #region Linus_Portrait Panel 1
+#region Linus_Portrait Panel 1
 
                 InstructorscrollViewVector = GUILayout.BeginScrollView(InstructorscrollViewVector, GUILayout.Width(248), GUILayout.Height(186));
                 GUILayout.BeginVertical();
@@ -579,12 +581,12 @@ namespace ResearchBodies
                 GUILayout.EndVertical();
                 GUILayout.EndScrollView();
 
-                #endregion
+#endregion
                                 
                 GUILayout.EndVertical();
 
 
-                #region ContractsSection
+#region ContractsSection
                 ContractsscrollViewVector = GUILayout.BeginScrollView(ResearchscrollViewVector, GUILayout.Width(500), GUILayout.Height(186));
                 GUILayout.BeginVertical();
 
@@ -593,7 +595,7 @@ namespace ResearchBodies
                 for (int i = 0; i < Contracts.ContractSystem.Instance.Contracts.Count; ++i)
                 {
                     Contract contract = Contracts.ContractSystem.Instance.Contracts[i];
-
+#if (CC)
                     if (contract.ContractState == Contract.State.Active)
                     {                        
                         ContractConfigurator.ConfiguredContract configuredContract = contract as ContractConfigurator.ConfiguredContract;
@@ -616,16 +618,17 @@ namespace ResearchBodies
                             }                            
                         }                                              
                     }
+#endif
                 }
                 GUILayout.EndVertical();
                 GUILayout.EndScrollView();
-                #endregion
+#endregion
 
                 GUILayout.EndHorizontal();
                 GUILayout.EndArea();
                 GUILayout.EndHorizontal();                
             }
-            #endregion
+#endregion
 
             GUILayout.EndVertical();
             Utilities.SetTooltipText();            
