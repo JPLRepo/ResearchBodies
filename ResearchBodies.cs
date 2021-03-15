@@ -35,10 +35,10 @@ namespace ResearchBodies
 
         public ResearchBodies()
         {
-            RSTLogWriter.Log("ResearchBodies Constructor");
+            //RSTLogWriter.Log("ResearchBodies Constructor");
             if (Instance != null)
             {
-                RSTLogWriter.Log("Instance exists, destroying Usurper");
+                //RSTLogWriter.Log("Instance exists, destroying Usurper");
                 Destroy(this);
             }
             Instance = this;

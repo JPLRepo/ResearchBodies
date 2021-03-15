@@ -24,6 +24,7 @@ namespace ProgressiveCBMaps
 		public MeshRenderer mesh;
 		public Texture originalMainTex;
 		public Texture originalBumpMap;
+        public Texture2D blankBumpMap;
 	    public bool hasBumpMap;
 		public Texture2D newScaledMap;
 		public Texture2D smallScaledMap;
@@ -58,8 +59,19 @@ namespace ProgressiveCBMaps
 			    {
 			        originalBumpMap = mesh.material.GetTexture("_BumpMap");
 			        hasBumpMap = true;
-			    }
-			    if (mesh.material.HasProperty("_Shininess"))
+                    blankBumpMap = new Texture2D(originalBumpMap.width, originalBumpMap.height, TextureFormat.ARGB32, true);
+                   
+                    for (int y = 0; y < originalBumpMap.height; y++)
+                    {
+                        for (int x = 0; x < originalBumpMap.width; x++)
+                        {
+                            blankBumpMap.SetPixel(x, y, new Color(1.0f, 1.0f, 1.0f, 1.0f));
+                        }
+                    }
+                    blankBumpMap.Apply(true);
+
+                }
+                if (mesh.material.HasProperty("_Shininess"))
 			    {
 			        hasShininess = true;
                     var s = mesh.material.GetFloat("_Shininess");
@@ -401,8 +413,8 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setBumpOff()
 		{
-            if (hasBumpMap)
-                mesh.material.SetTexture("_BumpMap", null);
+            if (hasBumpMap && blankBumpMap != null)
+                mesh.material.SetTexture("_BumpMap", blankBumpMap);
 		}
 
 		/// <summary>
