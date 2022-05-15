@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("REPOSoftTech")]
 [assembly: AssemblyProduct("ResearchBodies")]
-[assembly: AssemblyCopyright("Copyright © Jamie Leighton 2016")]
+[assembly: AssemblyCopyright("Copyright © Jamie Leighton 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -255,6 +255,7 @@ namespace ResearchBodies
         {
             if (HostedfromtoAction.host.vesselType == VesselType.Debris ||
                 HostedfromtoAction.host.vesselType == VesselType.Unknown ||
+                HostedfromtoAction.host.vesselType == VesselType.DroppedPart ||
                 HostedfromtoAction.host.vesselType == VesselType.SpaceObject)
             {
                 return;
@@ -473,7 +474,7 @@ namespace ResearchBodies
                     {
                         //Funding.Instance.AddFunds(-Database.Instance.RB_SettingsParms.ResearchCost, TransactionReasons.None);
                         Funding.Instance.AddFunds(-Database.instance.RB_SettingsParms.ResearchCost, TransactionReasons.Progression);
-                        Research(cbKey, 10);
+                        Research(cbKey, (int)Database.instance.ResearchPlanPercentage);
                     }
                     else
                         ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00014", cbKey.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
@@ -482,7 +483,7 @@ namespace ResearchBodies
                 {
                     if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                     {
-                        Research(cbKey, 10);
+                        Research(cbKey, (int)Database.instance.ResearchPlanPercentage);
                     }
                 }
             }
