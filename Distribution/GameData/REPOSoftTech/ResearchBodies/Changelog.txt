@@ -1,4 +1,14 @@
-﻿V1.12.0 (09-17-2020)
+﻿V1.13.0 (10/04/2021)
+*Re-compile for KSP 1.12.x.
+*Fix issue where CBs were becomming visible when they shouldn't be.
+*Fix issue where CB visibility was not being reset when loading different save games in the same game session.
+*Fix issue where errors would occur and game stuck when entering the SOI of a CB that hadn't been discovered before.
+*Fix issue where Asteroids entering CBs were making them discovered.
+*Fix issue with bumpmaps on CBs.
+*Fix issue with lighting on CBs.
+*Added setting to DAtabase.cfg file that allows the player to manually change the research percentage step for research plans. (Default 10%).
+*Fix RCS FX on TRBH-75M telescope (thanks linuxgurugamer).
+V1.12.0 (09-17-2020)
 *Re-compile for KSP 1.10.x.
 *Fix RemoteTech MM patch file.
 V1.11.0 (10-19-2019) ==

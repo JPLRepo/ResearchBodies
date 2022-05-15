@@ -41,6 +41,7 @@ namespace ResearchBodies
         public float Observatorylvl2Range;
         public bool AllowOldResearchinCareer;
         public int DiscoveryByFlyby;
+        public float ResearchPlanPercentage;
 
         /// <summary>
         /// Tarsier Space Tech Interface fields
@@ -219,6 +220,7 @@ namespace ResearchBodies
             Observatorylvl2Range = float.Parse(researchBodies.GetValue("observatorylvl2range"));
             AllowOldResearchinCareer = bool.Parse(researchBodies.GetValue("allowOldResearchinCareer"));
             DiscoveryByFlyby = int.Parse(researchBodies.GetValue("discoveryByFlyby"));
+            ResearchPlanPercentage = float.Parse(researchBodies.GetValue("ResearchPlanPercentage"));
 
             //Get Costs
             string[] _startResearchCosts;

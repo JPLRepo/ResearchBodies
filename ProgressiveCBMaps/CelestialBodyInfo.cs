@@ -23,7 +23,8 @@ namespace ProgressiveCBMaps
 		public CelestialBody Body;
 		public MeshRenderer mesh;
 		public Texture originalMainTex;
-		public Texture originalBumpMap;
+		public Texture2D originalBumpMap;
+        public Texture2D blankBumpMap;
 	    public bool hasBumpMap;
 		public Texture2D newScaledMap;
 		public Texture2D smallScaledMap;
@@ -41,8 +42,10 @@ namespace ProgressiveCBMaps
 		public List<EVEWrapper.EVECloudsPQS> cloudsPQS;
 		public float originalCloudsDetailScale;
 		private bool originalCloudsDetailScaleSet = false;
+        private Shader simpleShader;
+        private Shader originalShader;
 
-		/// <summary>
+        /// <summary>
 		/// Contructor. Caches original settings.
 		/// </summary>
 		/// <param name="body">The Celestial Body</param>
@@ -56,10 +59,23 @@ namespace ProgressiveCBMaps
                 originalMainTex = mesh.material.GetTexture("_MainTex");
 			    if (mesh.material.HasProperty("_BumpMap"))
 			    {
-			        originalBumpMap = mesh.material.GetTexture("_BumpMap");
+			        originalBumpMap = (Texture2D) mesh.material.GetTexture("_BumpMap");
 			        hasBumpMap = true;
-			    }
-			    if (mesh.material.HasProperty("_Shininess"))
+                    blankBumpMap = new Texture2D(originalBumpMap.width, originalBumpMap.height, TextureFormat.ARGB32, true);
+                    blankBumpMap.filterMode = FilterMode.Trilinear;
+                    blankBumpMap.wrapMode = TextureWrapMode.Clamp;
+                    for (int y = 0; y < originalBumpMap.height; y++)
+                    {
+                        for (int x = 0; x < originalBumpMap.width; x++)
+                        {
+                            blankBumpMap.SetPixel(x, y, new Color(1.0f, 1.0f, 1.0f, 0.5f));
+                        }
+                    }
+					
+                    blankBumpMap.Apply(true);
+
+                }
+                if (mesh.material.HasProperty("_Shininess"))
 			    {
 			        hasShininess = true;
                     var s = mesh.material.GetFloat("_Shininess");
@@ -83,7 +99,9 @@ namespace ProgressiveCBMaps
 			}
 			currentDetailLevel = 6;
 			cloudsPQS = new List<EVEWrapper.EVECloudsPQS>();
-		}
+            simpleShader = Shader.Find("Terrain/PlanetDiffuseFade");
+            originalShader = mesh.material.shader;
+        }
 
 		/// <summary>
 		/// Set visual details settings on
@@ -171,9 +189,9 @@ namespace ProgressiveCBMaps
 				    //shiny = 0;
 				    shiny = originalshiny;
                     currentDetailLevel = 1;
+                    setBumpOff();
                     setVisualOn(true);
-					setBumpOff();
-					processEVEClouds();
+                    processEVEClouds();
 					break;
 
 				case 2:
@@ -189,9 +207,9 @@ namespace ProgressiveCBMaps
 				    //shiny = 0;
 				    shiny = originalshiny;
                     currentDetailLevel = 2;
+                    setBumpOff();
                     setVisualOn(true);
-					setBumpOff();
-					processEVEClouds();
+                    processEVEClouds();
 					break;
 
 				case 3:
@@ -207,9 +225,9 @@ namespace ProgressiveCBMaps
                     //shiny = originalshiny/2;
 				    shiny = originalshiny;
                     currentDetailLevel = 3;
+                    setBumpOff();
                     setVisualOn(true);
-					setBumpOff();
-					processEVEClouds();
+                    processEVEClouds();
 					break;
 
 				case 4:
@@ -223,9 +241,9 @@ namespace ProgressiveCBMaps
                     visualHeight = Mathf.Max(128, originalvisualHeight / 4);
 					shiny = originalshiny;
                     currentDetailLevel = 4;
+                    setBumpOff();
                     setVisualOn(false);
-					setBumpOff();
-					processEVEClouds();
+                    processEVEClouds();
 					break;
 
 				case 5:
@@ -239,9 +257,9 @@ namespace ProgressiveCBMaps
                     visualHeight = originalvisualHeight / 2;
 					shiny = originalshiny;
                     currentDetailLevel = 5;
+                    setBumpOff();
                     setVisualOn(false);
-					setBumpOff();
-					processEVEClouds();
+                    processEVEClouds();
 					break;
 
 				case 6:
@@ -317,6 +335,7 @@ namespace ProgressiveCBMaps
 		{
 			if (mesh == null)
 				return;
+			setBumpOn();
 		    if (hasShininess)
 		    {
 		        mesh.material.SetFloat("_Shininess", originalshiny);
@@ -392,18 +411,30 @@ namespace ProgressiveCBMaps
 		/// </summary>
 		internal void setBumpOn()
 		{
-			if (hasBumpMap && originalBumpMap != null)
-				mesh.material.SetTexture("_BumpMap", originalBumpMap);
-		}
+            if (simpleShader != null && originalShader != null)
+            {
+                mesh.material.shader = originalShader;
+            }
+            if (hasBumpMap && originalBumpMap != null)
+            {
+                mesh.material.SetTexture("_BumpMap", originalBumpMap);
+            }
+        }
 
 		/// <summary>
 		/// Turns the bump map off
 		/// </summary>
 		internal void setBumpOff()
 		{
-            if (hasBumpMap)
-                mesh.material.SetTexture("_BumpMap", null);
-		}
+            if (simpleShader != null && originalShader != null)
+            {
+                mesh.material.shader = simpleShader;
+            }
+            //if (hasBumpMap && blankBumpMap != null)
+            //{
+            //    mesh.material.SetTexture("_BumpMap", blankBumpMap);
+            //}
+        }
 
 		/// <summary>
 		/// This takes the original visual map that was cached in the constructor method and turns it into a readable texture; 
@@ -415,18 +446,13 @@ namespace ProgressiveCBMaps
 		{
 			//if (newScaledMap == null)
 			newScaledMap = new Texture2D(originalMainTex.width, originalMainTex.height);
-
-			var rt = RenderTexture.GetTemporary(originalMainTex.width, originalMainTex.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, 1);
-
+			RenderTexture rt = RenderTexture.GetTemporary(originalMainTex.width, originalMainTex.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB, 1);
 			blit(rt);
 
 			RenderTexture.active = rt;
-
-			newScaledMap.ReadPixels(new Rect(0, 0, originalMainTex.width, originalMainTex.height), 0, 0);
-
-			RenderTexture.active = null;
+            newScaledMap.ReadPixels(new Rect(0, 0, originalMainTex.width, originalMainTex.height), 0, 0);
+            RenderTexture.active = null;
 			RenderTexture.ReleaseTemporary(rt);
-
 			rt = null;
 
 			newScaledMap.Apply();

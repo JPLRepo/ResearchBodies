@@ -126,6 +126,7 @@ namespace ResearchBodies
                     //if (Difficulty == 0) //If difficult == 0 user somehow hasn't selected new game difficulty. So show the startup UI.
                     //    ResearchBodiesController.instance.showStartUI = true;
                     ConfigNode vslsSOINode = new ConfigNode();
+                    Database.instance.VesselsInSOI.Clear();
                     if (RBsettingsNode.TryGetNode("VESSELSINSOI", ref vslsSOINode))
                     {
                         ConfigNode[] cbSOINodes = vslsSOINode.GetNodes(CBVesselSOIInfo.ConfigNodeName);

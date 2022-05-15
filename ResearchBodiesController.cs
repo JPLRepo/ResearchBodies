@@ -12,8 +12,8 @@
  *
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
-//using System.Linq;
 using UnityEngine;
 using Contracts;
 using KSP.Localization;
@@ -35,6 +35,8 @@ namespace ResearchBodies
         private double oneMonth;
         private int lvl1InSoiPercentage = 10;
         private int lvl2InSoiPercentage = 15;
+        private Coroutine processMapNodesRoutine;
+
         
         public void Awake()
         {
@@ -86,6 +88,11 @@ namespace ResearchBodies
             {
                 Database.instance.ResetBodyVisibilities();
                 SetBodyDiscoveryLevels();
+                GameEvents.OnMapEntered.Add(onMapEntered);
+                if (HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                {
+                    onMapEntered();
+                }
             }
 
             if (ResearchBodies.Instance.RBgameSettings.lastTimeCheckedSOIs <= 0)
@@ -140,7 +147,7 @@ namespace ResearchBodies
                         itemsToRemove.Add(entry.Key);
                         continue;
                     }
-                    if (Database.instance.CelestialBodies[body].researchState >= 100)
+                    if (Database.instance.CelestialBodies.ContainsKey(body) && Database.instance.CelestialBodies[body].researchState >= 100)
                     {
                         itemsToRemove.Add(entry.Key);
                         continue;
@@ -224,6 +231,12 @@ namespace ResearchBodies
         {
             for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
             {
+                if (FlightGlobals.Vessels[i].vesselType == VesselType.Debris ||
+                    FlightGlobals.Vessels[i].vesselType == VesselType.Unknown ||
+                        FlightGlobals.Vessels[i].vesselType == VesselType.SpaceObject)
+                {
+                    continue;
+                }
                 if (FlightGlobals.Vessels[i].mainBody != null)
                 {
                     ProcessVesselToSOI(FlightGlobals.Vessels[i].mainBody, FlightGlobals.Vessels[i]);
@@ -240,6 +253,13 @@ namespace ResearchBodies
         /// <param name="HostedfromtoAction"></param>
         private void onVesselSOIChanged(GameEvents.HostedFromToAction<Vessel, CelestialBody> HostedfromtoAction)
         {
+            if (HostedfromtoAction.host.vesselType == VesselType.Debris ||
+                HostedfromtoAction.host.vesselType == VesselType.Unknown ||
+                HostedfromtoAction.host.vesselType == VesselType.DroppedPart ||
+                HostedfromtoAction.host.vesselType == VesselType.SpaceObject)
+            {
+                return;
+            }
             //Remove tracking of vessel in SOI FROM CB.
             if (Database.instance.VesselsInSOI.ContainsKey(HostedfromtoAction.from.bodyName))
             {
@@ -454,7 +474,7 @@ namespace ResearchBodies
                     {
                         //Funding.Instance.AddFunds(-Database.Instance.RB_SettingsParms.ResearchCost, TransactionReasons.None);
                         Funding.Instance.AddFunds(-Database.instance.RB_SettingsParms.ResearchCost, TransactionReasons.Progression);
-                        Research(cbKey, 10);
+                        Research(cbKey, (int)Database.instance.ResearchPlanPercentage);
                     }
                     else
                         ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_RBodies_00014", cbKey.displayName),3.0f, ScreenMessageStyle.UPPER_CENTER);
@@ -463,7 +483,7 @@ namespace ResearchBodies
                 {
                     if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                     {
-                        Research(cbKey, 10);
+                        Research(cbKey, (int)Database.instance.ResearchPlanPercentage);
                     }
                 }
             }
@@ -490,64 +510,45 @@ namespace ResearchBodies
 
         public void onMapEntered()
         {
-            if (MapNode.AllMapNodes.Count == 0)
+            if (processMapNodesRoutine == null)
             {
-                base.StartCoroutine(CallbackUtil.DelayedCallback(10, new Callback(this.processMapNodes)));
-            }
-            else
-            {
-                bool containsCBs = false;
-                for(int mnI = 0; mnI < MapNode.AllMapNodes.Count; mnI++)
-                {
-                    if (MapNode.AllMapNodes[mnI].mapObject != null)
-                    {
-                        if (MapNode.AllMapNodes[mnI].mapObject.celestialBody != null)
-                        {
-                            containsCBs = true;
-                            break;
-                        }
-                    }
-                }
-                if (containsCBs)
-                {
-                    processMapNodes();
-                }
-                else
-                {
-                    base.StartCoroutine(CallbackUtil.DelayedCallback(10, new Callback(this.processMapNodes)));
-                }
+                processMapNodesRoutine = StartCoroutine(processMapNodes());
             }
         }
 
-        private void processMapNodes()
+        private IEnumerator processMapNodes()
         {
+            while (MapNode.AllMapNodes.Count <= 5) //The first 5 are the KSC/Launchsites stuff.
+            {
+                yield return null;
+            }
+            yield return null;
+            yield return null;
+            yield return null;
+            yield return null;
+            yield return null;
             List<MapNode> allNodes = MapNode.AllMapNodes;
             for (int i = 0; i < allNodes.Count; i++)
             {
                 MapNode currentNode = allNodes[i];
-                if (currentNode != null)
+                if (currentNode != null && currentNode.mapObject != null && currentNode.mapObject.celestialBody != null)
                 {
-                    if (currentNode.mapObject != null)
+                    if (Database.instance.CelestialBodies.ContainsKey(currentNode.mapObject.celestialBody))
                     {
-                        if (currentNode.mapObject.celestialBody != null)
+                        CelestialBodyInfo dbCBvalue = Database.instance.CelestialBodies[currentNode.mapObject.celestialBody];
+                        if (!dbCBvalue.isResearched && enable)
                         {
-                            if (Database.instance.CelestialBodies.ContainsKey(currentNode.mapObject.celestialBody))
-                            {
-                                CelestialBodyInfo dbCBvalue =
-                                    Database.instance.CelestialBodies[currentNode.mapObject.celestialBody];
-                                if (!dbCBvalue.isResearched)
-                                {
-                                    currentNode.VisualIconData.iconEnabled = false;
-                                }
-                                else
-                                {
-                                    currentNode.VisualIconData.iconEnabled = true;
-                                }
-                            }
+                            currentNode.VisualIconData.iconEnabled = false;
+                        }
+                        else
+                        {
+                            currentNode.VisualIconData.iconEnabled = true;
                         }
                     }
                 }
-            }            
+            }
+            yield return null;
+            processMapNodesRoutine = null;
         }
 
         /// <summary>
